@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     // Create verification token
     const verificationToken = await generateVerificationToken(email);
 
-    // Create company and user in a transaction
+    // Create company and unverified user in a transaction
     const result = await prisma.$transaction(async (tx) => {
       const company = await tx.company.create({
         data: {
@@ -60,6 +60,7 @@ export async function POST(req: Request) {
           password: hashedPassword,
           companyId: company.id,
           role: "ADMIN",
+          emailVerified: null, // User starts as unverified
         },
       });
 
