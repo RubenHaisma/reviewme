@@ -1,13 +1,25 @@
-import getServerSession from "next-auth";
+import { auth } from "../api/auth/[...nextauth]/route"; // Import from your auth route
 import { redirect } from "next/navigation";
-import { authOptions } from "../api/auth/[...nextauth]/route";
 import { DashboardOverview } from "@/components/dashboard/overview";
 import { prisma } from "@/lib/prisma";
 
-export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
+// Custom session type (same as above)
+interface CustomUser {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  role: string;
+  companyId: number | null;
+}
 
-  if (!session?.user?.companyId) {
+interface CustomSession extends Record<string, unknown> {
+  user?: CustomUser;
+}
+
+export default async function DashboardPage() {
+  const session = (await auth()) as CustomSession | null;
+
+  if (!session || !session.user || !session.user.companyId) {
     redirect("/auth/register");
   }
 
