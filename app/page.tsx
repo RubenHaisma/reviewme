@@ -1,22 +1,38 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Star, ChartBar, MessageCircle, Settings, CheckCircle } from 'lucide-react';
+import { Footer } from '@/components/layout/footer';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-background">
+      {/* Navigation */}
+      <nav className="border-b">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="text-xl font-bold">ReviewFlow</div>
+          <div className="flex items-center gap-4">
+            <Link href="/auth/login">
+              <Button variant="ghost">Sign In</Button>
+            </Link>
+            <Link href="/auth/register">
+              <Button>Get Started</Button>
+            </Link>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
       <header className="relative overflow-hidden bg-background pt-16 pb-32">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-6xl">
               Transform Your Customer Reviews
             </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto">
+            <p className="mt-6 text-lg leading-8 text-muted-foreground">
               Start collecting and managing customer feedback today. Get your first 20 customers completely free, 
               then choose a plan that grows with your business.
             </p>
-            <div className="mt-10 flex items-center justify-center gap-x-6">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
               <Link href="/auth/register">
                 <Button size="lg" className="bg-primary hover:bg-primary/90">Get Started Free</Button>
               </Link>
@@ -30,7 +46,7 @@ export default function Home() {
 
       {/* Features Section */}
       <section className="py-24 bg-muted/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3">
             <div className="flex flex-col items-center text-center">
               <div className="rounded-2xl bg-primary p-3 text-primary-foreground">
@@ -63,9 +79,44 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Integration Section */}
+      <section className="py-24 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold">Integrated with Your Favorite Tools</h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Connect with popular booking systems and CRMs
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="border rounded-lg p-6 hover:border-primary transition-colors">
+              <h3 className="text-xl font-semibold mb-2">Vertimart Integration</h3>
+              <p className="text-muted-foreground mb-4">
+                Seamlessly connect with Vertimart's booking system to automate review collection
+              </p>
+              <Button variant="outline" className="w-full">Connect Vertimart</Button>
+            </div>
+            <div className="border rounded-lg p-6 hover:border-primary transition-colors">
+              <h3 className="text-xl font-semibold mb-2">Calendly</h3>
+              <p className="text-muted-foreground mb-4">
+                Integrate with Calendly to automatically request reviews after appointments
+              </p>
+              <Button variant="outline" className="w-full">Connect Calendly</Button>
+            </div>
+            <div className="border rounded-lg p-6 hover:border-primary transition-colors">
+              <h3 className="text-xl font-semibold mb-2">Custom Integration</h3>
+              <p className="text-muted-foreground mb-4">
+                Use our API to build custom integrations for your specific needs
+              </p>
+              <Button variant="outline" className="w-full">View API Docs</Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Free Tier Section */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 bg-muted/50">
+        <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-primary">Start Free, Scale As You Grow</h2>
             <p className="mt-4 text-lg text-muted-foreground">
@@ -73,7 +124,7 @@ export default function Home() {
             </p>
           </div>
           <div className="max-w-3xl mx-auto">
-            <div className="bg-white rounded-lg shadow-lg border border-muted p-8">
+            <div className="bg-background rounded-lg shadow-lg border p-8">
               <h3 className="text-2xl font-bold mb-6">Free Starter Package</h3>
               <ul className="space-y-4">
                 {[
@@ -98,6 +149,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }

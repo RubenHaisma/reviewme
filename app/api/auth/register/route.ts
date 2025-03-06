@@ -4,17 +4,27 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { sendVerificationEmail } from "@/lib/email";
 import { generateVerificationToken } from "@/lib/tokens";
+import isURL from "validator/lib/isURL";
 
 const registerSchema = z.object({
-  companyName: z.string().min(2),
-  email: z.string().email(),
-  password: z.string().min(8),
+  companyName: z.string().min(2, "Company name must be at least 2 characters"),
+  companyWebsite: z.string().refine((url) => !url || isURL(url), {
+    message: "Please enter a valid URL",
+  }),
+  email: z.string().email("Please enter a valid email address"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number")
+    .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
 });
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { companyName, email, password } = registerSchema.parse(body);
+    const { companyName, companyWebsite, email, password } = registerSchema.parse(body);
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -39,6 +49,7 @@ export async function POST(req: Request) {
       const company = await tx.company.create({
         data: {
           name: companyName,
+          website: companyWebsite || null,
           remainingFreeCustomers: 20,
         },
       });
@@ -69,6 +80,7 @@ export async function POST(req: Request) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors }, { status: 400 });
     }
+    console.error("Registration error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

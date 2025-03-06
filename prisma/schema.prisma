@@ -43,21 +43,22 @@ model VerificationToken {
 }
 
 model Company {
-  id                String      @id @default(cuid())
-  name              String
-  googleReviewLink  String?
-  notifyEmail       String?
-  notifyOnNegative  Boolean     @default(false)
-  stripeCustomerId  String?     @unique
-  subscriptionId    String?
-  subscriptionStatus String?
-  remainingFreeCustomers Int @default(20)
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  users            User[]
-  appointments     Appointment[]
-  feedback         Feedback[]
-  webhookUrls      WebhookUrl[]
+  id                    String      @id @default(cuid())
+  name                  String
+  website               String?     
+  googleReviewLink      String?
+  notifyEmail          String?
+  notifyOnNegative     Boolean     @default(false)
+  stripeCustomerId     String?     @unique
+  subscriptionId       String?
+  subscriptionStatus   String?
+  remainingFreeCustomers Int       @default(20)
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  users                User[]
+  appointments         Appointment[]
+  feedback             Feedback[]
+  webhookUrls          WebhookUrl[]
 }
 
 model User {
@@ -65,7 +66,7 @@ model User {
   name          String?
   email         String    @unique
   emailVerified DateTime?
-  password      String?   // Added password field
+  password      String?
   image         String?
   companyId     String?
   role          UserRole  @default(USER)
