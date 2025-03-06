@@ -1,9 +1,10 @@
-import { auth } from "../api/auth/[...nextauth]/route"; // Import from your auth route
+import { auth } from "../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { DashboardOverview } from "@/components/dashboard/overview";
 import { prisma } from "@/lib/prisma";
+import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 
-// Custom session type (same as above)
 interface CustomUser {
   id: string;
   name?: string | null;
@@ -19,11 +20,11 @@ interface CustomSession extends Record<string, unknown> {
 export default async function DashboardPage() {
   const session = (await auth()) as CustomSession | null;
 
-  if (!session || !session.user || !session.user.companyId) {
+  if (!session?.user?.companyId) {
     redirect("/auth/register");
   }
 
-  const [recentFeedback, stats] = await Promise.all([
+  const [recentFeedback, stats, company] = await Promise.all([
     prisma.feedback.findMany({
       where: { companyId: session.user.companyId },
       orderBy: { createdAt: "desc" },
@@ -35,7 +36,41 @@ export default async function DashboardPage() {
       where: { companyId: session.user.companyId },
       _count: true,
     }),
+    prisma.company.findUnique({
+      where: { id: session.user.companyId },
+      select: { remainingFreeCustomers: true, subscriptionStatus: true },
+    }),
   ]);
 
-  return <DashboardOverview feedback={recentFeedback} stats={stats} />;
+  const totalCustomers = 20 - (company?.remainingFreeCustomers || 0);
+  const usagePercentage = (totalCustomers / 20) * 100;
+
+  return (
+    <div className="space-y-8">
+      {!company?.subscriptionStatus && company?.remainingFreeCustomers !== null && company.remainingFreeCustomers < 5 && (
+        <Card className="p-6 bg-primary/5 border-primary">
+          <h3 className="text-lg font-semibold text-primary mb-2">
+            Free Tier Usage
+          </h3>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>{company.remainingFreeCustomers} customers remaining</span>
+              <span>{totalCustomers}/20 used</span>
+            </div>
+            <Progress value={usagePercentage} className="h-2" />
+          </div>
+          {company.remainingFreeCustomers < 5 && (
+            <p className="mt-4 text-sm text-muted-foreground">
+              You're approaching your free tier limit. 
+              <a href="/dashboard/billing" className="text-primary font-medium ml-1 hover:underline">
+                Upgrade now
+              </a>
+            </p>
+          )}
+        </Card>
+      )}
+
+      <DashboardOverview feedback={recentFeedback} stats={stats} />
+    </div>
+  );
 }

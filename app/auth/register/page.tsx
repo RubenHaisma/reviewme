@@ -20,6 +20,7 @@ export default function RegisterPage() {
     const data = {
       companyName: formData.get("companyName") as string,
       email: formData.get("email") as string,
+      password: formData.get("password") as string,
     };
 
     try {
@@ -33,7 +34,7 @@ export default function RegisterPage() {
         throw new Error("Registration failed");
       }
 
-      toast.success("Registration successful! Check your email to continue.");
+      toast.success("Registration successful! Please check your email to verify your account.");
       router.push("/auth/login");
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
@@ -46,9 +47,9 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-md space-y-8 p-8">
         <div className="text-center">
-          <h2 className="text-2xl font-bold tracking-tight">Create an account</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-primary">Create your account</h2>
           <p className="text-sm text-muted-foreground mt-2">
-            Get started with ReviewFlow
+            Get started with ReviewFlow - First 20 customers free!
           </p>
         </div>
 
@@ -71,6 +72,18 @@ export default function RegisterPage() {
               name="email"
               type="email"
               autoComplete="email"
+              required
+              className="mt-1"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
               required
               className="mt-1"
             />

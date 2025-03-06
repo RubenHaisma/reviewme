@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Star, ChartBar, MessageCircle, Settings } from 'lucide-react';
+import { Star, ChartBar, MessageCircle, Settings, CheckCircle } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -12,13 +12,13 @@ export default function Home() {
             <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-6xl">
               Transform Your Customer Reviews
             </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Automatically collect and manage customer feedback, boost your Google reviews,
-              and handle negative feedback professionally.
+            <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto">
+              Start collecting and managing customer feedback today. Get your first 20 customers completely free, 
+              then choose a plan that grows with your business.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link href="/auth/register">
-                <Button size="lg">Get Started</Button>
+                <Button size="lg" className="bg-primary hover:bg-primary/90">Get Started Free</Button>
               </Link>
               <Link href="/auth/login">
                 <Button variant="outline" size="lg">Sign In</Button>
@@ -63,20 +63,37 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24">
+      {/* Free Tier Section */}
+      <section className="py-24 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Ready to improve your online reputation?
-            </h2>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Join hundreds of businesses already using our platform to manage their reviews.
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-primary">Start Free, Scale As You Grow</h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Get started with no upfront costs
             </p>
-            <div className="mt-10 flex items-center justify-center">
-              <Link href="/auth/register">
-                <Button size="lg">Start Free Trial</Button>
-              </Link>
+          </div>
+          <div className="max-w-3xl mx-auto">
+            <div className="bg-white rounded-lg shadow-lg border border-muted p-8">
+              <h3 className="text-2xl font-bold mb-6">Free Starter Package</h3>
+              <ul className="space-y-4">
+                {[
+                  'First 20 customers completely free',
+                  'Full access to all features',
+                  'Automated review collection',
+                  'Basic analytics dashboard',
+                  'Email notifications',
+                ].map((feature) => (
+                  <li key={feature} className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-primary mr-2" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-8">
+                <Link href="/auth/register">
+                  <Button className="w-full">Start Free Trial</Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

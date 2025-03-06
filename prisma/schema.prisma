@@ -51,6 +51,7 @@ model Company {
   stripeCustomerId  String?     @unique
   subscriptionId    String?
   subscriptionStatus String?
+  remainingFreeCustomers Int @default(20)
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
   users            User[]
