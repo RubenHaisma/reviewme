@@ -1,0 +1,119 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Company {
+  id                String      @id @default(cuid())
+  name              String
+  googleReviewLink  String?
+  notifyEmail       String?
+  notifyOnNegative  Boolean     @default(false)
+  stripeCustomerId  String?     @unique
+  subscriptionId    String?
+  subscriptionStatus String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  users            User[]
+  appointments     Appointment[]
+  feedback         Feedback[]
+  webhookUrls      WebhookUrl[]
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  companyId     String?
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  company       Company?  @relation(fields: [companyId], references: [id])
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Appointment {
+  id            String    @id @default(cuid())
+  companyId     String
+  customerName  String
+  customerEmail String
+  date          DateTime
+  feedbackSent  Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  company       Company   @relation(fields: [companyId], references: [id])
+  feedback      Feedback?
+}
+
+model Feedback {
+  id                String    @id @default(cuid())
+  appointmentId     String    @unique
+  companyId         String
+  score             Int
+  comment           String?   @db.Text
+  response          String?   @db.Text
+  redirectedToGoogle Boolean  @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  appointment       Appointment @relation(fields: [appointmentId], references: [id])
+  company           Company     @relation(fields: [companyId], references: [id])
+}
+
+model WebhookUrl {
+  id        String    @id @default(cuid())
+  companyId String
+  url       String
+  provider  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  company   Company   @relation(fields: [companyId], references: [id])
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
