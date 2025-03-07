@@ -17,7 +17,11 @@ export default async function FeedbackFormPage({
 
   const appointment = await prisma.appointment.findUnique({
     where: { id: params.appointmentId },
-    include: { company: true },
+    include: { 
+      company: {
+        include: { feedbackTheme: true }
+      }
+    },
   });
 
   if (!appointment) {
@@ -25,8 +29,23 @@ export default async function FeedbackFormPage({
   }
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
+    <div 
+      className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8"
+      style={{
+        "--primary": appointment.company.feedbackTheme?.primaryColor || "#2563eb",
+        "--accent": appointment.company.feedbackTheme?.accentColor || "#1d4ed8",
+      } as React.CSSProperties}
+    >
       <div className="max-w-md mx-auto">
+        {appointment.company.feedbackTheme?.logo && (
+          <div className="text-center mb-8">
+            <img 
+              src={appointment.company.feedbackTheme.logo} 
+              alt={appointment.company.name}
+              className="h-12 mx-auto"
+            />
+          </div>
+        )}
         <div className="text-center">
           <h2 className="text-3xl font-bold tracking-tight">
             Share Your Feedback
@@ -43,6 +62,11 @@ export default async function FeedbackFormPage({
           />
         </div>
       </div>
+      {appointment.company.feedbackTheme?.customCss && (
+        <style dangerouslySetInnerHTML={{ 
+          __html: appointment.company.feedbackTheme.customCss 
+        }} />
+      )}
     </div>
   );
 }

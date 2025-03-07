@@ -53,12 +53,17 @@ model Company {
   subscriptionId       String?
   subscriptionStatus   String?
   remainingFreeCustomers Int       @default(20)
+  emailTemplate        String?     @db.Text
+  emailSubject         String?
   createdAt            DateTime    @default(now())
   updatedAt            DateTime    @updatedAt
   users                User[]
   appointments         Appointment[]
   feedback             Feedback[]
   webhookUrls          WebhookUrl[]
+  clients              Client[]
+  feedbackTheme        FeedbackTheme?
+  customers            Customer[]
 }
 
 model User {
@@ -90,10 +95,23 @@ model Appointment {
   feedback      Feedback?
 }
 
+model Customer {
+  id            String    @id @default(cuid())
+  companyId     String
+  name          String
+  email         String
+  phone         String?
+  feedback      Feedback[]
+  company       Company   @relation(fields: [companyId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
 model Feedback {
   id                String    @id @default(cuid())
   appointmentId     String    @unique
   companyId         String
+  customerId        String
   score             Int
   comment           String?   @db.Text
   response          String?   @db.Text
@@ -102,6 +120,7 @@ model Feedback {
   updatedAt         DateTime  @updatedAt
   appointment       Appointment @relation(fields: [appointmentId], references: [id])
   company           Company     @relation(fields: [companyId], references: [id])
+  customer          Customer    @relation(fields: [customerId], references: [id])
 }
 
 model WebhookUrl {
@@ -112,6 +131,29 @@ model WebhookUrl {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   company   Company   @relation(fields: [companyId], references: [id])
+}
+
+model Client {
+  id               String    @id @default(cuid())
+  companyId        String
+  name             String
+  email            String
+  lastReviewRequest DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  company          Company   @relation(fields: [companyId], references: [id])
+}
+
+model FeedbackTheme {
+  id            String    @id @default(cuid())
+  companyId     String
+  primaryColor  String    @default("#2563eb")
+  accentColor   String    @default("#1d4ed8")
+  logo          String?
+  customCss     String?   @db.Text
+  company       Company   @relation(fields: [companyId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 enum UserRole {

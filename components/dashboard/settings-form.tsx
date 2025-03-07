@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
+import { ColorPicker } from "@/components/ui/color-picker";
+import { FileUpload } from "@/components/ui/file-upload";
 
 interface SettingsFormProps {
   company: {
@@ -16,11 +19,19 @@ interface SettingsFormProps {
     googleReviewLink: string | null;
     notifyEmail: string | null;
     notifyOnNegative: boolean;
+    emailTemplate: string | null;
+    emailSubject: string | null;
     webhookUrls: Array<{
       id: string;
       provider: string;
       url: string;
     }>;
+    feedbackTheme?: {
+      primaryColor: string;
+      accentColor: string;
+      logo: string | null;
+      customCss: string | null;
+    } | null;
   };
 }
 
@@ -31,7 +42,15 @@ export function SettingsForm({ company }: SettingsFormProps) {
     googleReviewLink: company.googleReviewLink || "",
     notifyEmail: company.notifyEmail || "",
     notifyOnNegative: company.notifyOnNegative,
+    emailTemplate: company.emailTemplate || "",
+    emailSubject: company.emailSubject || "",
     webhookUrl: company.webhookUrls[0]?.url || "",
+  });
+  const [themeData, setThemeData] = useState({
+    primaryColor: company.feedbackTheme?.primaryColor || "#2563eb",
+    accentColor: company.feedbackTheme?.accentColor || "#1d4ed8",
+    logo: company.feedbackTheme?.logo || "",
+    customCss: company.feedbackTheme?.customCss || "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -110,22 +129,92 @@ export function SettingsForm({ company }: SettingsFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-4">Integration Settings</h2>
+        <h2 className="text-lg font-semibold mb-4">Email Template Settings</h2>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="webhookUrl">Booking System Webhook URL</Label>
+            <Label htmlFor="emailSubject">Email Subject</Label>
             <Input
-              id="webhookUrl"
-              type="url"
-              value={formData.webhookUrl}
+              id="emailSubject"
+              value={formData.emailSubject}
               onChange={(e) =>
-                setFormData({ ...formData, webhookUrl: e.target.value })
+                setFormData({ ...formData, emailSubject: e.target.value })
               }
-              placeholder="https://api.yourbookingsystem.com/webhooks"
+              placeholder="How was your experience with ${companyName}?"
               className="mt-1"
             />
             <p className="text-sm text-muted-foreground mt-1">
-              Configure your booking system to send appointment data to this URL
+              Available variables: ${"{customerName}"}, ${"{companyName}"}
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="emailTemplate">Email Template</Label>
+            <Textarea
+              id="emailTemplate"
+              value={formData.emailTemplate}
+              onChange={(e) =>
+                setFormData({ ...formData, emailTemplate: e.target.value })
+              }
+              placeholder="Dear ${customerName},
+
+Thank you for choosing ${companyName}..."
+              className="mt-1 min-h-[200px] font-mono"
+            />
+            <p className="text-sm text-muted-foreground mt-1">
+              Available variables: ${"{customerName}"}, ${"{companyName}"}, ${"{feedbackUrl}"}
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-6">
+        <h2 className="text-lg font-semibold mb-4">Feedback Page Theme</h2>
+        <div className="space-y-4">
+          <div>
+            <Label>Primary Color</Label>
+            <ColorPicker
+              color={themeData.primaryColor}
+              onChange={(color) =>
+                setThemeData({ ...themeData, primaryColor: color })
+              }
+            />
+          </div>
+
+          <div>
+            <Label>Accent Color</Label>
+            <ColorPicker
+              color={themeData.accentColor}
+              onChange={(color) =>
+                setThemeData({ ...themeData, accentColor: color })
+              }
+            />
+          </div>
+
+          <div>
+            <Label>Company Logo</Label>
+            <FileUpload
+              value={themeData.logo}
+              onChange={(url) => setThemeData({ ...themeData, logo: url })}
+              accept="image/*"
+            />
+            <p className="text-sm text-muted-foreground mt-1">
+              Recommended size: 200x50px
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="customCss">Custom CSS</Label>
+            <Textarea
+              id="customCss"
+              value={themeData.customCss}
+              onChange={(e) =>
+                setThemeData({ ...themeData, customCss: e.target.value })
+              }
+              placeholder=".feedback-form { /* your styles */ }"
+              className="font-mono"
+            />
+            <p className="text-sm text-muted-foreground mt-1">
+              Add custom CSS to style your feedback page
             </p>
           </div>
         </div>
