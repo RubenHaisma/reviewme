@@ -23,16 +23,36 @@ export default async function ThankYouPage({ searchParams }: ThankYouPageProps) 
   const appointment = appointmentId
     ? await prisma.appointment.findUnique({
         where: { id: appointmentId },
-        include: { company: true },
+        include: { 
+          company: {
+            include: { feedbackTheme: true }
+          }
+        },
       })
     : null;
 
   // Use companyName from query params or fall back to appointment data
   const displayCompanyName = companyName || appointment?.company.name || "us";
+  const theme = appointment?.company.feedbackTheme;
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+    <div 
+      className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center"
+      style={{
+        "--primary": theme?.primaryColor || "#2563eb",
+        "--accent": theme?.accentColor || "#1d4ed8",
+      } as React.CSSProperties}
+    >
       <div className="max-w-md mx-auto text-center space-y-6">
+        {theme?.logo && (
+          <div className="mb-8">
+            <img 
+              src={theme.logo} 
+              alt={displayCompanyName}
+              className="h-12 mx-auto"
+            />
+          </div>
+        )}
         <h1 className="text-3xl font-bold tracking-tight">
           Thank You for Your Feedback!
         </h1>
@@ -48,8 +68,8 @@ export default async function ThankYouPage({ searchParams }: ThankYouPageProps) 
                 key={i}
                 className={`h-5 w-5 ${
                   i < score
-                    ? "fill-primary stroke-primary"
-                    : "stroke-muted-foreground"
+                    ? "fill-primary text-primary"
+                    : "text-muted-foreground"
                 }`}
               />
             ))}
@@ -68,6 +88,9 @@ export default async function ThankYouPage({ searchParams }: ThankYouPageProps) 
           )}
         </div>
       </div>
+      {theme?.customCss && (
+        <style dangerouslySetInnerHTML={{ __html: theme.customCss }} />
+      )}
     </div>
   );
 }

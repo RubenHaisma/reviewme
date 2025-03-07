@@ -19,16 +19,37 @@ export default async function FeedbackPage({ params }: FeedbackPageProps) {
   
   const appointment = await prisma.appointment.findUnique({
     where: { id: appointmentId },
-    include: { company: true },
+    include: { 
+      company: {
+        include: { feedbackTheme: true }
+      }
+    },
   });
 
   if (!appointment) {
     notFound();
   }
 
+  const theme = appointment.company.feedbackTheme;
+
   return (
-    <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
+    <div 
+      className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8"
+      style={{
+        "--primary": theme?.primaryColor || "#2563eb",
+        "--accent": theme?.accentColor || "#1d4ed8",
+      } as React.CSSProperties}
+    >
       <div className="max-w-md mx-auto">
+        {theme?.logo && (
+          <div className="text-center mb-8">
+            <img 
+              src={theme.logo} 
+              alt={appointment.company.name}
+              className="h-12 mx-auto"
+            />
+          </div>
+        )}
         <div className="text-center">
           <h2 className="text-3xl font-bold tracking-tight">
             How was your experience with {appointment.company.name}?
@@ -45,6 +66,9 @@ export default async function FeedbackPage({ params }: FeedbackPageProps) {
           />
         </div>
       </div>
+      {theme?.customCss && (
+        <style dangerouslySetInnerHTML={{ __html: theme.customCss }} />
+      )}
     </div>
   );
 }

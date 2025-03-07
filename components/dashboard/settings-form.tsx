@@ -54,6 +54,28 @@ export function SettingsForm({ company }: SettingsFormProps) {
     customCss: company.feedbackTheme?.customCss || "",
   });
 
+  // Preview section to show how the theme will look
+  const PreviewSection = () => (
+    <div className="mt-4 p-4 border rounded-lg">
+      <h3 className="text-lg font-semibold mb-4">Theme Preview</h3>
+      <div 
+        className="p-4 rounded-lg"
+        style={{
+          "--primary": themeData.primaryColor,
+          "--accent": themeData.accentColor,
+        } as React.CSSProperties}
+      >
+        <div className="flex items-center gap-4 mb-4">
+          {themeData.logo && (
+            <img src={themeData.logo} alt="Logo Preview" className="h-8" />
+          )}
+          <h4 className="text-primary font-semibold">Sample Text in Primary Color</h4>
+        </div>
+        <Button>Sample Button</Button>
+      </div>
+    </div>
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -230,6 +252,8 @@ Thank you for choosing ${companyName}..."
               Add custom CSS to style your feedback page
             </p>
           </div>
+
+          <PreviewSection />
         </div>
       </Card>
 

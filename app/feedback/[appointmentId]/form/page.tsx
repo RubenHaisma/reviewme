@@ -32,7 +32,7 @@ export default async function FeedbackFormPage({
   }
 
   const appointment = await prisma.appointment.findUnique({
-    where: { id: resolvedParams.appointmentId }, // Use resolved params
+    where: { id: resolvedParams.appointmentId },
     include: { 
       company: {
         include: { feedbackTheme: true }
@@ -44,19 +44,21 @@ export default async function FeedbackFormPage({
     notFound();
   }
 
+  const theme = appointment.company.feedbackTheme;
+
   return (
     <div 
       className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8"
       style={{
-        "--primary": appointment.company.feedbackTheme?.primaryColor || "#2563eb",
-        "--accent": appointment.company.feedbackTheme?.accentColor || "#1d4ed8",
+        "--primary": theme?.primaryColor || "#2563eb",
+        "--accent": theme?.accentColor || "#1d4ed8",
       } as React.CSSProperties}
     >
       <div className="max-w-md mx-auto">
-        {appointment.company.feedbackTheme?.logo && (
+        {theme?.logo && (
           <div className="text-center mb-8">
             <img 
-              src={appointment.company.feedbackTheme.logo} 
+              src={theme.logo} 
               alt={appointment.company.name}
               className="h-12 mx-auto"
             />
@@ -78,10 +80,8 @@ export default async function FeedbackFormPage({
           />
         </div>
       </div>
-      {appointment.company.feedbackTheme?.customCss && (
-        <style dangerouslySetInnerHTML={{ 
-          __html: appointment.company.feedbackTheme.customCss 
-        }} />
+      {theme?.customCss && (
+        <style dangerouslySetInnerHTML={{ __html: theme.customCss }} />
       )}
     </div>
   );

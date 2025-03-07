@@ -10,11 +10,11 @@ const settingsSchema = z.object({
   notifyOnNegative: z.boolean().optional(),
   emailTemplate: z.string().nullable().optional(),
   emailSubject: z.string().nullable().optional(),
-  webhookUrl: z.string().url().nullable().optional(),
+  webhookUrl: z.string().url().nullable().optional().or(z.literal("")),
   theme: z
     .object({
-      primaryColor: z.string().optional(), // Make optional to allow partial updates
-      accentColor: z.string().optional(),  // Make optional to allow partial updates
+      primaryColor: z.string().optional(),
+      accentColor: z.string().optional(),
       logo: z.string().nullable().optional(),
       customCss: z.string().nullable().optional(),
     })
@@ -46,70 +46,83 @@ export async function PUT(req: NextRequest) {
     } = parsedData;
 
     // Start a transaction to ensure atomic updates
-    const [company, feedbackTheme] = await prisma.$transaction([
+    const [updatedCompany] = await prisma.$transaction(async (tx) => {
+      // Handle webhook URL
+      if (webhookUrl === "") {
+        // Delete existing webhook URL if empty string is provided
+        await tx.webhookUrl.deleteMany({
+          where: {
+            companyId: session.user.companyId,
+            provider: "default",
+          },
+        });
+      } else if (webhookUrl) {
+        // Upsert webhook URL if provided
+        await tx.webhookUrl.upsert({
+          where: {
+            provider_companyId: {
+              provider: "default",
+              companyId: session.user.companyId,
+            },
+          },
+          create: {
+            provider: "default",
+            url: webhookUrl,
+            companyId: session.user.companyId,
+          },
+          update: {
+            url: webhookUrl,
+          },
+        });
+      }
+
+      // Handle theme updates
+      if (theme) {
+        await tx.feedbackTheme.upsert({
+          where: { companyId: session.user.companyId },
+          create: {
+            companyId: session.user.companyId,
+            primaryColor: theme.primaryColor || "#2563eb",
+            accentColor: theme.accentColor || "#1d4ed8",
+            logo: theme.logo ?? null,
+            customCss: theme.customCss ?? null,
+          },
+          update: {
+            primaryColor: theme.primaryColor || "#2563eb",
+            accentColor: theme.accentColor || "#1d4ed8",
+            logo: theme.logo ?? null,
+            customCss: theme.customCss ?? null,
+          },
+        });
+      }
+
       // Update company settings
-      prisma.company.update({
+      const company = await tx.company.update({
         where: { id: session.user.companyId },
         data: {
-          googleReviewLink,
-          notifyEmail,
-          notifyOnNegative,
-          emailTemplate,
-          emailSubject,
-          webhookUrls: webhookUrl
-            ? {
-                upsert: {
-                  where: {
-                    provider_companyId: {
-                      provider: "default",
-                      companyId: session.user.companyId,
-                    },
-                  },
-                  create: {
-                    provider: "default",
-                    url: webhookUrl,
-                  },
-                  update: {
-                    url: webhookUrl,
-                  },
-                },
-              }
-            : undefined,
+          googleReviewLink: googleReviewLink ?? null,
+          notifyEmail: notifyEmail ?? null,
+          notifyOnNegative: notifyOnNegative ?? false,
+          emailTemplate: emailTemplate ?? null,
+          emailSubject: emailSubject ?? null,
         },
-      }),
+        include: {
+          webhookUrls: {
+            where: { provider: "default" },
+          },
+          feedbackTheme: true,
+        },
+      });
 
-      // Update feedback theme only if theme is provided and has at least one field
-      theme && Object.keys(theme).length > 0
-        ? prisma.feedbackTheme.upsert({
-            where: { companyId: session.user.companyId },
-            create: {
-              companyId: session.user.companyId,
-              primaryColor: theme.primaryColor,
-              accentColor: theme.accentColor,
-              logo: theme.logo,
-              customCss: theme.customCss,
-            },
-            update: {
-              primaryColor: theme.primaryColor,
-              accentColor: theme.accentColor,
-              logo: theme.logo,
-              customCss: theme.customCss,
-            },
-          })
-        : prisma.feedbackTheme.findUnique({
-            where: { companyId: session.user.companyId },
-          }), // No-op if no theme provided or empty
-    ]);
-
-    // Return the updated company data
-    return NextResponse.json({
-      ...company,
-      feedbackTheme: theme && Object.keys(theme).length > 0 ? feedbackTheme : undefined,
+      return [company];
     });
+
+    // Return the updated company data with included relations
+    return NextResponse.json(updatedCompany);
   } catch (error) {
     // Handle Zod validation errors
     if (error instanceof z.ZodError) {
-      console.error("Validation errors:", error.errors); // Log specific validation issues
+      console.error("Validation errors:", error.errors);
       return NextResponse.json(
         { error: "Validation failed", details: error.errors },
         { status: 400 }
@@ -125,4 +138,4 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-export const runtime = "nodejs"; // Explicitly specify runtime
+export const runtime = "nodejs";
