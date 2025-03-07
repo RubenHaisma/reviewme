@@ -102,7 +102,7 @@ export default function RootLayout({
           {process.env.NODE_ENV === 'production' && (
             <script
               async
-              src={`https://www.googletagmanager.com/gtag/js?id=YOUR-GA-ID`} // Replace with your GA ID
+              src={`https://www.googletagmanager.com/gtag/js?id=G-M2Q8L0LVQ6`} // Replace with your GA ID
             />
           )}
         </ThemeProvider>
