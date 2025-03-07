@@ -7,7 +7,7 @@ export function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">ReviewFlow</h3>
+            <h3 className="text-lg font-semibold">Raatum</h3>
             <p className="text-sm text-muted-foreground">
               Professional review management platform for businesses of all sizes.
             </p>

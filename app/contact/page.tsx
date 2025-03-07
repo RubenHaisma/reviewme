@@ -11,7 +11,7 @@ export default function ContactPage() {
       {/* Navigation */}
       <nav className="border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold">ReviewFlow</Link>
+          <Link href="/" className="text-xl font-bold">Raatum</Link>
           <div className="flex items-center gap-4">
             <Link href="/auth/login">
               <Button variant="ghost">Sign In</Button>
@@ -47,7 +47,7 @@ export default function ContactPage() {
                   <Mail className="w-6 h-6 text-primary mr-4 mt-1" />
                   <div>
                     <h3 className="font-semibold">Email</h3>
-                    <p className="text-muted-foreground">support@reviewflow.com</p>
+                    <p className="text-muted-foreground">support@Raatum.com</p>
                   </div>
                 </div>
                 <div className="flex items-start">

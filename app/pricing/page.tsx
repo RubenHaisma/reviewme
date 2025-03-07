@@ -10,7 +10,7 @@ export default function PricingPage() {
       {/* Navigation */}
       <nav className="border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold">ReviewFlow</Link>
+          <Link href="/" className="text-xl font-bold">Raatum</Link>
           <div className="flex items-center gap-4">
             <Link href="/auth/login">
               <Button variant="ghost">Sign In</Button>
@@ -123,7 +123,7 @@ export default function PricingPage() {
             <div>
               <h3 className="text-lg font-semibold mb-2">What happens after the free trial?</h3>
               <p className="text-muted-foreground">
-                After using your 20 free customers, you can choose to upgrade to either our Basic or Pro plan to continue using ReviewFlow.
+                After using your 20 free customers, you can choose to upgrade to either our Basic or Pro plan to continue using Raatum.
               </p>
             </div>
             <div>

@@ -8,7 +8,7 @@ export default function PrivacyPolicyPage() {
       {/* Navigation */}
       <nav className="border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold">ReviewFlow</Link>
+          <Link href="/" className="text-xl font-bold">Raatum</Link>
           <div className="flex items-center gap-4">
             <Link href="/auth/login">
               <Button variant="ghost">Sign In</Button>
@@ -29,7 +29,7 @@ export default function PrivacyPolicyPage() {
 
             <h2>1. Introduction</h2>
             <p>
-              ReviewFlow ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our review management platform (the "Service"). Please read this policy carefully. If you do not agree with the terms of this Privacy Policy, please do not access the Service.
+              Raatum ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our review management platform (the "Service"). Please read this policy carefully. If you do not agree with the terms of this Privacy Policy, please do not access the Service.
             </p>
 
             <h2>2. Information We Collect</h2>
@@ -103,7 +103,7 @@ export default function PrivacyPolicyPage() {
               <li>Data portability: Request transfer of your data</li>
             </ul>
             <p>
-              To exercise these rights, please contact us at privacy@reviewflow.com.
+              To exercise these rights, please contact us at privacy@Raatum.com.
             </p>
 
             <h2>8. Cookies and Tracking Technologies</h2>
@@ -136,8 +136,8 @@ export default function PrivacyPolicyPage() {
               If you have questions or concerns about this Privacy Policy, please contact us at:
             </p>
             <ul>
-              <li>Email: privacy@reviewflow.com</li>
-              <li>Address: ReviewFlow, 123 Business Street, Suite 100, Tech City, TC 12345</li>
+              <li>Email: privacy@Raatum.com</li>
+              <li>Address: Raatum, 123 Business Street, Suite 100, Tech City, TC 12345</li>
             </ul>
           </div>
         </div>

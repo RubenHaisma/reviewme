@@ -97,7 +97,7 @@ export default function RegisterPage() {
             Create your account
           </CardTitle>
           <CardDescription>
-            Get started with ReviewFlow - First 20 customers free!
+            Get started with Raatum - First 20 customers free!
           </CardDescription>
         </CardHeader>
         <CardContent>

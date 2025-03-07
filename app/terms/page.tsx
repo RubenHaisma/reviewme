@@ -8,7 +8,7 @@ export default function TermsPage() {
       {/* Navigation */}
       <nav className="border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold">ReviewFlow</Link>
+          <Link href="/" className="text-xl font-bold">Raatum</Link>
           <div className="flex items-center gap-4">
             <Link href="/auth/login">
               <Button variant="ghost">Sign In</Button>
@@ -29,12 +29,12 @@ export default function TermsPage() {
 
             <h2>1. Agreement to Terms</h2>
             <p>
-              By accessing or using ReviewFlow&apos;s services, you agree to be bound by these Terms of Service and our Privacy Policy. If you disagree with any part of these terms, you may not access our services.
+              By accessing or using Raatum&apos;s services, you agree to be bound by these Terms of Service and our Privacy Policy. If you disagree with any part of these terms, you may not access our services.
             </p>
 
             <h2>2. Description of Services</h2>
             <p>
-              ReviewFlow provides a review management platform that allows businesses to collect, manage, and respond to customer reviews. Our services include:
+              Raatum provides a review management platform that allows businesses to collect, manage, and respond to customer reviews. Our services include:
             </p>
             <ul>
               <li>Automated review collection</li>
@@ -112,7 +112,7 @@ export default function TermsPage() {
 
             <h2>8. Limitation of Liability</h2>
             <p>
-              To the maximum extent permitted by law, ReviewFlow shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of our services.
+              To the maximum extent permitted by law, Raatum shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of our services.
             </p>
 
             <h2>9. Disclaimer of Warranties</h2>
@@ -135,7 +135,7 @@ export default function TermsPage() {
               For questions about these terms, please contact us at:
             </p>
             <p>
-              Email: legal@reviewflow.com<br />
+              Email: legal@Raatum.com<br />
               Address: 123 Business Street, Suite 456, San Francisco, CA 94105<br />
               Phone: +1 (555) 123-4567
             </p>

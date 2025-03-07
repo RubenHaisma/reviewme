@@ -9,7 +9,7 @@ export default function Home() {
       {/* Navigation */}
       <nav className="border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="text-xl font-bold">ReviewFlow</div>
+          <div className="text-xl font-bold">Raatum</div>
           <div className="flex items-center gap-4">
             <Link href="/auth/login">
               <Button variant="ghost">Sign In</Button>
@@ -92,7 +92,7 @@ export default function Home() {
             <div className="border rounded-lg p-6 hover:border-primary transition-colors">
               <h3 className="text-xl font-semibold mb-2">Vertimart Integration</h3>
               <p className="text-muted-foreground mb-4">
-                Seamlessly connect with Vertimart's booking system to automate review collection
+                Seamlessly connect with Vertimart&apos;s booking system to automate review collection
               </p>
               <Button variant="outline" className="w-full">Connect Vertimart</Button>
             </div>

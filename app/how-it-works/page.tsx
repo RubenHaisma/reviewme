@@ -16,7 +16,7 @@ export default function HowItWorksPage() {
       {/* Navigation */}
       <nav className="border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold">ReviewFlow</Link>
+          <Link href="/" className="text-xl font-bold">Raatum</Link>
           <div className="flex items-center gap-4">
             <Link href="/auth/login">
               <Button variant="ghost">Sign In</Button>
@@ -32,7 +32,7 @@ export default function HowItWorksPage() {
       <div className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl font-bold mb-6">How ReviewFlow Works</h1>
+            <h1 className="text-4xl font-bold mb-6">How Raatum Works</h1>
             <p className="text-lg text-muted-foreground mb-12">
               A simple, automated way to collect and manage customer reviews
             </p>
@@ -156,7 +156,7 @@ export default function HowItWorksPage() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to Get Started?</h2>
           <p className="text-lg text-muted-foreground mb-8">
-            Join thousands of businesses using ReviewFlow to manage their online reputation
+            Join thousands of businesses using Raatum to manage their online reputation
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/auth/register">
