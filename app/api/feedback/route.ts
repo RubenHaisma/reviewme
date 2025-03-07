@@ -13,15 +13,27 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { appointmentId, score, comment } = feedbackSchema.parse(body);
 
+    // Get appointment with existing feedback
     const appointment = await prisma.appointment.findUnique({
       where: { id: appointmentId },
-      include: { company: true },
+      include: { 
+        company: true,
+        feedback: true
+      },
     });
 
     if (!appointment) {
       return NextResponse.json(
         { error: "Appointment not found" },
         { status: 404 }
+      );
+    }
+
+    // If feedback already exists, return error
+    if (appointment.feedback) {
+      return NextResponse.json(
+        { error: "Feedback already submitted for this appointment" },
+        { status: 400 }
       );
     }
 
@@ -41,6 +53,7 @@ export async function POST(req: Request) {
       update: {},
     });
 
+    // Create feedback
     const feedback = await prisma.feedback.create({
       data: {
         appointmentId,
@@ -50,6 +63,12 @@ export async function POST(req: Request) {
         comment,
         redirectedToGoogle: score >= 4,
       },
+    });
+
+    // Update appointment to mark feedback as sent
+    await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: { feedbackSent: true },
     });
 
     // If score is less than 4 and company has notification enabled, send email
@@ -62,6 +81,7 @@ export async function POST(req: Request) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors }, { status: 400 });
     }
+    console.error("Error creating feedback:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -32,17 +32,21 @@ export function FeedbackForm({
         body: JSON.stringify({
           appointmentId,
           score: initialScore,
-          comment,
+          comment: comment.trim(),
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to submit feedback");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to submit feedback");
+      }
 
       toast.success("Thank you for your feedback!");
       router.push("/feedback/thank-you");
     } catch (error) {
-      toast.error("Something went wrong. Please try again.");
-    } finally {
+      const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+      toast.error(message);
       setIsSubmitting(false);
     }
   };
@@ -68,7 +72,7 @@ export function FeedbackForm({
 
       <Button
         type="submit"
-        className="w-full"
+        className="w-full py-6 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-lg rounded-md transition-all"
         disabled={isSubmitting}
       >
         {isSubmitting ? "Submitting..." : "Submit Feedback"}

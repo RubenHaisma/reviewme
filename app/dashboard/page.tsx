@@ -1,6 +1,7 @@
-import { auth, authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { DashboardOverview } from "@/components/dashboard/overview";
+import { FeedbackLinkGenerator } from "@/components/dashboard/feedback-link-generator";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -45,7 +46,7 @@ export default async function DashboardPage() {
   const totalCustomers = 20 - (company?.remainingFreeCustomers || 0);
   const usagePercentage = (totalCustomers / 20) * 100;
 
-  // Transform feedback data to match FeedbackItem type (convert Date to string and null to undefined)
+  // Transform feedback data to match FeedbackItem type
   const formattedFeedback = recentFeedback.map(item => ({
     ...item,
     comment: item.comment ?? undefined,
@@ -84,7 +85,10 @@ export default async function DashboardPage() {
         </Card>
       )}
 
-      <DashboardOverview feedback={formattedFeedback} stats={stats} />
+      <div className="grid gap-8 md:grid-cols-2">
+        <FeedbackLinkGenerator />
+        <DashboardOverview feedback={formattedFeedback} stats={stats} />
+      </div>
     </div>
   );
 }
