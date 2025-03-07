@@ -1,4 +1,4 @@
-import { auth, authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
@@ -6,6 +6,16 @@ import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 import { Star, Mail, Phone } from "lucide-react";
 import { FeedbackResponse } from "@/components/dashboard/feedback-response";
+
+// Define the params interface
+interface Params {
+  id: string;
+}
+
+// Define the props interface with params as a Promise
+interface FeedbackDetailPageProps {
+  params: Promise<Params>;
+}
 
 interface CustomUser {
   id: string;
@@ -19,11 +29,9 @@ interface CustomSession extends Record<string, unknown> {
   user?: CustomUser;
 }
 
-export default async function FeedbackDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function FeedbackDetailPage({ params }: FeedbackDetailPageProps) {
+  // Await the params Promise to get the actual values
+  const resolvedParams = await params;
   const session = (await auth()) as CustomSession | null;
 
   if (!session?.user?.companyId) {
@@ -32,7 +40,7 @@ export default async function FeedbackDetailPage({
 
   const feedback = await prisma.feedback.findUnique({
     where: { 
-      id: params.id,
+      id: resolvedParams.id, // Use resolved params
       companyId: session.user.companyId?.toString(),
     },
     include: { 

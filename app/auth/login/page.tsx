@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import LoginError from "@/app/auth/login/error/page";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -79,6 +80,8 @@ export default function LoginPage() {
             Sign in to your account
           </p>
         </div>
+
+        <LoginError />
 
         <Tabs defaultValue="email" className="w-full">
           <TabsList className="grid w-full grid-cols-2">

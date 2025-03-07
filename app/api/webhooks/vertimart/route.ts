@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 export async function POST(req: Request) {
   try {
     const body = await req.text();
-    const signature = headers().get("x-vertimart-signature") || "";
+    const signature = (await headers()).get("x-vertimart-signature") || "";
 
     // Verify webhook signature
     const isValid = await verifyVertiMartWebhook(signature, body);

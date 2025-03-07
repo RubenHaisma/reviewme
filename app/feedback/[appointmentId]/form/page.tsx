@@ -2,21 +2,37 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { FeedbackForm } from "@/components/feedback/form";
 
+// Define the params interface
+interface Params {
+  appointmentId: string;
+}
+
+// Define the searchParams interface
+interface SearchParams {
+  score?: string;
+}
+
+// Define the page props interface with both params and searchParams as Promises
+interface FeedbackFormPageProps {
+  params: Promise<Params>;
+  searchParams: Promise<SearchParams>;
+}
+
 export default async function FeedbackFormPage({
   params,
   searchParams,
-}: {
-  params: { appointmentId: string };
-  searchParams: { score?: string };
-}) {
-  const score = parseInt(searchParams.score || "", 10);
+}: FeedbackFormPageProps) {
+  // Await both params and searchParams Promises
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const score = parseInt(resolvedSearchParams.score || "", 10);
   
   if (!score || score >= 4) {
-    redirect(`/feedback/${params.appointmentId}`);
+    redirect(`/feedback/${resolvedParams.appointmentId}`);
   }
 
   const appointment = await prisma.appointment.findUnique({
-    where: { id: params.appointmentId },
+    where: { id: resolvedParams.appointmentId }, // Use resolved params
     include: { 
       company: {
         include: { feedbackTheme: true }

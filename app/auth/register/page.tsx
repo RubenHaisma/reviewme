@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
+import RegisterError from "@/components/RegisterError"; // Import from components, not a page
 
 const registerSchema = z.object({
   companyName: z.string().min(2, "Company name must be at least 2 characters"),
@@ -46,6 +47,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export default function RegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>();
 
   const {
     register,
@@ -57,6 +59,7 @@ export default function RegisterPage() {
 
   async function onSubmit(data: RegisterFormData) {
     setIsLoading(true);
+    setError(undefined);
 
     try {
       const response = await fetch("/api/auth/register", {
@@ -80,9 +83,7 @@ export default function RegisterPage() {
       );
       router.push("/auth/login");
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Something went wrong"
-      );
+      setError(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setIsLoading(false);
     }
@@ -100,6 +101,8 @@ export default function RegisterPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <RegisterError error={error} />
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="companyName">Company Name</Label>

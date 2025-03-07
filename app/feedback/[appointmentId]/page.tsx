@@ -1,15 +1,24 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { StarRating } from "@/components/feedback/star-rating";
-import { FeedbackForm } from "@/components/feedback/form";
 
-export default async function FeedbackPage({
-  params,
-}: {
-  params: { appointmentId: string };
-}) {
+// Define the params interface
+interface Params {
+  appointmentId: string;
+}
+
+// Define the page props interface with params as a Promise
+interface FeedbackPageProps {
+  params: Promise<Params>;
+}
+
+export default async function FeedbackPage({ params }: FeedbackPageProps) {
+  // Await the entire params Promise to resolve the dynamic segment value
+  const resolvedParams = await params;
+  const appointmentId = resolvedParams.appointmentId;
+  
   const appointment = await prisma.appointment.findUnique({
-    where: { id: params.appointmentId },
+    where: { id: appointmentId },
     include: { company: true },
   });
 

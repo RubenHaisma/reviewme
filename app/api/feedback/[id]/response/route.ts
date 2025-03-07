@@ -2,16 +2,26 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import type { NextRequest } from "next/server";
+
+// Define the params interface
+interface Params {
+  id: string;
+}
+
+// Define the context type with params as a Promise
+interface Context {
+  params: Promise<Params>;
+}
 
 const responseSchema = z.object({
   response: z.string().min(1),
 });
 
-export async function POST(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: NextRequest, context: Context) {
   try {
+    // Resolve the params Promise
+    const params = await context.params;
     const session = await auth();
     
     if (!session?.user?.companyId) {
@@ -54,3 +64,5 @@ export async function POST(
     );
   }
 }
+
+export const runtime = "nodejs";
