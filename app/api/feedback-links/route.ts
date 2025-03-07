@@ -22,6 +22,30 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { customerName, customerEmail } = feedbackLinkSchema.parse(body);
 
+    // Get company to check limits
+    const company = await prisma.company.findUnique({
+      where: { id: session.user.companyId },
+      select: {
+        remainingFreeCustomers: true,
+        subscriptionStatus: true,
+      },
+    });
+
+    if (!company) {
+      return NextResponse.json(
+        { error: "Company not found" },
+        { status: 404 }
+      );
+    }
+
+    // Check if company has remaining free customers or active subscription
+    if (company.remainingFreeCustomers <= 0 && company.subscriptionStatus !== 'active') {
+      return NextResponse.json(
+        { error: "Please upgrade to a paid plan to continue collecting feedback" },
+        { status: 403 }
+      );
+    }
+
     // Create appointment record
     const appointment = await prisma.appointment.create({
       data: {

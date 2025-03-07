@@ -8,12 +8,14 @@ import {
   Settings,
   MessageSquare,
   LogOut,
+  Link as LinkIcon,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Feedback", href: "/dashboard/feedback", icon: MessageSquare },
+  { name: "Integrations", href: "/dashboard/integrations", icon: LinkIcon },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 

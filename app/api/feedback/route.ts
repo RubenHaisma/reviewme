@@ -17,7 +17,16 @@ export async function POST(req: Request) {
     const appointment = await prisma.appointment.findUnique({
       where: { id: appointmentId },
       include: { 
-        company: true,
+        company: {
+          select: {
+            id: true,
+            name: true,
+            notifyOnNegative: true,
+            notifyEmail: true,
+            remainingFreeCustomers: true,
+            subscriptionStatus: true,
+          }
+        },
         feedback: true
       },
     });
@@ -37,6 +46,15 @@ export async function POST(req: Request) {
       );
     }
 
+    // Check if company has remaining free customers or active subscription
+    if (appointment.company.remainingFreeCustomers <= 0 && 
+        appointment.company.subscriptionStatus !== 'active') {
+      return NextResponse.json(
+        { error: "Please upgrade to a paid plan to continue collecting feedback" },
+        { status: 403 }
+      );
+    }
+
     // Create or get customer record
     const customer = await prisma.customer.upsert({
       where: {
@@ -53,17 +71,29 @@ export async function POST(req: Request) {
       update: {},
     });
 
-    // Create feedback
-    const feedback = await prisma.feedback.create({
-      data: {
-        appointmentId,
-        companyId: appointment.companyId,
-        customerId: customer.id,
-        score,
-        comment,
-        redirectedToGoogle: score >= 4,
-      },
-    });
+    // Start a transaction to ensure data consistency
+    const [feedback, updatedCompany] = await prisma.$transaction([
+      // Create feedback
+      prisma.feedback.create({
+        data: {
+          appointmentId,
+          companyId: appointment.companyId,
+          customerId: customer.id,
+          score,
+          comment,
+          redirectedToGoogle: score >= 4,
+        },
+      }),
+      // Update company's remaining free customers if not on paid plan
+      prisma.company.update({
+        where: { id: appointment.companyId },
+        data: appointment.company.subscriptionStatus !== 'active' ? {
+          remainingFreeCustomers: {
+            decrement: 1
+          }
+        } : {},
+      })
+    ]);
 
     // Update appointment to mark feedback as sent
     await prisma.appointment.update({

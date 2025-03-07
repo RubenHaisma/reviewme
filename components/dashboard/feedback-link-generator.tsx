@@ -8,7 +8,11 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Copy, Link } from "lucide-react";
 
-export function FeedbackLinkGenerator() {
+interface FeedbackLinkGeneratorProps {
+  disabled?: boolean;
+}
+
+export function FeedbackLinkGenerator({ disabled }: FeedbackLinkGeneratorProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [feedbackUrl, setFeedbackUrl] = useState<string | null>(null);
 
@@ -32,7 +36,12 @@ export function FeedbackLinkGenerator() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to generate feedback link");
+        if (response.status === 403) {
+          toast.error("Please upgrade to a paid plan to continue collecting feedback");
+        } else {
+          throw new Error(result.error || "Failed to generate feedback link");
+        }
+        return;
       }
 
       setFeedbackUrl(result.feedbackUrl);
@@ -47,6 +56,22 @@ export function FeedbackLinkGenerator() {
   function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text);
     toast.success("Link copied to clipboard");
+  }
+
+  if (disabled) {
+    return (
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">Generate Feedback Link</h3>
+        <div className="text-center space-y-4 py-8">
+          <p className="text-muted-foreground">
+            You&apos;ve reached your free tier limit. Please upgrade to continue collecting feedback.
+          </p>
+          <Button variant="outline" onClick={() => window.location.href = "/dashboard/billing"}>
+            View Plans
+          </Button>
+        </div>
+      </Card>
+    );
   }
 
   return (

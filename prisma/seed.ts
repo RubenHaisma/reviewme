@@ -26,21 +26,21 @@ async function main() {
     },
   });
 
-  // Create test customers
+  // Create test customers (20 instead of 5)
   const customers = await Promise.all(
-    Array.from({ length: 5 }).map((_, i) =>
+    Array.from({ length: 20 }).map((_, i) =>
       prisma.customer.create({
         data: {
           companyId: company.id,
           name: `Customer ${i + 1}`,
           email: `customer${i + 1}@example.com`,
-          phone: `555-000${i + 1}`,
+          phone: `555-00${String(i + 1).padStart(2, '0')}`,
         },
       })
     )
   );
 
-  // Create test appointments linked to customers
+  // Create test appointments linked to customers (20 instead of 5)
   const appointments = await Promise.all(
     customers.map((customer, i) =>
       prisma.appointment.create({
@@ -54,23 +54,23 @@ async function main() {
     )
   );
 
-  // Create test feedback linked to appointments and customers
+  // Create 20 test feedback entries linked to appointments and customers
   await Promise.all(
-    appointments.map((appointment, i) =>
+    Array.from({ length: 20 }).map((_, i) =>
       prisma.feedback.create({
         data: {
-          appointmentId: appointment.id,
+          appointmentId: appointments[i].id,
           companyId: company.id,
-          customerId: customers[i].id, // Link to corresponding customer
+          customerId: customers[i].id,
           score: Math.floor(Math.random() * 5) + 1,
           comment: `Test feedback ${i + 1}`,
-          redirectedToGoogle: false,
+          redirectedToGoogle: i % 2 === 0, // Alternate between true/false
         },
       })
     )
   );
 
-  // Create test feedback theme for the company (assuming one-to-one relation with @unique)
+  // Create test feedback theme for the company
   await prisma.feedbackTheme.create({
     data: {
       companyId: company.id,
@@ -81,7 +81,7 @@ async function main() {
     },
   });
 
-  console.log('Seed data created successfully');
+  console.log('Seed data with 20 feedback entries created successfully');
 }
 
 main()
