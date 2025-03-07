@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,20 +39,39 @@ export function SettingsForm({ company }: SettingsFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    googleReviewLink: company.googleReviewLink || "",
-    notifyEmail: company.notifyEmail || "",
-    notifyOnNegative: company.notifyOnNegative,
-    emailTemplate: company.emailTemplate || "",
-    emailSubject: company.emailSubject || "",
-    webhookUrl: company.webhookUrls[0]?.url || "",
+    googleReviewLink: "",
+    notifyEmail: "",
+    notifyOnNegative: false,
+    emailTemplate: "",
+    emailSubject: "",
+    webhookUrl: "",
   });
 
   const [themeData, setThemeData] = useState({
-    primaryColor: company.feedbackTheme?.primaryColor || "#2563eb",
-    accentColor: company.feedbackTheme?.accentColor || "#1d4ed8",
-    logo: company.feedbackTheme?.logo || "",
-    customCss: company.feedbackTheme?.customCss || "",
+    primaryColor: "#2563eb",
+    accentColor: "#1d4ed8",
+    logo: "",
+    customCss: "",
   });
+
+  // Initialize form data from company props
+  useEffect(() => {
+    setFormData({
+      googleReviewLink: company.googleReviewLink || "",
+      notifyEmail: company.notifyEmail || "",
+      notifyOnNegative: company.notifyOnNegative,
+      emailTemplate: company.emailTemplate || "",
+      emailSubject: company.emailSubject || "",
+      webhookUrl: company.webhookUrls[0]?.url || "",
+    });
+
+    setThemeData({
+      primaryColor: company.feedbackTheme?.primaryColor || "#2563eb",
+      accentColor: company.feedbackTheme?.accentColor || "#1d4ed8",
+      logo: company.feedbackTheme?.logo || "",
+      customCss: company.feedbackTheme?.customCss || "",
+    });
+  }, [company]);
 
   // Preview section to show how the theme will look
   const PreviewSection = () => (
@@ -61,17 +80,36 @@ export function SettingsForm({ company }: SettingsFormProps) {
       <div 
         className="p-4 rounded-lg"
         style={{
-          "--primary": themeData.primaryColor,
-          "--accent": themeData.accentColor,
-        } as React.CSSProperties}
+          backgroundColor: 'white',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        }}
       >
-        <div className="flex items-center gap-4 mb-4">
-          {themeData.logo && (
-            <img src={themeData.logo} alt="Logo Preview" className="h-8" />
-          )}
-          <h4 className="text-primary font-semibold">Sample Text in Primary Color</h4>
+        {themeData.logo && (
+          <div className="mb-4">
+            <p className="text-sm text-muted-foreground mb-2">Current Logo:</p>
+            <img 
+              src={themeData.logo} 
+              alt="Logo Preview" 
+              className="h-12 object-contain"
+            />
+          </div>
+        )}
+        <div className="flex flex-col gap-4">
+          <div>
+            <p className="text-sm text-muted-foreground mb-2">Primary Color:</p>
+            <div 
+              className="h-10 rounded-md"
+              style={{ backgroundColor: themeData.primaryColor }}
+            />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground mb-2">Accent Color:</p>
+            <div 
+              className="h-10 rounded-md"
+              style={{ backgroundColor: themeData.accentColor }}
+            />
+          </div>
         </div>
-        <Button>Sample Button</Button>
       </div>
     </div>
   );
@@ -81,8 +119,6 @@ export function SettingsForm({ company }: SettingsFormProps) {
     setIsSubmitting(true);
 
     try {
-      console.log("Submitting data:", { ...formData, theme: themeData }); // Debug log
-
       const response = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -100,7 +136,7 @@ export function SettingsForm({ company }: SettingsFormProps) {
       toast.success("Settings updated successfully");
       router.refresh();
     } catch (error) {
-      console.error("Settings form error:", error); // Debug log
+      console.error("Settings form error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to update settings");
     } finally {
       setIsSubmitting(false);
@@ -227,7 +263,6 @@ Thank you for choosing ${companyName}..."
             <FileUpload
               value={themeData.logo}
               onChange={(url) => {
-                console.log("Logo changed:", url); // Debug log
                 setThemeData({ ...themeData, logo: url });
               }}
               accept="image/*"

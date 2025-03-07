@@ -3,7 +3,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
-// Define the settings schema with more flexible validation
+// Define the settings schema with flexible validation
 const settingsSchema = z.object({
   googleReviewLink: z.string().url().nullable().optional(),
   notifyEmail: z.string().email().nullable().optional(),
@@ -30,8 +30,11 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Convert companyId to string (it’s guaranteed to be non-null here)
+    const companyIdStr = session.user.companyId.toString();
+
     const body = await req.json();
-    console.log("Received body:", body); // Debug log
+    console.log("Received body:", body);
 
     // Parse and validate the request body
     const parsedData = settingsSchema.parse(body);
@@ -52,7 +55,7 @@ export async function PUT(req: NextRequest) {
         // Delete existing webhook URL if empty string is provided
         await tx.webhookUrl.deleteMany({
           where: {
-            companyId: session.user.companyId,
+            companyId: companyIdStr, // Use string version
             provider: "default",
           },
         });
@@ -62,13 +65,13 @@ export async function PUT(req: NextRequest) {
           where: {
             provider_companyId: {
               provider: "default",
-              companyId: session.user.companyId,
+              companyId: companyIdStr, // Use string version
             },
           },
           create: {
             provider: "default",
             url: webhookUrl,
-            companyId: session.user.companyId,
+            companyId: companyIdStr, // Use string version
           },
           update: {
             url: webhookUrl,
@@ -79,9 +82,9 @@ export async function PUT(req: NextRequest) {
       // Handle theme updates
       if (theme) {
         await tx.feedbackTheme.upsert({
-          where: { companyId: session.user.companyId },
+          where: { companyId: companyIdStr }, // Use string version
           create: {
-            companyId: session.user.companyId,
+            companyId: companyIdStr, // Use string version
             primaryColor: theme.primaryColor || "#2563eb",
             accentColor: theme.accentColor || "#1d4ed8",
             logo: theme.logo ?? null,
@@ -98,7 +101,7 @@ export async function PUT(req: NextRequest) {
 
       // Update company settings
       const company = await tx.company.update({
-        where: { id: session.user.companyId },
+        where: { id: companyIdStr }, // Use string version
         data: {
           googleReviewLink: googleReviewLink ?? null,
           notifyEmail: notifyEmail ?? null,
