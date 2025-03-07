@@ -25,18 +25,14 @@ export async function PUT(req: NextRequest) {
   try {
     const session = await auth();
 
-    // Check authentication and authorization
     if (!session?.user?.companyId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Convert companyId to string (it’s guaranteed to be non-null here)
     const companyIdStr = session.user.companyId.toString();
-
     const body = await req.json();
-    console.log("Received body:", body);
+    console.log("Received body:", JSON.stringify(body, null, 2));
 
-    // Parse and validate the request body
     const parsedData = settingsSchema.parse(body);
     const {
       googleReviewLink,
@@ -48,30 +44,27 @@ export async function PUT(req: NextRequest) {
       theme,
     } = parsedData;
 
-    // Start a transaction to ensure atomic updates
     const [updatedCompany] = await prisma.$transaction(async (tx) => {
       // Handle webhook URL
       if (webhookUrl === "") {
-        // Delete existing webhook URL if empty string is provided
         await tx.webhookUrl.deleteMany({
           where: {
-            companyId: companyIdStr, // Use string version
+            companyId: companyIdStr,
             provider: "default",
           },
         });
       } else if (webhookUrl) {
-        // Upsert webhook URL if provided
         await tx.webhookUrl.upsert({
           where: {
             provider_companyId: {
               provider: "default",
-              companyId: companyIdStr, // Use string version
+              companyId: companyIdStr,
             },
           },
           create: {
             provider: "default",
             url: webhookUrl,
-            companyId: companyIdStr, // Use string version
+            companyId: companyIdStr,
           },
           update: {
             url: webhookUrl,
@@ -80,19 +73,20 @@ export async function PUT(req: NextRequest) {
       }
 
       // Handle theme updates
-      if (theme) {
-        await tx.feedbackTheme.upsert({
-          where: { companyId: companyIdStr }, // Use string version
+      let updatedTheme = null;
+      if (theme && Object.keys(theme).length > 0) {
+        updatedTheme = await tx.feedbackTheme.upsert({
+          where: { companyId: companyIdStr },
           create: {
-            companyId: companyIdStr, // Use string version
-            primaryColor: theme.primaryColor || "#2563eb",
-            accentColor: theme.accentColor || "#1d4ed8",
+            companyId: companyIdStr,
+            primaryColor: theme.primaryColor ?? "#2563eb", // Use ?? to avoid overriding falsy valid values
+            accentColor: theme.accentColor ?? "#1d4ed8",   // Use ?? instead of ||
             logo: theme.logo ?? null,
             customCss: theme.customCss ?? null,
           },
           update: {
-            primaryColor: theme.primaryColor || "#2563eb",
-            accentColor: theme.accentColor || "#1d4ed8",
+            primaryColor: theme.primaryColor ?? "#2563eb",
+            accentColor: theme.accentColor ?? "#1d4ed8",
             logo: theme.logo ?? null,
             customCss: theme.customCss ?? null,
           },
@@ -101,7 +95,7 @@ export async function PUT(req: NextRequest) {
 
       // Update company settings
       const company = await tx.company.update({
-        where: { id: companyIdStr }, // Use string version
+        where: { id: companyIdStr },
         data: {
           googleReviewLink: googleReviewLink ?? null,
           notifyEmail: notifyEmail ?? null,
@@ -110,9 +104,7 @@ export async function PUT(req: NextRequest) {
           emailSubject: emailSubject ?? null,
         },
         include: {
-          webhookUrls: {
-            where: { provider: "default" },
-          },
+          webhookUrls: { where: { provider: "default" } },
           feedbackTheme: true,
         },
       });
@@ -120,19 +112,16 @@ export async function PUT(req: NextRequest) {
       return [company];
     });
 
-    // Return the updated company data with included relations
     return NextResponse.json(updatedCompany);
   } catch (error) {
-    // Handle Zod validation errors
     if (error instanceof z.ZodError) {
-      console.error("Validation errors:", error.errors);
+      console.error("Validation errors:", JSON.stringify(error.errors, null, 2));
       return NextResponse.json(
         { error: "Validation failed", details: error.errors },
         { status: 400 }
       );
     }
 
-    // Handle Prisma or other unexpected errors
     console.error("Error updating settings:", error);
     return NextResponse.json(
       { error: "Internal server error" },

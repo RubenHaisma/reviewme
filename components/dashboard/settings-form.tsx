@@ -77,19 +77,19 @@ export function SettingsForm({ company }: SettingsFormProps) {
   const PreviewSection = () => (
     <div className="mt-4 p-4 border rounded-lg">
       <h3 className="text-lg font-semibold mb-4">Theme Preview</h3>
-      <div 
+      <div
         className="p-4 rounded-lg"
         style={{
-          backgroundColor: 'white',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          backgroundColor: "white",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
         }}
       >
         {themeData.logo && (
           <div className="mb-4">
             <p className="text-sm text-muted-foreground mb-2">Current Logo:</p>
-            <img 
-              src={themeData.logo} 
-              alt="Logo Preview" 
+            <img
+              src={themeData.logo}
+              alt="Logo Preview"
               className="h-12 object-contain"
             />
           </div>
@@ -97,14 +97,14 @@ export function SettingsForm({ company }: SettingsFormProps) {
         <div className="flex flex-col gap-4">
           <div>
             <p className="text-sm text-muted-foreground mb-2">Primary Color:</p>
-            <div 
+            <div
               className="h-10 rounded-md"
               style={{ backgroundColor: themeData.primaryColor }}
             />
           </div>
           <div>
             <p className="text-sm text-muted-foreground mb-2">Accent Color:</p>
-            <div 
+            <div
               className="h-10 rounded-md"
               style={{ backgroundColor: themeData.accentColor }}
             />
@@ -119,22 +119,38 @@ export function SettingsForm({ company }: SettingsFormProps) {
     setIsSubmitting(true);
 
     try {
+      const payload = {
+        ...formData,
+        theme: { ...themeData }, // Always send the full theme object
+      };
+
+      console.log("Submitting data:", JSON.stringify(payload, null, 2));
+
       const response = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          theme: themeData,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
         const error = await response.json();
+        console.error("API response error:", error);
         throw new Error(error.error || "Failed to update settings");
       }
 
+      const updatedCompany = await response.json();
+      console.log("Updated company data:", updatedCompany);
+
+      // Update local state with the server's response to ensure consistency
+      setThemeData({
+        primaryColor: updatedCompany.feedbackTheme?.primaryColor || "#2563eb",
+        accentColor: updatedCompany.feedbackTheme?.accentColor || "#1d4ed8",
+        logo: updatedCompany.feedbackTheme?.logo || "",
+        customCss: updatedCompany.feedbackTheme?.customCss || "",
+      });
+
       toast.success("Settings updated successfully");
-      router.refresh();
+      router.refresh(); // Refresh to get the latest server data
     } catch (error) {
       console.error("Settings form error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to update settings");
@@ -223,9 +239,7 @@ export function SettingsForm({ company }: SettingsFormProps) {
               onChange={(e) =>
                 setFormData({ ...formData, emailTemplate: e.target.value })
               }
-              placeholder="Dear ${customerName},
-
-Thank you for choosing ${companyName}..."
+              placeholder="Dear ${customerName},\n\nThank you for choosing ${companyName}..."
               className="mt-1 min-h-[200px] font-mono"
             />
             <p className="text-sm text-muted-foreground mt-1">
