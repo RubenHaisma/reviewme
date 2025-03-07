@@ -1,24 +1,13 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/layout/footer';
+import { Navigation } from '@/components/layout/navigation';
 
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="border-b">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold">Raatum</Link>
-          <div className="flex items-center gap-4">
-            <Link href="/auth/login">
-              <Button variant="ghost">Sign In</Button>
-            </Link>
-            <Link href="/auth/register">
-              <Button>Get Started</Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navigation isAuthenticated={false} />
 
       {/* Content */}
       <div className="py-12">

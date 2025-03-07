@@ -1,24 +1,14 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/layout/footer';
+import { Navigation } from '@/components/layout/navigation';
 
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="border-b">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold">Raatum</Link>
-          <div className="flex items-center gap-4">
-            <Link href="/auth/login">
-              <Button variant="ghost">Sign In</Button>
-            </Link>
-            <Link href="/auth/register">
-              <Button>Get Started</Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navigation isAuthenticated={false
+      } />
 
       {/* Content */}
       <div className="py-12">
@@ -29,7 +19,7 @@ export default function PrivacyPolicyPage() {
 
             <h2>1. Introduction</h2>
             <p>
-              Raatum ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our review management platform (the "Service"). Please read this policy carefully. If you do not agree with the terms of this Privacy Policy, please do not access the Service.
+              Raatum ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our review management platform (the &quot;Service&quot;). Please read this policy carefully. If you do not agree with the terms of this Privacy Policy, please do not access the Service.
             </p>
 
             <h2>2. Information We Collect</h2>

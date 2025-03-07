@@ -1,27 +1,19 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Star, ChartBar, MessageCircle, Settings, CheckCircle } from 'lucide-react';
+import { Star, ChartBar, MessageCircle, CheckCircle } from 'lucide-react';
 import { Footer } from '@/components/layout/footer';
+import { Navigation } from '@/components/layout/navigation';
 
 export default function Home() {
+  // Simulated auth state (replace with actual auth logic)
+  const isAuthenticated = false; // Example: Set to true if user is logged in
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="border-b">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="text-xl font-bold">Raatum</div>
-          <div className="flex items-center gap-4">
-            <Link href="/auth/login">
-              <Button variant="ghost">Sign In</Button>
-            </Link>
-            <Link href="/auth/register">
-              <Button>Get Started</Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+        <Navigation isAuthenticated={isAuthenticated} />
 
-      {/* Hero Section */}
+        {/* Hero Section */}
       <header className="relative overflow-hidden bg-background pt-16 pb-32">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
@@ -29,15 +21,19 @@ export default function Home() {
               Transform Your Customer Reviews
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Start collecting and managing customer feedback today. Get your first 20 customers completely free, 
+              Start collecting and managing customer feedback today. Get your first 20 customers completely free,
               then choose a plan that grows with your business.
             </p>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
               <Link href="/auth/register">
-                <Button size="lg" className="bg-primary hover:bg-primary/90">Get Started Free</Button>
+                <Button size="lg" className="bg-primary hover:bg-primary/90">
+                  Get Started Free
+                </Button>
               </Link>
               <Link href="/auth/login">
-                <Button variant="outline" size="lg">Sign In</Button>
+                <Button variant="outline" size="lg">
+                  Sign In
+                </Button>
               </Link>
             </div>
           </div>

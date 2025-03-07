@@ -4,25 +4,15 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Footer } from '@/components/layout/footer';
 import { Mail, Phone, MapPin } from 'lucide-react';
+import { Navigation } from '@/components/layout/navigation';
+
 
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="border-b">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold">Raatum</Link>
-          <div className="flex items-center gap-4">
-            <Link href="/auth/login">
-              <Button variant="ghost">Sign In</Button>
-            </Link>
-            <Link href="/auth/register">
-              <Button>Get Started</Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
-
+      <Navigation isAuthenticated={false} />
+      
       {/* Hero Section */}
       <div className="py-20 bg-background">
         <div className="container mx-auto px-4">
