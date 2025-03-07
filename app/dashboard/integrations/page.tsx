@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { WebhookUrlForm } from "@/components/dashboard/webhook-url-form";
+import { ConnectDialog } from "@/components/dashboard/integrations/connect-dialog";
 
 interface CustomUser {
   id: string;
@@ -100,17 +100,22 @@ export default async function IntegrationsPage() {
                     Coming Soon
                   </Button>
                 ) : (
-                  <Button className="w-[100px]">Connect</Button>
+                  <ConnectDialog 
+                    integrationId={integration.id}
+                    integrationName={integration.name}
+                  />
                 )}
               </div>
             </div>
 
             {integration.connected && integration.id === "vertimart" && (
               <div className="mt-4 border-t pt-4">
-                <WebhookUrlForm
-                  provider="vertimart"
-                  initialUrl={webhookUrls.find(w => w.provider === "vertimart")?.url}
-                />
+                <div className="text-sm text-muted-foreground">
+                  <p>Your webhook URL:</p>
+                  <code className="mt-1 block bg-muted p-2 rounded">
+                    {webhookUrls.find(w => w.provider === "vertimart")?.url}
+                  </code>
+                </div>
               </div>
             )}
           </Card>

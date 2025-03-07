@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,19 @@ import { Card } from "@/components/ui/card";
 import { ColorPicker } from "@/components/ui/color-picker";
 import { FileUpload } from "@/components/ui/file-upload";
 
+interface WebhookUrl {
+  id: string;
+  provider: string;
+  url: string;
+}
+
+interface FeedbackTheme {
+  primaryColor: string;
+  accentColor: string;
+  logo: string | null;
+  customCss: string | null;
+}
+
 interface SettingsFormProps {
   company: {
     id: string;
@@ -21,98 +34,32 @@ interface SettingsFormProps {
     notifyOnNegative: boolean;
     emailTemplate: string | null;
     emailSubject: string | null;
-    webhookUrls: Array<{
-      id: string;
-      provider: string;
-      url: string;
-    }>;
-    feedbackTheme?: {
-      primaryColor: string;
-      accentColor: string;
-      logo: string | null;
-      customCss: string | null;
-    } | null;
+    webhookUrls: WebhookUrl[];
+    feedbackTheme: FeedbackTheme | null;
   };
 }
 
 export function SettingsForm({ company }: SettingsFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Ensure all fields have proper fallbacks
   const [formData, setFormData] = useState({
-    googleReviewLink: "",
-    notifyEmail: "",
-    notifyOnNegative: false,
-    emailTemplate: "",
-    emailSubject: "",
-    webhookUrl: "",
+    googleReviewLink: company.googleReviewLink || "",
+    notifyEmail: company.notifyEmail || "",
+    notifyOnNegative: company.notifyOnNegative ?? false,
+    emailTemplate: company.emailTemplate || "",
+    emailSubject: company.emailSubject || "",
+    // Handle multiple webhook URLs properly
+    webhookUrl: company.webhookUrls.length > 0 ? company.webhookUrls[0].url : "",
   });
 
   const [themeData, setThemeData] = useState({
-    primaryColor: "#2563eb",
-    accentColor: "#1d4ed8",
-    logo: "",
-    customCss: "",
+    primaryColor: company.feedbackTheme?.primaryColor || "#2563eb",
+    accentColor: company.feedbackTheme?.accentColor || "#1d4ed8",
+    logo: company.feedbackTheme?.logo || "",
+    customCss: company.feedbackTheme?.customCss || "",
   });
-
-  // Initialize form data from company props
-  useEffect(() => {
-    setFormData({
-      googleReviewLink: company.googleReviewLink || "",
-      notifyEmail: company.notifyEmail || "",
-      notifyOnNegative: company.notifyOnNegative,
-      emailTemplate: company.emailTemplate || "",
-      emailSubject: company.emailSubject || "",
-      webhookUrl: company.webhookUrls[0]?.url || "",
-    });
-
-    setThemeData({
-      primaryColor: company.feedbackTheme?.primaryColor || "#2563eb",
-      accentColor: company.feedbackTheme?.accentColor || "#1d4ed8",
-      logo: company.feedbackTheme?.logo || "",
-      customCss: company.feedbackTheme?.customCss || "",
-    });
-  }, [company]);
-
-  // Preview section to show how the theme will look
-  const PreviewSection = () => (
-    <div className="mt-4 p-4 border rounded-lg">
-      <h3 className="text-lg font-semibold mb-4">Theme Preview</h3>
-      <div
-        className="p-4 rounded-lg"
-        style={{
-          backgroundColor: "white",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-        }}
-      >
-        {themeData.logo && (
-          <div className="mb-4">
-            <p className="text-sm text-muted-foreground mb-2">Current Logo:</p>
-            <img
-              src={themeData.logo}
-              alt="Logo Preview"
-              className="h-12 object-contain"
-            />
-          </div>
-        )}
-        <div className="flex flex-col gap-4">
-          <div>
-            <p className="text-sm text-muted-foreground mb-2">Primary Color:</p>
-            <div
-              className="h-10 rounded-md"
-              style={{ backgroundColor: themeData.primaryColor }}
-            />
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground mb-2">Accent Color:</p>
-            <div
-              className="h-10 rounded-md"
-              style={{ backgroundColor: themeData.accentColor }}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,13 +67,27 @@ export function SettingsForm({ company }: SettingsFormProps) {
 
     try {
       const payload = {
-        ...formData,
-        theme: { ...themeData }, // Always send the full theme object
+        googleReviewLink: formData.googleReviewLink || null,
+        notifyEmail: formData.notifyEmail || null,
+        notifyOnNegative: formData.notifyOnNegative,
+        emailTemplate: formData.emailTemplate || null,
+        emailSubject: formData.emailSubject || null,
+        webhookUrls: formData.webhookUrl
+          ? [{
+              id: company.webhookUrls[0]?.id || undefined,
+              provider: company.webhookUrls[0]?.provider || "default",
+              url: formData.webhookUrl
+            }]
+          : [],
+        feedbackTheme: {
+          primaryColor: themeData.primaryColor,
+          accentColor: themeData.accentColor,
+          logo: themeData.logo || null,
+          customCss: themeData.customCss || null,
+        },
       };
 
-      console.log("Submitting data:", JSON.stringify(payload, null, 2));
-
-      const response = await fetch("/api/settings", {
+      const response = await fetch(`/api/settings?companyId=${company.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -134,26 +95,15 @@ export function SettingsForm({ company }: SettingsFormProps) {
 
       if (!response.ok) {
         const error = await response.json();
-        console.error("API response error:", error);
         throw new Error(error.error || "Failed to update settings");
       }
 
-      const updatedCompany = await response.json();
-      console.log("Updated company data:", updatedCompany);
-
-      // Update local state with the server's response to ensure consistency
-      setThemeData({
-        primaryColor: updatedCompany.feedbackTheme?.primaryColor || "#2563eb",
-        accentColor: updatedCompany.feedbackTheme?.accentColor || "#1d4ed8",
-        logo: updatedCompany.feedbackTheme?.logo || "",
-        customCss: updatedCompany.feedbackTheme?.customCss || "",
-      });
-
       toast.success("Settings updated successfully");
-      router.refresh(); // Refresh to get the latest server data
+      router.refresh();
     } catch (error) {
-      console.error("Settings form error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to update settings");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update settings"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -176,9 +126,6 @@ export function SettingsForm({ company }: SettingsFormProps) {
               placeholder="https://g.page/r/..."
               className="mt-1"
             />
-            <p className="text-sm text-muted-foreground mt-1">
-              Customers with positive feedback will be redirected to this link
-            </p>
           </div>
 
           <div>
@@ -209,9 +156,24 @@ export function SettingsForm({ company }: SettingsFormProps) {
               }
             />
           </div>
+
+          <div>
+            <Label htmlFor="webhookUrl">Webhook URL</Label>
+            <Input
+              id="webhookUrl"
+              type="url"
+              value={formData.webhookUrl}
+              onChange={(e) =>
+                setFormData({ ...formData, webhookUrl: e.target.value })
+              }
+              placeholder="https://your-webhook-endpoint.com"
+              className="mt-1"
+            />
+          </div>
         </div>
       </Card>
 
+      {/* Rest of the form remains largely the same */}
       <Card className="p-6">
         <h2 className="text-lg font-semibold mb-4">Email Template Settings</h2>
         <div className="space-y-4">
@@ -226,9 +188,6 @@ export function SettingsForm({ company }: SettingsFormProps) {
               placeholder="How was your experience with ${companyName}?"
               className="mt-1"
             />
-            <p className="text-sm text-muted-foreground mt-1">
-              Available variables: ${"{customerName}"}, ${"{companyName}"}
-            </p>
           </div>
 
           <div>
@@ -242,9 +201,6 @@ export function SettingsForm({ company }: SettingsFormProps) {
               placeholder="Dear ${customerName},\n\nThank you for choosing ${companyName}..."
               className="mt-1 min-h-[200px] font-mono"
             />
-            <p className="text-sm text-muted-foreground mt-1">
-              Available variables: ${"{customerName}"}, ${"{companyName}"}, ${"{feedbackUrl}"}
-            </p>
           </div>
         </div>
       </Card>
@@ -281,9 +237,6 @@ export function SettingsForm({ company }: SettingsFormProps) {
               }}
               accept="image/*"
             />
-            <p className="text-sm text-muted-foreground mt-1">
-              Recommended size: 200x50px
-            </p>
           </div>
 
           <div>
@@ -297,12 +250,7 @@ export function SettingsForm({ company }: SettingsFormProps) {
               placeholder=".feedback-form { /* your styles */ }"
               className="font-mono"
             />
-            <p className="text-sm text-muted-foreground mt-1">
-              Add custom CSS to style your feedback page
-            </p>
           </div>
-
-          <PreviewSection />
         </div>
       </Card>
 

@@ -3,15 +3,22 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
-// Define the settings schema with flexible validation
 const settingsSchema = z.object({
   googleReviewLink: z.string().url().nullable().optional(),
   notifyEmail: z.string().email().nullable().optional(),
   notifyOnNegative: z.boolean().optional(),
   emailTemplate: z.string().nullable().optional(),
   emailSubject: z.string().nullable().optional(),
-  webhookUrl: z.string().url().nullable().optional().or(z.literal("")),
-  theme: z
+  webhookUrls: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        provider: z.string(),
+        url: z.string().url(),
+      })
+    )
+    .optional(),
+  feedbackTheme: z
     .object({
       primaryColor: z.string().optional(),
       accentColor: z.string().optional(),
@@ -24,12 +31,11 @@ const settingsSchema = z.object({
 export async function PUT(req: NextRequest) {
   try {
     const session = await auth();
-
     if (!session?.user?.companyId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const companyIdStr = session.user.companyId.toString();
+    const companyId = session.user.companyId;
     const body = await req.json();
     console.log("Received body:", JSON.stringify(body, null, 2));
 
@@ -40,76 +46,80 @@ export async function PUT(req: NextRequest) {
       notifyOnNegative,
       emailTemplate,
       emailSubject,
-      webhookUrl,
-      theme,
+      webhookUrls,
+      feedbackTheme,
     } = parsedData;
 
-    const [updatedCompany] = await prisma.$transaction(async (tx) => {
-      // Handle webhook URL
-      if (webhookUrl === "") {
-        await tx.webhookUrl.deleteMany({
-          where: {
-            companyId: companyIdStr,
-            provider: "default",
-          },
-        });
-      } else if (webhookUrl) {
-        await tx.webhookUrl.upsert({
-          where: {
-            provider_companyId: {
-              provider: "default",
-              companyId: companyIdStr,
+    const updatedCompany = await prisma.$transaction(async (tx) => {
+      // Handle webhook URLs
+      if (webhookUrls !== undefined) {
+        if (webhookUrls.length === 0) {
+          await tx.webhookUrl.deleteMany({ where: { companyId } });
+        } else {
+          await tx.webhookUrl.deleteMany({
+            where: {
+              companyId,
+              NOT: { id: { in: webhookUrls.filter(w => w.id).map(w => w.id!) } },
             },
-          },
-          create: {
-            provider: "default",
-            url: webhookUrl,
-            companyId: companyIdStr,
-          },
-          update: {
-            url: webhookUrl,
-          },
-        });
+          });
+          await Promise.all(
+            webhookUrls.map(webhook =>
+              tx.webhookUrl.upsert({
+                where: {
+                  provider_companyId: {
+                    provider: webhook.provider || "default",
+                    companyId,
+                  },
+                },
+                create: {
+                  provider: webhook.provider || "default",
+                  url: webhook.url,
+                  companyId,
+                },
+                update: { url: webhook.url },
+              })
+            )
+          );
+        }
       }
 
-      // Handle theme updates
-      let updatedTheme = null;
-      if (theme && Object.keys(theme).length > 0) {
-        updatedTheme = await tx.feedbackTheme.upsert({
-          where: { companyId: companyIdStr },
+      // Handle feedback theme updates
+      if (feedbackTheme && Object.keys(feedbackTheme).length > 0) {
+        await tx.feedbackTheme.upsert({
+          where: { companyId },
           create: {
-            companyId: companyIdStr,
-            primaryColor: theme.primaryColor ?? "#2563eb", // Use ?? to avoid overriding falsy valid values
-            accentColor: theme.accentColor ?? "#1d4ed8",   // Use ?? instead of ||
-            logo: theme.logo ?? null,
-            customCss: theme.customCss ?? null,
+            companyId,
+            primaryColor: feedbackTheme.primaryColor || "#2563eb",
+            accentColor: feedbackTheme.accentColor || "#1d4ed8",
+            logo: feedbackTheme.logo ?? null,
+            customCss: feedbackTheme.customCss ?? null,
           },
           update: {
-            primaryColor: theme.primaryColor ?? "#2563eb",
-            accentColor: theme.accentColor ?? "#1d4ed8",
-            logo: theme.logo ?? null,
-            customCss: theme.customCss ?? null,
+            ...(feedbackTheme.primaryColor && { primaryColor: feedbackTheme.primaryColor }),
+            ...(feedbackTheme.accentColor && { accentColor: feedbackTheme.accentColor }),
+            ...(feedbackTheme.logo !== undefined && { logo: feedbackTheme.logo }),
+            ...(feedbackTheme.customCss !== undefined && { customCss: feedbackTheme.customCss }),
           },
         });
       }
 
       // Update company settings
       const company = await tx.company.update({
-        where: { id: companyIdStr },
+        where: { id: companyId },
         data: {
-          googleReviewLink: googleReviewLink ?? null,
-          notifyEmail: notifyEmail ?? null,
-          notifyOnNegative: notifyOnNegative ?? false,
-          emailTemplate: emailTemplate ?? null,
-          emailSubject: emailSubject ?? null,
+          googleReviewLink,
+          notifyEmail,
+          notifyOnNegative,
+          emailTemplate,
+          emailSubject,
         },
         include: {
-          webhookUrls: { where: { provider: "default" } },
+          webhookUrls: true,
           feedbackTheme: true,
         },
       });
 
-      return [company];
+      return company;
     });
 
     return NextResponse.json(updatedCompany);
@@ -121,12 +131,8 @@ export async function PUT(req: NextRequest) {
         { status: 400 }
       );
     }
-
     console.error("Error updating settings:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
