@@ -7,14 +7,10 @@ import bcrypt from "bcryptjs";
 import NextAuth from "next-auth";
 import type { Adapter } from "next-auth/adapters";
 import type { DefaultSession } from "next-auth";
+import { z } from "zod";
 
-// Single module augmentation for "next-auth"
 declare module "next-auth" {
   interface User {
-    id: string; // Required to match Prisma and adapter
-    name?: string | null;
-    email: string;
-    image?: string | null;
     role: UserRole;
     companyId?: string | null;
   }
@@ -28,7 +24,6 @@ declare module "next-auth" {
   }
 }
 
-// Extend the JWT type
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
@@ -39,89 +34,88 @@ declare module "next-auth/jwt" {
 
 const prisma = new PrismaClient();
 
-// Custom adapter to include role and companyId
-const customPrismaAdapter = (prisma: PrismaClient): Adapter => {
-  const adapter = PrismaAdapter(prisma);
+// Define a schema for credentials
+const credentialsSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+});
 
-  const createUser = async (data: any) => {
-    const user = await prisma.user.create({
-      data: {
-        email: data.email,
-        name: data.name,
-        emailVerified: data.emailVerified,
-        role: data.role || "USER",
-        companyId: data.companyId || null,
-      },
-    });
-
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      emailVerified: user.emailVerified,
-      role: user.role,
-      companyId: user.companyId,
-    };
-  };
-
-  const getUser = async (id: string) => {
-    const user = await prisma.user.findUnique({
-      where: { id },
-    });
-    if (!user) return null;
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      emailVerified: user.emailVerified,
-      role: user.role,
-      companyId: user.companyId,
-    };
-  };
-
-  const getUserByEmail = async (email: string) => {
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-    if (!user) return null;
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      emailVerified: user.emailVerified,
-      role: user.role,
-      companyId: user.companyId,
-    };
-  };
-
-  const getUserByAccount = async (providerAccountId: { provider: string; providerAccountId: string }) => {
-    const account = await prisma.account.findUnique({
-      where: {
-        provider_providerAccountId: {
-          provider: providerAccountId.provider,
-          providerAccountId: providerAccountId.providerAccountId,
-        },
-      },
-      include: { user: true },
-    });
-    const user = account?.user;
-    if (!user) return null;
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      emailVerified: user.emailVerified,
-      role: user.role,
-      companyId: user.companyId,
-    };
-  };
+const customPrismaAdapter = (p: PrismaClient): Adapter => {
+  const baseAdapter = PrismaAdapter(p) as Adapter;
 
   return {
-    ...adapter,
-    createUser,
-    getUser,
-    getUserByEmail,
-    getUserByAccount,
+    ...baseAdapter,
+    async createUser(data) {
+      const user = await p.user.create({
+        data: {
+          email: data.email,
+          name: data.name,
+          emailVerified: data.emailVerified,
+          role: "USER",
+          companyId: null,
+        },
+      });
+
+      return {
+        ...user,
+        role: user.role,
+        companyId: user.companyId,
+      };
+    },
+
+    async getUser(id) {
+      const user = await p.user.findUnique({ where: { id } });
+      if (!user) return null;
+      return {
+        ...user,
+        role: user.role,
+        companyId: user.companyId,
+      };
+    },
+
+    async getUserByEmail(email) {
+      const user = await p.user.findUnique({ where: { email } });
+      if (!user) return null;
+      return {
+        ...user,
+        role: user.role,
+        companyId: user.companyId,
+      };
+    },
+
+    async getUserByAccount({ providerAccountId, provider }) {
+      const account = await p.account.findUnique({
+        where: {
+          provider_providerAccountId: { provider, providerAccountId },
+        },
+        include: { user: true },
+      });
+      if (!account) return null;
+
+      const { user } = account;
+      return {
+        ...user,
+        role: user.role,
+        companyId: user.companyId,
+      };
+    },
+
+    async updateUser(data) {
+      const user = await p.user.update({
+        where: { id: data.id },
+        data: {
+          name: data.name,
+          email: data.email,
+          emailVerified: data.emailVerified,
+          image: data.image,
+        },
+      });
+      return {
+        ...user,
+        role: user.role,
+        companyId: user.companyId,
+      };
+    },
   };
 };
 
@@ -140,12 +134,16 @@ export const authOptions: NextAuthConfig = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Ongeldige inloggegevens");
+        // Validate credentials with Zod
+        const parsedCredentials = credentialsSchema.safeParse(credentials);
+        if (!parsedCredentials.success) {
+          throw new Error("Invalid credentials");
         }
 
+        const { email, password } = parsedCredentials.data;
+
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email },
           select: {
             id: true,
             email: true,
@@ -158,16 +156,16 @@ export const authOptions: NextAuthConfig = {
         });
 
         if (!user || !user.password) {
-          throw new Error("Ongeldige inloggegevens");
+          throw new Error("Invalid credentials");
         }
 
         if (!user.emailVerified) {
-          throw new Error("E-mailadres is nog niet geverifieerd. Controleer je inbox.");
+          throw new Error("Please verify your email address first. Check your inbox.");
         }
 
-        const isCorrectPassword = await bcrypt.compare(credentials.password, user.password);
+        const isCorrectPassword = await bcrypt.compare(password, user.password);
         if (!isCorrectPassword) {
-          throw new Error("Ongeldige inloggegevens");
+          throw new Error("Invalid credentials");
         }
 
         return {
@@ -181,8 +179,8 @@ export const authOptions: NextAuthConfig = {
     }),
   ],
   pages: {
-    signIn: "/login",
-    error: "/login",
+    signIn: "/auth/login",
+    error: "/auth/login",
   },
   debug: process.env.NODE_ENV === "development",
   session: {
@@ -199,7 +197,7 @@ export const authOptions: NextAuthConfig = {
       return session;
     },
     async jwt({ token, user }) {
-      if (user) {
+      if (user && user.id) {
         token.id = user.id;
         token.role = user.role;
         token.companyId = user.companyId;

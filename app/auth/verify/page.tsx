@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-export default function VerifyPage() {
+// Force dynamic rendering for this page
+export const dynamic = "force-dynamic";
+
+function VerifyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isVerifying, setIsVerifying] = useState(true);
@@ -21,7 +24,7 @@ export default function VerifyPage() {
     async function verifyEmail() {
       try {
         const response = await fetch(`/api/auth/verify?token=${token}`, {
-          method: "GET", // Change to GET
+          method: "GET",
           headers: { "Content-Type": "application/json" },
         });
 
@@ -58,5 +61,20 @@ export default function VerifyPage() {
         )}
       </Card>
     </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md p-6 text-center">
+          <h1 className="text-2xl font-bold mb-4">Email Verification</h1>
+          <p className="text-muted-foreground">Loading verification...</p>
+        </Card>
+      </div>
+    }>
+      <VerifyContent />
+    </Suspense>
   );
 }
