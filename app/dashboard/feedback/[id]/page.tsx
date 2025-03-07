@@ -1,4 +1,4 @@
-import { auth } from "../../../api/auth/[...nextauth]/route";
+import { auth, authOptions } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
@@ -33,7 +33,7 @@ export default async function FeedbackDetailPage({
   const feedback = await prisma.feedback.findUnique({
     where: { 
       id: params.id,
-      companyId: session.user.companyId,
+      companyId: session.user.companyId?.toString(),
     },
     include: { 
       appointment: true,

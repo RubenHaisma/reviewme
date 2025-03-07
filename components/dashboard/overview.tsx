@@ -12,7 +12,29 @@ import {
 } from "recharts";
 import { formatDistanceToNow } from "date-fns";
 
-export function DashboardOverview({ feedback, stats }) {
+interface Appointment {
+  customerName: string;
+}
+
+interface FeedbackItem {
+  id: string;
+  score: number;
+  comment?: string;
+  createdAt: string;
+  appointment: Appointment;
+}
+
+interface StatItem {
+  score: number;
+  _count: number;
+}
+
+interface DashboardOverviewProps {
+  feedback: FeedbackItem[];
+  stats: StatItem[];
+}
+
+export function DashboardOverview({ feedback, stats }: DashboardOverviewProps) {
   const chartData = stats.map((stat) => ({
     score: stat.score,
     count: stat._count,

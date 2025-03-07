@@ -60,7 +60,7 @@ export async function POST(req: Request) {
 
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        if (session.subscription && session.customer) {
+        if (session.subscription && session.customer && session.client_reference_id) {
           await prisma.company.update({
             where: { id: session.client_reference_id },
             data: {

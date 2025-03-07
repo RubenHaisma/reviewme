@@ -1,4 +1,4 @@
-import { auth } from "../../api/auth/[...nextauth]/route";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ export default async function ClientsPage() {
   }
 
   const clients = await prisma.client.findMany({
-    where: { companyId: session.user.companyId },
+    where: { companyId: session.user.companyId?.toString() },
     orderBy: { createdAt: "desc" },
   });
 

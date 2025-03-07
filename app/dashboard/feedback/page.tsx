@@ -1,4 +1,4 @@
-import { auth } from "../../api/auth/[...nextauth]/route";
+import { auth, authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
@@ -27,7 +27,7 @@ export default async function FeedbackPage() {
   }
 
   const feedback = await prisma.feedback.findMany({
-    where: { companyId: session.user.companyId },
+    where: { companyId: String(session.user.companyId) },
     include: { appointment: true },
     orderBy: { createdAt: "desc" },
   });

@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import getServerSession from "next-auth";
+import { auth } from "@/lib/auth"; // Import auth instead of authOptions
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
-import { authOptions } from "../../auth/[...nextauth]/route";
 import { z } from "zod";
 
 const createCheckoutSchema = z.object({
@@ -11,13 +10,10 @@ const createCheckoutSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth(); // Use auth() to get the session
 
     if (!session?.user?.companyId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
@@ -28,10 +24,7 @@ export async function POST(req: Request) {
     });
 
     if (!company) {
-      return NextResponse.json(
-        { error: "Company not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Company not found" }, { status: 404 });
     }
 
     const checkoutSession = await stripe.checkout.sessions.create({
@@ -54,9 +47,6 @@ export async function POST(req: Request) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors }, { status: 400 });
     }
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

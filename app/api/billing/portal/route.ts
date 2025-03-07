@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-import getServerSession from "next-auth";
+import { auth } from "@/lib/auth";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
-import { authOptions } from "../../auth/[...nextauth]/route";
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.companyId) {
       return NextResponse.json(
@@ -38,4 +37,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}   
+}

@@ -1,4 +1,4 @@
-import { auth } from "../../api/auth/[...nextauth]/route"; // Import auth from your route
+import { auth, authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { SettingsForm } from "@/components/dashboard/settings-form";
@@ -25,7 +25,7 @@ export default async function SettingsPage() {
   }
 
   const company = await prisma.company.findUnique({
-    where: { id: session.user.companyId },
+    where: { id: session.user.companyId.toString() },
     include: {
       webhookUrls: true,
     },
@@ -38,7 +38,7 @@ export default async function SettingsPage() {
   return (
     <div className="max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-8">Company Settings</h1>
-      <SettingsForm company={company} />
+      <SettingsForm company={{...company, webhookUrls: company.webhookUrls}} />
     </div>
   );
 }

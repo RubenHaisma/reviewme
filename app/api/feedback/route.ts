@@ -25,10 +25,27 @@ export async function POST(req: Request) {
       );
     }
 
+    // Create or get customer record
+    const customer = await prisma.customer.upsert({
+      where: {
+        email_companyId: {
+          email: appointment.customerEmail,
+          companyId: appointment.companyId,
+        },
+      },
+      create: {
+        companyId: appointment.companyId,
+        name: appointment.customerName,
+        email: appointment.customerEmail,
+      },
+      update: {},
+    });
+
     const feedback = await prisma.feedback.create({
       data: {
         appointmentId,
         companyId: appointment.companyId,
+        customerId: customer.id,
         score,
         comment,
         redirectedToGoogle: score >= 4,

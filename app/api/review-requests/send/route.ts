@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "../../auth/[...nextauth]/route";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendReviewRequestEmail } from "@/lib/email";
 import { z } from "zod";
@@ -60,8 +60,8 @@ export async function POST(req: Request) {
       customerName: client.name,
       companyName: company.name,
       appointmentId: appointment.id,
-      template: company.emailTemplate,
-      subject: company.emailSubject,
+      template: company.emailTemplate || undefined,
+      subject: company.emailSubject || undefined,
     });
 
     // Update client's last review request date
