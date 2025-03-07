@@ -51,6 +51,7 @@
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
+    "express": "^4.21.2",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.446.0",
     "micro": "^10.0.1",
@@ -76,6 +77,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/express": "^5.0.0",
     "@types/micro": "^7.3.7",
     "@types/node": "20.6.2",
     "@types/nodemailer": "^6.4.14",

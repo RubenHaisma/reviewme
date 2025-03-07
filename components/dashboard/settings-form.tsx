@@ -46,6 +46,7 @@ export function SettingsForm({ company }: SettingsFormProps) {
     emailSubject: company.emailSubject || "",
     webhookUrl: company.webhookUrls[0]?.url || "",
   });
+
   const [themeData, setThemeData] = useState({
     primaryColor: company.feedbackTheme?.primaryColor || "#2563eb",
     accentColor: company.feedbackTheme?.accentColor || "#1d4ed8",
@@ -58,18 +59,27 @@ export function SettingsForm({ company }: SettingsFormProps) {
     setIsSubmitting(true);
 
     try {
+      console.log("Submitting data:", { ...formData, theme: themeData }); // Debug log
+
       const response = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          theme: themeData,
+        }),
       });
 
-      if (!response.ok) throw new Error("Failed to update settings");
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to update settings");
+      }
 
       toast.success("Settings updated successfully");
       router.refresh();
     } catch (error) {
-      toast.error("Failed to update settings");
+      console.error("Settings form error:", error); // Debug log
+      toast.error(error instanceof Error ? error.message : "Failed to update settings");
     } finally {
       setIsSubmitting(false);
     }
@@ -194,7 +204,10 @@ Thank you for choosing ${companyName}..."
             <Label>Company Logo</Label>
             <FileUpload
               value={themeData.logo}
-              onChange={(url) => setThemeData({ ...themeData, logo: url })}
+              onChange={(url) => {
+                console.log("Logo changed:", url); // Debug log
+                setThemeData({ ...themeData, logo: url });
+              }}
               accept="image/*"
             />
             <p className="text-sm text-muted-foreground mt-1">

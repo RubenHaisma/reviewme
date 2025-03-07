@@ -5,9 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Upload, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
-
-
 
 interface FileUploadProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value?: string;
@@ -16,35 +13,49 @@ interface FileUploadProps extends Omit<React.InputHTMLAttributes<HTMLInputElemen
 
 const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
   ({ className, value, onChange, accept, ...props }, ref) => {
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
     const [preview, setPreview] = React.useState<string | null>(value || null);
     const [isUploading, setIsUploading] = React.useState(false);
+
+    React.useEffect(() => {
+      setPreview(value || null);
+    }, [value]);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
 
-      // For demo purposes, we're just creating a temporary URL
-      // In a real application, you would upload to a storage service
-      const url = URL.createObjectURL(file);
-      setPreview(url);
-      onChange?.(url);
-
-      // Simulate upload delay
       setIsUploading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setIsUploading(false);
+
+      try {
+        // Convert the file to base64
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64String = reader.result as string;
+          setPreview(base64String);
+          onChange?.(base64String);
+          setIsUploading(false);
+        };
+        reader.readAsDataURL(file);
+      } catch (error) {
+        console.error('Error processing file:', error);
+        setIsUploading(false);
+      }
     };
 
     const handleRemove = () => {
       setPreview(null);
       onChange?.('');
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     };
 
     return (
       <div className={cn('space-y-2', className)}>
         <div className="flex items-center gap-2">
           <Input
-            ref={ref}
+            ref={fileInputRef}
             type="file"
             accept={accept}
             onChange={handleFileChange}
@@ -54,7 +65,7 @@ const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
           <Button
             type="button"
             variant="outline"
-            onClick={() => (ref as any)?.current?.click()}
+            onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
           >
             <Upload className="mr-2 h-4 w-4" />
@@ -72,11 +83,11 @@ const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
           )}
         </div>
         {preview && accept?.includes('image/') && (
-          <div className="relative aspect-video w-full max-w-sm overflow-hidden rounded-lg border">
-            <Image
+          <div className="relative h-20 w-full max-w-sm overflow-hidden rounded-lg border">
+            <img
               src={preview}
               alt="Preview"
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain"
             />
           </div>
         )}
