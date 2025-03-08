@@ -15,7 +15,9 @@ import { signOut } from "next-auth/react";
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Feedback", href: "/dashboard/feedback", icon: MessageSquare },
+  { name: "Clients", href: "/dashboard/clients", icon: LinkIcon },
   { name: "Integrations", href: "/dashboard/integrations", icon: LinkIcon },
+  { name: "Billing", href: "/dashboard/billing", icon: LayoutDashboard },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 

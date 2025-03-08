@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { Stripe } from 'stripe';
-import { buffer } from 'micro';
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -36,9 +35,16 @@ export async function POST(req: Request) {
       case 'customer.subscription.created':
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
+        const companyId = subscription.metadata.companyId;
+
+        if (!companyId) {
+          throw new Error('No companyId in subscription metadata');
+        }
+
         await prisma.company.update({
-          where: { stripeCustomerId: subscription.customer as string },
+          where: { id: companyId },
           data: {
+            stripeCustomerId: subscription.customer as string,
             subscriptionId: subscription.id,
             subscriptionStatus: subscription.status,
           },
@@ -48,8 +54,14 @@ export async function POST(req: Request) {
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
+        const companyId = subscription.metadata.companyId;
+
+        if (!companyId) {
+          throw new Error('No companyId in subscription metadata');
+        }
+
         await prisma.company.update({
-          where: { stripeCustomerId: subscription.customer as string },
+          where: { id: companyId },
           data: {
             subscriptionId: null,
             subscriptionStatus: 'canceled',
@@ -60,15 +72,54 @@ export async function POST(req: Request) {
 
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        if (session.subscription && session.customer && session.client_reference_id) {
+        
+        if (session.mode === 'subscription' && session.subscription && session.client_reference_id) {
+          const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+          
           await prisma.company.update({
             where: { id: session.client_reference_id },
             data: {
               stripeCustomerId: session.customer as string,
-              subscriptionId: session.subscription as string,
-              subscriptionStatus: 'active',
+              subscriptionId: subscription.id,
+              subscriptionStatus: subscription.status,
             },
           });
+        }
+        break;
+      }
+
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object as Stripe.Invoice;
+        if (invoice.subscription) {
+          const subscription = await stripe.subscriptions.retrieve(invoice.subscription as string);
+          const companyId = subscription.metadata.companyId;
+
+          if (companyId) {
+            await prisma.company.update({
+              where: { id: companyId },
+              data: {
+                subscriptionStatus: subscription.status,
+              },
+            });
+          }
+        }
+        break;
+      }
+
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object as Stripe.Invoice;
+        if (invoice.subscription) {
+          const subscription = await stripe.subscriptions.retrieve(invoice.subscription as string);
+          const companyId = subscription.metadata.companyId;
+
+          if (companyId) {
+            await prisma.company.update({
+              where: { id: companyId },
+              data: {
+                subscriptionStatus: 'past_due',
+              },
+            });
+          }
         }
         break;
       }
@@ -83,3 +134,9 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
