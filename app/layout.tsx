@@ -4,8 +4,10 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { CookieConsent } from '@/components/ui/cookie-consent';
 import './globals.css';
 
+// Load the Inter font
 const inter = Inter({ subsets: ['latin'] });
 
+// Define metadata
 export const metadata = {
   title: 'Raatum - Optimize Your Business Reviews',
   description: 'Boost your online reputation with Raatum. Our smart review management system helps you collect and manage customer feedback effectively.',
@@ -23,9 +25,15 @@ export const metadata = {
     description: "Automate review management to boost your business's reputation.",
   },
   robots: 'index, follow',
-  viewport: 'width=device-width, initial-scale=1',
 };
 
+// Define viewport separately to resolve the warning
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
+
+// Define structured data
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
@@ -55,7 +63,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
-        
+
         <link
           rel="preload"
           href="/fonts/inter.woff2"
@@ -63,6 +71,20 @@ export default function RootLayout({
           type="font/woff2"
           crossOrigin="anonymous"
         />
+
+        {/* Google Tag Manager Script */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+              })(window,document,'script','dataLayer','G-M2Q8L0LVQ6');
+            `,
+          }}
+        />
+        {/* End Google Tag Manager Script */}
 
         <script
           type="application/ld+json"
@@ -86,6 +108,17 @@ export default function RootLayout({
           <Toaster />
           <CookieConsent />
         </ThemeProvider>
+
+        {/* Google Tag Manager NoScript Fallback */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=G-M2Q8L0LVQ6"
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          ></iframe>
+        </noscript>
+        {/* End Google Tag Manager NoScript Fallback */}
       </body>
     </html>
   );
