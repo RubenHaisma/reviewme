@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
+  let dbStatus = "unknown";
   try {
     // Check database connection
     await prisma.$queryRaw`SELECT 1`;
-    const dbStatus = "operational";
+    dbStatus = "operational";
   } catch (error) {
-    const dbStatus = "down";
+    dbStatus = "down";
   }
 
   // Check email service
