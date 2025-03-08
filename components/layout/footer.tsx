@@ -69,7 +69,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} ReviewFlow. All rights reserved.
+          © {new Date().getFullYear()} Raatum. All rights reserved.
         </div>
       </div>
     </footer>
