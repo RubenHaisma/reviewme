@@ -134,46 +134,55 @@ export const authOptions: NextAuthConfig = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const parsedCredentials = credentialsSchema.safeParse(credentials);
-        if (!parsedCredentials.success) {
-          throw new Error('Invalid credentials');
+        try {
+          const parsedCredentials = credentialsSchema.safeParse(credentials);
+          if (!parsedCredentials.success) {
+            console.error('Invalid credentials format:', parsedCredentials.error);
+            return null;
+          }
+
+          const { email, password } = parsedCredentials.data;
+
+          const user = await prisma.user.findUnique({
+            where: { email },
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              password: true,
+              role: true,
+              companyId: true,
+              emailVerified: true,
+            },
+          });
+
+          if (!user || !user.password) {
+            console.error('User not found or no password set');
+            return null;
+          }
+
+          if (!user.emailVerified) {
+            console.error('Email not verified');
+            return null;
+          }
+
+          const isCorrectPassword = await bcrypt.compare(password, user.password);
+          if (!isCorrectPassword) {
+            console.error('Invalid password');
+            return null;
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            companyId: user.companyId,
+          };
+        } catch (error) {
+          console.error('Authorization error:', error);
+          return null;
         }
-
-        const { email, password } = parsedCredentials.data;
-
-        const user = await prisma.user.findUnique({
-          where: { email },
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            password: true,
-            role: true,
-            companyId: true,
-            emailVerified: true,
-          },
-        });
-
-        if (!user || !user.password) {
-          throw new Error('Invalid credentials');
-        }
-
-        if (!user.emailVerified) {
-          throw new Error('Please verify your email address first. Check your inbox.');
-        }
-
-        const isCorrectPassword = await bcrypt.compare(password, user.password);
-        if (!isCorrectPassword) {
-          throw new Error('Invalid credentials');
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          companyId: user.companyId,
-        };
       },
     }),
   ],
@@ -184,9 +193,21 @@ export const authOptions: NextAuthConfig = {
   debug: process.env.NODE_ENV === 'development',
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
-  trustHost: true, // Explicitly trust the host
+  trustHost: true,
   callbacks: {
     async session({ session, token }) {
       if (token && session.user) {
