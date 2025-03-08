@@ -4,6 +4,18 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
+  // Create admin user with password
+  const hashedPasswordAdmin = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'admin123', 10);
+  const adminUser = await prisma.user.create({
+    data: {
+      email: 'admin@raatum.com',
+      name: 'Admin',
+      password: hashedPasswordAdmin,
+      role: 'ADMIN',
+      emailVerified: new Date(),
+    },
+  });
+
   // Create test company
   const company = await prisma.company.create({
     data: {
@@ -81,7 +93,7 @@ async function main() {
     },
   });
 
-  console.log('Seed data with 20 feedback entries created successfully');
+  console.log('Seed data with admin user and 20 feedback entries created successfully');
 }
 
 main()

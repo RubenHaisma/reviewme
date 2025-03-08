@@ -6,14 +6,11 @@ import { Footer } from '@/components/layout/footer';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { Navigation } from '@/components/layout/navigation';
 
-
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
       <Navigation isAuthenticated={false} />
       
-      {/* Hero Section */}
       <div className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
@@ -25,11 +22,9 @@ export default function ContactPage() {
         </div>
       </div>
 
-      {/* Contact Form Section */}
       <div className="py-20 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="grid gap-12 md:grid-cols-2 max-w-5xl mx-auto">
-            {/* Contact Information */}
             <div>
               <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
               <div className="space-y-6">
@@ -37,14 +32,7 @@ export default function ContactPage() {
                   <Mail className="w-6 h-6 text-primary mr-4 mt-1" />
                   <div>
                     <h3 className="font-semibold">Email</h3>
-                    <p className="text-muted-foreground">support@Raatum.com</p>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <Phone className="w-6 h-6 text-primary mr-4 mt-1" />
-                  <div>
-                    <h3 className="font-semibold">Phone</h3>
-                    <p className="text-muted-foreground">+1 (555) 123-4567</p>
+                    <p className="text-muted-foreground">info@raatum.com</p>
                   </div>
                 </div>
                 <div className="flex items-start">
@@ -52,16 +40,14 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold">Office</h3>
                     <p className="text-muted-foreground">
-                      123 Business Street<br />
-                      Suite 456<br />
-                      San Francisco, CA 94105
+                      Raatum B.V.<br />
+                      Amsterdam, Netherlands
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Contact Form */}
             <div>
               <form className="space-y-6">
                 <div>
@@ -101,7 +87,6 @@ export default function ContactPage() {
         </div>
       </div>
 
-      {/* FAQ Section */}
       <div className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Common Questions</h2>
@@ -109,7 +94,7 @@ export default function ContactPage() {
             <div>
               <h3 className="text-lg font-semibold mb-2">What are your support hours?</h3>
               <p className="text-muted-foreground">
-                Our support team is available Monday through Friday, 9am to 5pm PST.
+                Our support team is available Monday through Friday, 9am to 5pm CET.
               </p>
             </div>
             <div>
