@@ -35,16 +35,6 @@ export default function ContactPage() {
                     <p className="text-muted-foreground">info@raatum.com</p>
                   </div>
                 </div>
-                <div className="flex items-start">
-                  <MapPin className="w-6 h-6 text-primary mr-4 mt-1" />
-                  <div>
-                    <h3 className="font-semibold">Office</h3>
-                    <p className="text-muted-foreground">
-                      Raatum B.V.<br />
-                      Amsterdam, Netherlands
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
 
