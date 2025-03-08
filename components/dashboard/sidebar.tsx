@@ -12,6 +12,7 @@ import {
   Users,
   CreditCard,
   Plug,
+  Wrench,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { Notifications } from "@/components/dashboard/notifications";
@@ -23,6 +24,8 @@ const navigation = [
   { name: "Integrations", href: "/dashboard/integrations", icon: Plug },
   { name: "Billing", href: "/dashboard/billing", icon: CreditCard },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
+  { name: "Feedback Link Generator", href: "/dashboard/generate", icon: LinkIcon },
+  { name: "Status", href: "/status", icon: Wrench },
 ];
 
 export function Sidebar() {

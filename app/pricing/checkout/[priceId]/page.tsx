@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation'; // Add useParams
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -26,16 +26,15 @@ const staggerContainer = {
   },
 };
 
-export default function CheckoutPage({
-  params,
-}: {
-  params: { priceId: string };
-}) {
+export default function CheckoutPage() {
   const router = useRouter();
+  const params = useParams(); // Use useParams to get dynamic route parameters
+  const priceId = params.priceId as string; // Extract priceId as a string
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const plan = Object.values(PLANS).find((p) => p.priceId === params.priceId);
+  const plan = Object.values(PLANS).find((p) => p.priceId === priceId);
 
   useEffect(() => {
     if (!plan) {
@@ -51,7 +50,7 @@ export default function CheckoutPage({
       const response = await fetch('/api/billing/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId: params.priceId }),
+        body: JSON.stringify({ priceId }),
       });
 
       const data = await response.json();

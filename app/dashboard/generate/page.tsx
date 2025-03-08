@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation'; // Import useSearchParams hook
 
 // Animation variants
 const fadeInUp = {
@@ -13,12 +14,10 @@ const fadeInUp = {
   transition: { duration: 0.5 },
 };
 
-export default function GenerateFeedbackPage({
-  searchParams,
-}: {
-  searchParams: { disabled?: string };
-}) {
-  const disabled = searchParams.disabled === 'true';
+export default function GenerateFeedbackPage() {
+  // Use the useSearchParams hook to access query parameters
+  const searchParams = useSearchParams();
+  const disabled = searchParams.get('disabled') === 'true';
 
   return (
     <motion.div
