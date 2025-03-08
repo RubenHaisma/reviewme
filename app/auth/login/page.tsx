@@ -54,26 +54,31 @@ export default function LoginPage() {
   async function onCredentialsSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsLoading(true);
-
+  
     const formData = new FormData(event.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
-
+  
     try {
       const result = await signIn('credentials', {
         email,
         password,
         redirect: false,
-        callbackUrl: '/dashboard',
+        callbackUrl: '/dashboard', // Use relative path here
       });
       console.log('Credentials SignIn Result:', result);
-
+  
       if (result?.error) {
         throw new Error('Invalid credentials');
       }
-
+  
       toast.success('Signed in successfully!');
-      router.push(result?.url || '/dashboard');
+      // Use relative path and ensure navigation
+      router.push('/dashboard');
+      // Fallback: Force a hard redirect if client-side fails
+      if (typeof window !== 'undefined') {
+        setTimeout(() => window.location.href = '/dashboard', 500);
+      }
     } catch (error) {
       console.error('Credentials Login Error:', error);
       toast.error('Invalid email or password');
