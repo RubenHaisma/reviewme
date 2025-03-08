@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form'; // Add Controller
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import isURL from 'validator/lib/isURL';
@@ -75,10 +75,20 @@ export default function RegisterPage() {
 
   const {
     register,
+    control, // Add control for Controller
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      companyName: '',
+      companyWebsite: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      acceptTerms: false,
+      acceptDataProcessing: false,
+    },
   });
 
   async function onSubmit(data: RegisterFormData) {
@@ -234,7 +244,17 @@ export default function RegisterPage() {
             {/* Agreements */}
             <motion.div className="space-y-4" variants={fadeInUp}>
               <div className="flex items-start space-x-2">
-                <Checkbox id="acceptTerms" {...register('acceptTerms')} />
+                <Controller
+                  control={control}
+                  name="acceptTerms"
+                  render={({ field }) => (
+                    <Checkbox
+                      id="acceptTerms"
+                      checked={field.value}
+                      onCheckedChange={(checked) => field.onChange(checked === 'indeterminate' ? false : checked)}
+                    />
+                  )}
+                />
                 <Label
                   htmlFor="acceptTerms"
                   className="text-sm text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -250,7 +270,17 @@ export default function RegisterPage() {
               )}
 
               <div className="flex items-start space-x-2">
-                <Checkbox id="acceptDataProcessing" {...register('acceptDataProcessing')} />
+                <Controller
+                  control={control}
+                  name="acceptDataProcessing"
+                  render={({ field }) => (
+                    <Checkbox
+                      id="acceptDataProcessing"
+                      checked={field.value}
+                      onCheckedChange={(checked) => field.onChange(checked === 'indeterminate' ? false : checked)}
+                    />
+                  )}
+                />
                 <Label
                   htmlFor="acceptDataProcessing"
                   className="text-sm text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

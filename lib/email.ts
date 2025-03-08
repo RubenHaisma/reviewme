@@ -190,7 +190,7 @@ export async function sendVerificationEmail(email: string, token: string) {
   const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify?token=${token}`;
 
   const mailOptions = {
-    from: process.env.GMAIL_USER,
+    from: "info@raatum.com",
     to: email,
     subject: 'Verify your email address',
     html: `
