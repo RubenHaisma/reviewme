@@ -40,93 +40,9 @@ const credentialsSchema = z.object({
   password: z.string().min(1),
 });
 
-const customPrismaAdapter = (p: PrismaClient): Adapter => {
-  const baseAdapter = PrismaAdapter(p) as Adapter;
-
-  return {
-    ...baseAdapter,
-    async createUser(data) {
-      const user = await p.user.create({
-        data: {
-          email: data.email,
-          name: data.name,
-          emailVerified: data.emailVerified,
-          role: 'USER',
-          companyId: null,
-        },
-      });
-
-      return {
-        ...user,
-        role: user.role,
-        companyId: user.companyId,
-      };
-    },
-
-    async getUser(id) {
-      const user = await p.user.findUnique({ where: { id } });
-      if (!user) return null;
-      return {
-        ...user,
-        role: user.role,
-        companyId: user.companyId,
-      };
-    },
-
-    async getUserByEmail(email) {
-      const user = await p.user.findUnique({ where: { email } });
-      if (!user) return null;
-      return {
-        ...user,
-        role: user.role,
-        companyId: user.companyId,
-      };
-    },
-
-    async getUserByAccount({ providerAccountId, provider }) {
-      const account = await p.account.findUnique({
-        where: {
-          provider_providerAccountId: { provider, providerAccountId },
-        },
-        include: { user: true },
-      });
-      if (!account) return null;
-
-      const { user } = account;
-      return {
-        ...user,
-        role: user.role,
-        companyId: user.companyId,
-      };
-    },
-
-    async updateUser(data) {
-      const user = await p.user.update({
-        where: { id: data.id },
-        data: {
-          name: data.name,
-          email: data.email,
-          emailVerified: data.emailVerified,
-          image: data.image,
-        },
-      });
-      return {
-        ...user,
-        role: user.role,
-        companyId: user.companyId,
-      };
-    },
-  };
-};
-
 export const authOptions: NextAuthConfig = {
-  adapter: customPrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      allowDangerousEmailAccountLinking: true,
-    }),
     Credentials({
       name: 'Credentials',
       credentials: {
@@ -188,27 +104,27 @@ export const authOptions: NextAuthConfig = {
   ],
   pages: {
     signIn: '/auth/login',
-    error: '/auth/login',
+    error: '/auth/login/error',
   },
-  debug: process.env.NODE_ENV === 'development',
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  cookies: {
-    sessionToken: {
-      name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-      },
-    },
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-  trustHost: true,
   callbacks: {
+    async jwt({ token, user, trigger, session }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+        token.companyId = user.companyId;
+      }
+
+      // Handle updates to the session
+      if (trigger === "update" && session) {
+        return { ...token, ...session };
+      }
+
+      return token;
+    },
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id;
@@ -217,15 +133,9 @@ export const authOptions: NextAuthConfig = {
       }
       return session;
     },
-    async jwt({ token, user }) {
-      if (user && user.id) {
-        token.id = user.id;
-        token.role = user.role;
-        token.companyId = user.companyId;
-      }
-      return token;
-    },
   },
+  secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true,
 };
 
 export const { auth, handlers, signIn, signOut } = NextAuth(authOptions);
