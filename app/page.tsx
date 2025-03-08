@@ -5,15 +5,12 @@ import { Footer } from '@/components/layout/footer';
 import { Navigation } from '@/components/layout/navigation';
 
 export default function Home() {
-  // Simulated auth state (replace with actual auth logic)
-  const isAuthenticated = false; // Example: Set to true if user is logged in
+  const isAuthenticated = false;
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
-        <Navigation isAuthenticated={isAuthenticated} />
+      <Navigation isAuthenticated={isAuthenticated} />
 
-        {/* Hero Section */}
       <header className="relative overflow-hidden bg-background pt-16 pb-32">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
@@ -40,7 +37,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Features Section */}
       <section className="py-24 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3">
@@ -75,7 +71,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Integration Section */}
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -90,27 +85,32 @@ export default function Home() {
               <p className="text-muted-foreground mb-4">
                 Seamlessly connect with Vertimart&apos;s booking system to automate review collection
               </p>
-              <Button variant="outline" className="w-full">Connect Vertimart</Button>
+              <Link href="/dashboard/integrations">
+                <Button variant="outline" className="w-full">Connect Vertimart</Button>
+              </Link>
             </div>
             <div className="border rounded-lg p-6 hover:border-primary transition-colors">
               <h3 className="text-xl font-semibold mb-2">Calendly</h3>
               <p className="text-muted-foreground mb-4">
                 Integrate with Calendly to automatically request reviews after appointments
               </p>
-              <Button variant="outline" className="w-full">Connect Calendly</Button>
+              <Link href="/dashboard/integrations">
+                <Button variant="outline" className="w-full">Connect Calendly</Button>
+              </Link>
             </div>
             <div className="border rounded-lg p-6 hover:border-primary transition-colors">
               <h3 className="text-xl font-semibold mb-2">Custom Integration</h3>
               <p className="text-muted-foreground mb-4">
                 Use our API to build custom integrations for your specific needs
               </p>
-              <Button variant="outline" className="w-full">View API Docs</Button>
+              <Link href="/docs/api-reference">
+                <Button variant="outline" className="w-full">View API Docs</Button>
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Free Tier Section */}
       <section className="py-24 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">

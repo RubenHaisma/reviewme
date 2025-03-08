@@ -83,13 +83,6 @@ export default function RootLayout({
 
           {children}
           <Toaster />
-
-          {process.env.NODE_ENV === 'production' && (
-            <script
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-            />
-          )}
         </ThemeProvider>
       </body>
     </html>

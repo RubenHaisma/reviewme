@@ -9,15 +9,18 @@ import {
   MessageSquare,
   LogOut,
   Link as LinkIcon,
+  Users,
+  CreditCard,
+  Plug,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Feedback", href: "/dashboard/feedback", icon: MessageSquare },
-  { name: "Clients", href: "/dashboard/clients", icon: LinkIcon },
-  { name: "Integrations", href: "/dashboard/integrations", icon: LinkIcon },
-  { name: "Billing", href: "/dashboard/billing", icon: LayoutDashboard },
+  { name: "Clients", href: "/dashboard/clients", icon: Users },
+  { name: "Integrations", href: "/dashboard/integrations", icon: Plug },
+  { name: "Billing", href: "/dashboard/billing", icon: CreditCard },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
@@ -53,7 +56,7 @@ export function Sidebar() {
       </nav>
       <div className="border-t border-border p-4">
         <button
-          onClick={() => signOut()}
+          onClick={() => signOut({ callbackUrl: "/" })}
           className="flex w-full items-center px-3 py-2 text-sm font-medium text-muted-foreground rounded-md hover:bg-accent"
         >
           <LogOut className="mr-3 h-5 w-5" />

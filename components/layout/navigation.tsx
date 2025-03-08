@@ -21,6 +21,9 @@ export function Navigation({ isAuthenticated }: { isAuthenticated: boolean }) {
           <Link href="/how-it-works" className="text-muted-foreground hover:text-primary">
             How It Works
           </Link>
+          <Link href="/features" className="text-muted-foreground hover:text-primary">
+            Features
+          </Link>
           <Link href="/pricing" className="text-muted-foreground hover:text-primary">
             Pricing
           </Link>
@@ -68,18 +71,18 @@ export function Navigation({ isAuthenticated }: { isAuthenticated: boolean }) {
               How It Works
             </Link>
             <Link
+              href="/features"
+              className="text-muted-foreground hover:text-primary"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Features
+            </Link>
+            <Link
               href="/pricing"
               className="text-muted-foreground hover:text-primary"
               onClick={() => setIsMenuOpen(false)}
             >
               Pricing
-            </Link>
-            <Link
-              href="/feedback"
-              className="text-muted-foreground hover:text-primary"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Feedback
             </Link>
             {isAuthenticated && (
               <Link

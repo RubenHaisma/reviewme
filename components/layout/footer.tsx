@@ -57,12 +57,12 @@ export function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/privacy" className="text-muted-foreground hover:text-foreground">
-                  Privacy
+                  Privacy Policy
                 </Link>
               </li>
               <li>
                 <Link href="/terms" className="text-muted-foreground hover:text-foreground">
-                  Terms
+                  Terms of Service
                 </Link>
               </li>
             </ul>
