@@ -19,12 +19,18 @@ const registerSchema = z.object({
     .regex(/[a-z]/, "Password must contain at least one lowercase letter")
     .regex(/[0-9]/, "Password must contain at least one number")
     .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
+  acceptTerms: z.boolean().refine((val) => val === true, {
+    message: "You must accept the terms and conditions",
+  }),
+  acceptDataProcessing: z.boolean().refine((val) => val === true, {
+    message: "You must accept the data processing agreement",
+  }),
 });
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { companyName, companyWebsite, email, password } = registerSchema.parse(body);
+    const { companyName, companyWebsite, email, password, acceptTerms, acceptDataProcessing } = registerSchema.parse(body);
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -45,7 +51,16 @@ export async function POST(req: Request) {
     const verificationToken = await generateVerificationToken(email);
 
     // Create company and unverified user in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: {
+        company: { create: (arg0: { data: { name: string; website: string | null; remainingFreeCustomers: number; }; }) => any; }; user: {
+          create: (arg0: {
+            data: {
+              email: string; password: string; companyId: any; role: string; emailVerified: null; // User starts as unverified
+              acceptedTerms: boolean; acceptedDataProcessing: boolean; acceptedTermsAt: Date; acceptedDataProcessingAt: Date;
+            };
+          }) => any;
+        };
+      }) => {
       const company = await tx.company.create({
         data: {
           name: companyName,
@@ -61,6 +76,10 @@ export async function POST(req: Request) {
           companyId: company.id,
           role: "ADMIN",
           emailVerified: null, // User starts as unverified
+          acceptedTerms: acceptTerms,
+          acceptedDataProcessing: acceptDataProcessing,
+          acceptedTermsAt: new Date(),
+          acceptedDataProcessingAt: new Date(),
         },
       });
 

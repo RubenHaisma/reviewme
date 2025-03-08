@@ -1,164 +1,138 @@
+'use client';
+
 import { motion } from 'framer-motion';
 import { Navigation } from '@/components/layout/navigation';
 import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { MapPin, Clock, Briefcase } from 'lucide-react';
+import { MapPin, Clock, Briefcase, Mail } from 'lucide-react';
+import Link from 'next/link';
 
-const positions = [
-  {
-    title: "Senior Full Stack Developer",
-    department: "Engineering",
-    location: "Remote",
-    type: "Full-time",
-    description: "We're looking for an experienced Full Stack Developer to help build and scale our review management platform."
-  },
-  {
-    title: "Product Manager",
-    department: "Product",
-    location: "San Francisco, CA",
-    type: "Full-time",
-    description: "Join us in shaping the future of customer feedback management as a Product Manager."
-  },
-  {
-    title: "Customer Success Manager",
-    department: "Customer Success",
-    location: "Remote",
-    type: "Full-time",
-    description: "Help our customers succeed by providing exceptional support and guidance."
-  },
-  {
-    title: "Marketing Manager",
-    department: "Marketing",
-    location: "New York, NY",
-    type: "Full-time",
-    description: "Drive our marketing efforts and help us reach more businesses who can benefit from our platform."
-  }
-];
-
+// Static benefits data
 const benefits = [
-  "Competitive salary and equity",
-  "Health, dental, and vision insurance",
-  "Unlimited PTO",
-  "Remote-first culture",
-  "Professional development budget",
-  "Home office stipend",
-  "401(k) matching",
-  "Regular team retreats"
+  'Competitive salary and equity',
+  'Health, dental, and vision insurance',
+  'Unlimited PTO',
+  'Remote-first culture',
+  'Professional development budget',
+  'Home office stipend',
+  '401(k) matching',
+  'Regular team retreats',
 ];
 
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
+// Animation variants
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5 },
 };
 
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0 }
+const staggerContainer = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
 };
 
 export default function CareersPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <Navigation isAuthenticated={false} />
 
       <main>
         {/* Hero Section */}
-        <motion.section 
-          className="relative py-20 overflow-hidden bg-gradient-to-b from-primary/10 to-background"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6 }}
+        <motion.section
+          className="relative py-20 overflow-hidden bg-gradient-to-b from-primary/5 via-primary/[0.02] to-background"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
         >
           <div className="container mx-auto px-4 text-center">
-            <motion.h1 
-              className="text-4xl md:text-6xl font-bold mb-6"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
+            <motion.h1
+              className="text-4xl md:text-6xl font-bold text-foreground mb-6"
+              variants={fadeInUp}
             >
-              Join Our Team
+              Careers at Raatum
             </motion.h1>
-            <motion.p 
+            <motion.p
               className="text-xl text-muted-foreground max-w-2xl mx-auto"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
+              variants={fadeInUp}
             >
-              Help us transform how businesses manage and leverage customer feedback
+              Join us in transforming how businesses manage customer feedback.
             </motion.p>
           </div>
         </motion.section>
 
         {/* Open Positions */}
-        <section className="py-20">
+        <motion.section
+          className="py-20"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
           <div className="container mx-auto px-4">
-            <motion.h2 
-              className="text-3xl font-bold text-center mb-12"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <motion.h2
+              className="text-3xl font-bold text-center text-foreground mb-12"
+              variants={fadeInUp}
             >
               Open Positions
             </motion.h2>
-            
-            <motion.div 
-              className="grid md:grid-cols-2 gap-6"
-              variants={container}
-              initial="hidden"
-              whileInView="show"
+            <motion.div
+              className="max-w-3xl mx-auto text-center"
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="animate"
               viewport={{ once: true }}
             >
-              {positions.map((position, index) => (
-                <motion.div key={index} variants={item}>
-                  <Card className="p-6 h-full hover:border-primary transition-colors">
-                    <h3 className="text-xl font-semibold mb-2">{position.title}</h3>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                      <div className="flex items-center gap-1">
-                        <Briefcase className="h-4 w-4" />
-                        <span>{position.department}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        <span>{position.location}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        <span>{position.type}</span>
-                      </div>
-                    </div>
-                    <p className="text-muted-foreground mb-6">{position.description}</p>
-                    <Button className="w-full">Apply Now</Button>
-                  </Card>
-                </motion.div>
-              ))}
+              <motion.p
+                className="text-lg text-muted-foreground mb-6"
+                variants={fadeInUp}
+              >
+                There are currently no open vacancies at Raatum. We’re always on the lookout for talented individuals, so feel free to check back later or reach out to us directly.
+              </motion.p>
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button asChild className="bg-primary hover:bg-primary/90">
+                  <Link href="/contact">Contact Us</Link>
+                </Button>
+              </motion.div>
             </motion.div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Benefits Section */}
-        <section className="py-20 bg-muted/50">
+        <motion.section
+          className="py-20 bg-muted/50"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
           <div className="container mx-auto px-4">
-            <motion.div 
+            <motion.div
               className="max-w-3xl mx-auto text-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="animate"
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl font-bold mb-12">Why Join Us?</h2>
+              <motion.h2
+                className="text-3xl font-bold text-foreground mb-12"
+                variants={fadeInUp}
+              >
+                Why Work at Raatum?
+              </motion.h2>
               <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {benefits.map((benefit, index) => (
                   <motion.div
                     key={index}
-                    className="p-4 rounded-lg bg-card border"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    className="p-4 rounded-lg bg-card border shadow-sm hover:shadow-md transition-shadow"
+                    variants={fadeInUp}
                     transition={{ delay: index * 0.1 }}
                   >
                     {benefit}
@@ -167,7 +141,7 @@ export default function CareersPage() {
               </div>
             </motion.div>
           </div>
-        </section>
+        </motion.section>
       </main>
 
       <Footer />

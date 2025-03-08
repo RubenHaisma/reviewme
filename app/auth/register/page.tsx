@@ -1,16 +1,18 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import isURL from "validator/lib/isURL";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import isURL from 'validator/lib/isURL';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
 import {
   Card,
   CardContent,
@@ -18,31 +20,53 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info } from "lucide-react";
-import RegisterError from "@/components/RegisterError"; // Import from components, not a page
+} from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Info, Lock } from 'lucide-react';
+import RegisterError from '@/components/RegisterError';
 
+// Zod schema for form validation
 const registerSchema = z.object({
-  companyName: z.string().min(2, "Company name must be at least 2 characters"),
+  companyName: z.string().min(2, 'Company name must be at least 2 characters'),
   companyWebsite: z.string().refine((url) => !url || isURL(url), {
-    message: "Please enter a valid URL",
+    message: 'Please enter a valid URL',
   }),
-  email: z.string().email("Please enter a valid email address"),
+  email: z.string().email('Please enter a valid email address'),
   password: z
     .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
   confirmPassword: z.string(),
+  acceptTerms: z.boolean().refine((val) => val === true, {
+    message: 'You must accept the terms and conditions',
+  }),
+  acceptDataProcessing: z.boolean().refine((val) => val === true, {
+    message: 'You must accept the data processing agreement',
+  }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
-  path: ["confirmPassword"],
+  path: ['confirmPassword'],
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
+
+// Animation variants
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5 },
+};
+
+const staggerContainer = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: { staggerChildren: 0.2 },
+  },
+};
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -62,148 +86,213 @@ export default function RegisterPage() {
     setError(undefined);
 
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          companyName: data.companyName,
-          companyWebsite: data.companyWebsite,
-          email: data.email,
-          password: data.password,
-        }),
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Registration failed");
+        throw new Error(error.error || 'Registration failed');
       }
 
-      toast.success(
-        "Registration successful! Please check your email to verify your account."
-      );
-      router.push("/auth/login");
+      toast.success('Registration successful! Please check your email to verify your account.');
+      router.push('/auth/login');
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Something went wrong");
+      setError(error instanceof Error ? error.message : 'Something went wrong');
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-lg">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold tracking-tight">
-            Create your account
+    <div className="min-h-screen bg-gradient-to-b from-primary/5 via-primary/[0.02] to-background flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <motion.div
+        className="w-full max-w-lg space-y-8 p-8 bg-background rounded-lg shadow-lg border"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
+        {/* Header */}
+        <motion.div className="text-center space-y-2" variants={fadeInUp}>
+          <CardTitle className="text-3xl font-bold tracking-tight text-foreground">
+            Join Raatum
           </CardTitle>
-          <CardDescription>
-            Get started with Raatum - First 20 customers free!
+          <CardDescription className="text-muted-foreground">
+            Create your account and start with your first 20 customers free!
           </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <RegisterError error={error} />
+        </motion.div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="companyName">Company Name</Label>
+        {/* Error Display */}
+        <motion.div variants={fadeInUp}>
+          <RegisterError error={error} />
+        </motion.div>
+
+        {/* Registration Form */}
+        <CardContent className="p-0">
+          <motion.form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-6"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+          >
+            {/* Company Name */}
+            <motion.div className="space-y-2" variants={fadeInUp}>
+              <Label htmlFor="companyName" className="text-foreground">
+                Company Name
+              </Label>
               <Input
                 id="companyName"
-                {...register("companyName")}
-                placeholder="Acme Inc."
+                {...register('companyName')}
+                placeholder="e.g., Acme Inc."
+                className="border-muted focus:ring-primary focus:border-primary"
               />
               {errors.companyName && (
-                <p className="text-sm text-destructive">
-                  {errors.companyName.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.companyName.message}</p>
               )}
-            </div>
+            </motion.div>
 
-            <div className="space-y-2">
-              <Label htmlFor="companyWebsite">Company Website (Optional)</Label>
+            {/* Company Website */}
+            <motion.div className="space-y-2" variants={fadeInUp}>
+              <Label htmlFor="companyWebsite" className="text-foreground">
+                Company Website (Optional)
+              </Label>
               <Input
                 id="companyWebsite"
-                {...register("companyWebsite")}
-                placeholder="https://www.example.com"
+                {...register('companyWebsite')}
+                placeholder="e.g., https://example.com"
+                className="border-muted focus:ring-primary focus:border-primary"
               />
               {errors.companyWebsite && (
-                <p className="text-sm text-destructive">
-                  {errors.companyWebsite.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.companyWebsite.message}</p>
               )}
-            </div>
+            </motion.div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+            {/* Email */}
+            <motion.div className="space-y-2" variants={fadeInUp}>
+              <Label htmlFor="email" className="text-foreground">
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
-                {...register("email")}
+                {...register('email')}
                 placeholder="you@example.com"
+                className="border-muted focus:ring-primary focus:border-primary"
               />
               {errors.email && (
-                <p className="text-sm text-destructive">
-                  {errors.email.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.email.message}</p>
               )}
-            </div>
+            </motion.div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+            {/* Password */}
+            <motion.div className="space-y-2" variants={fadeInUp}>
+              <Label htmlFor="password" className="text-foreground">
+                Password
+              </Label>
               <Input
                 id="password"
                 type="password"
-                {...register("password")}
+                {...register('password')}
+                placeholder="••••••••"
+                className="border-muted focus:ring-primary focus:border-primary"
               />
               {errors.password && (
-                <p className="text-sm text-destructive">
-                  {errors.password.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.password.message}</p>
               )}
-            </div>
+            </motion.div>
 
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+            {/* Confirm Password */}
+            <motion.div className="space-y-2" variants={fadeInUp}>
+              <Label htmlFor="confirmPassword" className="text-foreground">
+                Confirm Password
+              </Label>
               <Input
                 id="confirmPassword"
                 type="password"
-                {...register("confirmPassword")}
+                {...register('confirmPassword')}
+                placeholder="••••••••"
+                className="border-muted focus:ring-primary focus:border-primary"
               />
               {errors.confirmPassword && (
-                <p className="text-sm text-destructive">
-                  {errors.confirmPassword.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
               )}
-            </div>
+            </motion.div>
 
-            <Alert>
-              <Info className="h-4 w-4" />
-              <AlertDescription>
-                Password must contain at least 8 characters, one uppercase letter,
-                one lowercase letter, one number, and one special character.
-              </AlertDescription>
-            </Alert>
+            {/* Password Requirements */}
+            <motion.div variants={fadeInUp}>
+              <Alert className="bg-muted border-muted">
+                <Lock className="h-4 w-4 text-muted-foreground" />
+                <AlertDescription className="text-muted-foreground">
+                  Password must be 8+ characters with at least one uppercase, lowercase, number, and special character.
+                </AlertDescription>
+              </Alert>
+            </motion.div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? "Creating account..." : "Create Account"}
-            </Button>
-          </form>
+            {/* Agreements */}
+            <motion.div className="space-y-4" variants={fadeInUp}>
+              <div className="flex items-start space-x-2">
+                <Checkbox id="acceptTerms" {...register('acceptTerms')} />
+                <Label
+                  htmlFor="acceptTerms"
+                  className="text-sm text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  I accept the{' '}
+                  <Link href="/terms" className="text-primary hover:underline" target="_blank">
+                    Terms and Conditions
+                  </Link>
+                </Label>
+              </div>
+              {errors.acceptTerms && (
+                <p className="text-sm text-destructive">{errors.acceptTerms.message}</p>
+              )}
+
+              <div className="flex items-start space-x-2">
+                <Checkbox id="acceptDataProcessing" {...register('acceptDataProcessing')} />
+                <Label
+                  htmlFor="acceptDataProcessing"
+                  className="text-sm text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  I accept the{' '}
+                  <Link href="/privacy" className="text-primary hover:underline" target="_blank">
+                    Privacy Policy
+                  </Link>{' '}
+                  and consent to data processing
+                </Label>
+              </div>
+              {errors.acceptDataProcessing && (
+                <p className="text-sm text-destructive">{errors.acceptDataProcessing.message}</p>
+              )}
+            </motion.div>
+
+            {/* Submit Button */}
+            <motion.div variants={fadeInUp} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                type="submit"
+                className="w-full bg-primary hover:bg-primary/90 font-semibold py-3 shadow-md"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Creating Account...' : 'Create Account'}
+              </Button>
+            </motion.div>
+          </motion.form>
         </CardContent>
-        <CardFooter>
-          <p className="text-center text-sm text-muted-foreground w-full">
-            Already have an account?{" "}
-            <Link
-              href="/auth/login"
-              className="font-medium text-primary hover:underline"
-            >
+
+        {/* Footer */}
+        <CardFooter className="p-0">
+          <motion.p
+            className="text-center text-sm text-muted-foreground w-full"
+            variants={fadeInUp}
+          >
+            Already have an account?{' '}
+            <Link href="/auth/login" className="font-medium text-primary hover:underline">
               Sign in
             </Link>
-          </p>
+          </motion.p>
         </CardFooter>
-      </Card>
+      </motion.div>
     </div>
   );
 }

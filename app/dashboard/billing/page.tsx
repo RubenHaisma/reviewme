@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { PLANS } from "@/lib/stripe";
+import { PLANS } from "@/lib/plans";
 import { Check, Loader2 } from "lucide-react";
 
 export default function BillingPage() {

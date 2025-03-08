@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { StarRating } from "@/components/feedback/star-rating";
+import Image from "next/image";
 
 // Define the params interface
 interface Params {
@@ -43,10 +44,12 @@ export default async function FeedbackPage({ params }: FeedbackPageProps) {
       <div className="max-w-md mx-auto">
         {theme?.logo && (
           <div className="text-center mb-8">
-            <img 
+            <Image 
               src={theme.logo} 
               alt={appointment.company.name}
               className="h-12 mx-auto"
+              width={48}
+              height={48}
             />
           </div>
         )}

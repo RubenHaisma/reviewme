@@ -1,15 +1,32 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import LoginError from "@/app/auth/login/error/page";
+import { useState } from 'react';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import LoginError from '@/app/auth/login/error/page';
+import { Lock, Mail } from 'lucide-react';
+
+// Animation variants
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5 },
+};
+
+const staggerContainer = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: { staggerChildren: 0.2 },
+  },
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,22 +37,22 @@ export default function LoginPage() {
     setIsLoading(true);
 
     const formData = new FormData(event.currentTarget);
-    const email = formData.get("email") as string;
+    const email = formData.get('email') as string;
 
     try {
-      const result = await signIn("email", {
+      const result = await signIn('email', {
         email,
         redirect: false,
-        callbackUrl: "/dashboard",
+        callbackUrl: '/dashboard',
       });
 
       if (result?.error) {
         throw new Error(result.error);
       }
 
-      toast.success("Check your email for the login link");
+      toast.success('Check your email for the login link!');
     } catch (error) {
-      toast.error("Something went wrong. Please try again.");
+      toast.error('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -46,112 +63,163 @@ export default function LoginPage() {
     setIsLoading(true);
 
     const formData = new FormData(event.currentTarget);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
 
     try {
-      const result = await signIn("credentials", {
+      const result = await signIn('credentials', {
         email,
         password,
         redirect: false,
-        callbackUrl: "/dashboard",
+        callbackUrl: '/dashboard',
       });
 
       if (result?.error) {
-        throw new Error("Invalid credentials");
+        throw new Error('Invalid credentials');
       }
 
       if (result?.url) {
         router.push(result.url);
       }
     } catch (error) {
-      toast.error("Invalid email or password");
+      toast.error('Invalid email or password');
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="w-full max-w-md space-y-8 p-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold tracking-tight">Welcome back</h2>
-          <p className="text-sm text-muted-foreground mt-2">
-            Sign in to your account
+    <div className="min-h-screen bg-gradient-to-b from-primary/5 via-primary/[0.02] to-background flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <motion.div
+        className="w-full max-w-md space-y-8 p-8 bg-background rounded-lg shadow-lg border"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
+        {/* Header */}
+        <motion.div className="text-center" variants={fadeInUp}>
+          <h2 className="text-3xl font-bold tracking-tight text-foreground">
+            Welcome Back
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Sign in to your Raatum account
           </p>
-        </div>
+        </motion.div>
 
-        <LoginError />
+        {/* Error Display */}
+        <motion.div variants={fadeInUp}>
+          <LoginError />
+        </motion.div>
 
+        {/* Login Tabs */}
         <Tabs defaultValue="email" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="email">Magic Link</TabsTrigger>
-            <TabsTrigger value="password">Password</TabsTrigger>
-          </TabsList>
+          <motion.div variants={fadeInUp}>
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="email" className="flex items-center gap-2">
+                <Mail className="h-4 w-4" /> Magic Link
+              </TabsTrigger>
+              <TabsTrigger value="password" className="flex items-center gap-2">
+                <Lock className="h-4 w-4" /> Password
+              </TabsTrigger>
+            </TabsList>
+          </motion.div>
 
+          {/* Email Login */}
           <TabsContent value="email">
-            <form onSubmit={onEmailSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="email-magic">Email</Label>
+            <motion.form
+              onSubmit={onEmailSubmit}
+              className="space-y-6"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+              <motion.div variants={fadeInUp}>
+                <Label htmlFor="email-magic" className="text-foreground">
+                  Email
+                </Label>
                 <Input
                   id="email-magic"
                   name="email"
                   type="email"
                   autoComplete="email"
                   required
-                  className="mt-1"
+                  placeholder="you@example.com"
+                  className="mt-1 border-muted focus:ring-primary focus:border-primary"
                 />
-              </div>
-
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Sending link..." : "Continue with Email"}
-              </Button>
-            </form>
+              </motion.div>
+              <motion.div variants={fadeInUp} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  type="submit"
+                  className="w-full bg-primary hover:bg-primary/90 font-semibold py-3 shadow-md"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Sending Link...' : 'Send Magic Link'}
+                </Button>
+              </motion.div>
+            </motion.form>
           </TabsContent>
 
+          {/* Password Login */}
           <TabsContent value="password">
-            <form onSubmit={onCredentialsSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
+            <motion.form
+              onSubmit={onCredentialsSubmit}
+              className="space-y-6"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+              <motion.div variants={fadeInUp}>
+                <Label htmlFor="email" className="text-foreground">
+                  Email
+                </Label>
                 <Input
                   id="email"
                   name="email"
                   type="email"
                   autoComplete="email"
                   required
-                  className="mt-1"
+                  placeholder="you@example.com"
+                  className="mt-1 border-muted focus:ring-primary focus:border-primary"
                 />
-              </div>
-
-              <div>
-                <Label htmlFor="password">Password</Label>
+              </motion.div>
+              <motion.div variants={fadeInUp}>
+                <Label htmlFor="password" className="text-foreground">
+                  Password
+                </Label>
                 <Input
                   id="password"
                   name="password"
                   type="password"
                   autoComplete="current-password"
                   required
-                  className="mt-1"
+                  placeholder="••••••••"
+                  className="mt-1 border-muted focus:ring-primary focus:border-primary"
                 />
-              </div>
-
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Signing in..." : "Sign in"}
-              </Button>
-            </form>
+              </motion.div>
+              <motion.div variants={fadeInUp} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  type="submit"
+                  className="w-full bg-primary hover:bg-primary/90 font-semibold py-3 shadow-md"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Signing In...' : 'Sign In'}
+                </Button>
+              </motion.div>
+            </motion.form>
           </TabsContent>
         </Tabs>
 
-        <p className="text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
-          <Link
-            href="/auth/register"
-            className="font-medium text-primary hover:underline"
-          >
+        {/* Sign Up Link */}
+        <motion.p
+          className="text-center text-sm text-muted-foreground"
+          variants={fadeInUp}
+        >
+          Don’t have an account?{' '}
+          <Link href="/auth/register" className="font-medium text-primary hover:underline">
             Sign up
           </Link>
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </div>
   );
 }

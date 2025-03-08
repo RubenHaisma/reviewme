@@ -1,3 +1,5 @@
+'use client';
+
 import { motion } from 'framer-motion';
 import { Navigation } from '@/components/layout/navigation';
 import { Footer } from '@/components/layout/footer';

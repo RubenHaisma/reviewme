@@ -14,6 +14,7 @@ import {
   Plug,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { Notifications } from "@/components/dashboard/notifications";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -29,10 +30,11 @@ export function Sidebar() {
 
   return (
     <div className="flex h-full w-64 flex-col bg-card">
-      <div className="flex h-16 items-center px-6">
+      <div className="flex h-16 items-center justify-between px-6">
         <Link href="/dashboard" className="text-xl font-bold">
           Raatum
         </Link>
+        <Notifications />
       </div>
       <nav className="flex-1 space-y-1 px-3 py-4">
         {navigation.map((item) => {

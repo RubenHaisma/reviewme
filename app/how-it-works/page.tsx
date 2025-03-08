@@ -1,163 +1,231 @@
+'use client';
+
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/layout/footer';
-import { 
-  CheckCircle, 
-  Star, 
-  Mail, 
-  MessageSquare, 
-  BarChart, 
-  Settings 
-} from 'lucide-react';
 import { Navigation } from '@/components/layout/navigation';
+import {
+  CheckCircle,
+  Star,
+  Mail,
+  MessageSquare,
+  BarChart,
+  Settings,
+} from 'lucide-react';
+
+// Animation variants
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5 },
+};
+
+const staggerContainer = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
 
 export default function HowItWorksPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
-      <Navigation isAuthenticated={false
-      } />
+      <Navigation isAuthenticated={false} />
 
       {/* Hero Section */}
-      <div className="py-20 bg-background">
+      <motion.section
+        className="py-20 bg-gradient-to-b from-primary/5 via-primary/[0.02] to-background"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl font-bold mb-6">How Raatum Works</h1>
-            <p className="text-lg text-muted-foreground mb-12">
-              A simple, automated way to collect and manage customer reviews
-            </p>
-          </div>
+          <motion.div className="max-w-3xl mx-auto text-center" variants={fadeInUp}>
+            <motion.h1
+              className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl mb-6"
+              variants={fadeInUp}
+            >
+              How Raatum Works
+            </motion.h1>
+            <motion.p className="text-lg text-muted-foreground mb-12" variants={fadeInUp}>
+              A simple, automated way to collect and manage customer reviews.
+            </motion.p>
+          </motion.div>
         </div>
-      </div>
+      </motion.section>
 
       {/* Steps Section */}
-      <div className="py-20 bg-muted/50">
+      <motion.section
+        className="py-20 bg-muted/50"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="container mx-auto px-4">
-          <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
-            <div className="flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground mb-4">
-                <Settings className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">1. Easy Setup</h3>
-              <p className="text-muted-foreground">
-                Create your account and connect your booking system in minutes
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground mb-4">
-                <Mail className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">2. Automated Requests</h3>
-              <p className="text-muted-foreground">
-                Customers automatically receive review requests after their appointments
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground mb-4">
-                <Star className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">3. Collect Reviews</h3>
-              <p className="text-muted-foreground">
-                Happy customers are directed to Google, others provide private feedback
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground mb-4">
-                <MessageSquare className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">4. Manage Feedback</h3>
-              <p className="text-muted-foreground">
-                Respond to feedback and address concerns before they become public
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground mb-4">
-                <BarChart className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">5. Track Progress</h3>
-              <p className="text-muted-foreground">
-                Monitor your review performance with detailed analytics
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground mb-4">
-                <CheckCircle className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">6. Grow Your Business</h3>
-              <p className="text-muted-foreground">
-                Build trust and attract more customers with positive reviews
-              </p>
-            </div>
-          </div>
+          <motion.div
+            className="grid gap-12 md:grid-cols-2 lg:grid-cols-3"
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+          >
+            {[
+              {
+                icon: Settings,
+                title: '1. Easy Setup',
+                desc: 'Create your account and connect your booking system in minutes.',
+              },
+              {
+                icon: Mail,
+                title: '2. Automated Requests',
+                desc: 'Customers receive review requests automatically after appointments.',
+              },
+              {
+                icon: Star,
+                title: '3. Collect Reviews',
+                desc: 'Happy customers go to Google; others provide private feedback.',
+              },
+              {
+                icon: MessageSquare,
+                title: '4. Manage Feedback',
+                desc: 'Respond to feedback and address concerns privately.',
+              },
+              {
+                icon: BarChart,
+                title: '5. Track Progress',
+                desc: 'Monitor review performance with detailed analytics.',
+              },
+              {
+                icon: CheckCircle,
+                title: '6. Grow Your Business',
+                desc: 'Build trust and attract customers with positive reviews.',
+              },
+            ].map((step, index) => (
+              <motion.div
+                key={index}
+                variants={fadeInUp}
+                className="flex flex-col items-center text-center"
+              >
+                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground mb-4">
+                  <step.icon className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">{step.title}</h3>
+                <p className="text-muted-foreground">{step.desc}</p>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
-      </div>
+      </motion.section>
 
       {/* Features Section */}
-      <div className="py-20 bg-background">
+      <motion.section
+        className="py-20 bg-background"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
-          <div className="grid gap-8 md:grid-cols-2">
-            <div className="border rounded-lg p-6">
-              <h3 className="text-xl font-semibold mb-4">Smart Review Routing</h3>
+          <motion.h2
+            className="text-3xl font-bold text-center text-foreground mb-12"
+            variants={fadeInUp}
+          >
+            Key Features
+          </motion.h2>
+          <motion.div
+            className="grid gap-8 md:grid-cols-2"
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+          >
+            <motion.div
+              variants={fadeInUp}
+              className="border rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow"
+            >
+              <h3 className="text-xl font-semibold text-foreground mb-4">Smart Review Routing</h3>
               <ul className="space-y-3">
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-primary mr-2" />
-                  <span>Automatically direct happy customers to Google</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-primary mr-2" />
-                  <span>Collect private feedback from dissatisfied customers</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-primary mr-2" />
-                  <span>Prevent negative reviews before they go public</span>
-                </li>
+                {[
+                  'Automatically direct happy customers to Google',
+                  'Collect private feedback from dissatisfied customers',
+                  'Prevent negative reviews before they go public',
+                ].map((item, index) => (
+                  <li key={index} className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-primary mr-2" />
+                    <span>{item}</span>
+                  </li>
+                ))}
               </ul>
-            </div>
+            </motion.div>
 
-            <div className="border rounded-lg p-6">
-              <h3 className="text-xl font-semibold mb-4">Automated Workflow</h3>
+            <motion.div
+              variants={fadeInUp}
+              className="border rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow"
+            >
+              <h3 className="text-xl font-semibold text-foreground mb-4">Automated Workflow</h3>
               <ul className="space-y-3">
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-primary mr-2" />
-                  <span>Seamless integration with your booking system</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-primary mr-2" />
-                  <span>Customizable email templates</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-primary mr-2" />
-                  <span>Perfect timing for review requests</span>
-                </li>
+                {[
+                  'Seamless integration with your booking system',
+                  'Customizable email templates',
+                  'Perfect timing for review requests',
+                ].map((item, index) => (
+                  <li key={index} className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-primary mr-2" />
+                    <span>{item}</span>
+                  </li>
+                ))}
               </ul>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
-      </div>
+      </motion.section>
 
       {/* CTA Section */}
-      <div className="py-20 bg-muted/50">
+      <motion.section
+        className="py-20 bg-muted/50"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6">Ready to Get Started?</h2>
-          <p className="text-lg text-muted-foreground mb-8">
-            Join thousands of businesses using Raatum to manage their online reputation
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/auth/register">
-              <Button size="lg">Start Free Trial</Button>
-            </Link>
-            <Link href="/pricing">
-              <Button variant="outline" size="lg">View Pricing</Button>
-            </Link>
-          </div>
+          <motion.h2
+            className="text-3xl font-bold text-foreground mb-6"
+            variants={fadeInUp}
+          >
+            Ready to Get Started?
+          </motion.h2>
+          <motion.p
+            className="text-lg text-muted-foreground mb-8"
+            variants={fadeInUp}
+          >
+            Join thousands of businesses using Raatum to boost their online reputation.
+          </motion.p>
+          <motion.div
+            className="flex flex-wrap justify-center gap-4"
+            variants={fadeInUp}
+          >
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link href="/auth/register">
+                <Button size="lg" className="bg-primary hover:bg-primary/90">
+                  Start Free Trial
+                </Button>
+              </Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link href="/pricing">
+                <Button variant="outline" size="lg">
+                  View Pricing
+                </Button>
+              </Link>
+            </motion.div>
+          </motion.div>
         </div>
-      </div>
+      </motion.section>
 
       <Footer />
     </div>
