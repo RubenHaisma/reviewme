@@ -1,15 +1,15 @@
-import { NextAuthConfig } from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient, UserRole } from "@prisma/client";
-import Credentials from "next-auth/providers/credentials";
-import Google from "next-auth/providers/google";
-import bcrypt from "bcryptjs";
-import NextAuth from "next-auth";
-import type { Adapter } from "next-auth/adapters";
-import type { DefaultSession } from "next-auth";
-import { z } from "zod";
+import { NextAuthConfig } from 'next-auth';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import { PrismaClient, UserRole } from '@prisma/client';
+import Credentials from 'next-auth/providers/credentials';
+import Google from 'next-auth/providers/google';
+import bcrypt from 'bcryptjs';
+import NextAuth from 'next-auth';
+import type { Adapter } from 'next-auth/adapters';
+import type { DefaultSession } from 'next-auth';
+import { z } from 'zod';
 
-declare module "next-auth" {
+declare module 'next-auth' {
   interface User {
     role: UserRole;
     companyId?: string | null;
@@ -20,11 +20,11 @@ declare module "next-auth" {
       id: string;
       role: UserRole;
       companyId?: string | null;
-    } & DefaultSession["user"];
+    } & DefaultSession['user'];
   }
 }
 
-declare module "next-auth/jwt" {
+declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
     role: UserRole;
@@ -51,7 +51,7 @@ const customPrismaAdapter = (p: PrismaClient): Adapter => {
           email: data.email,
           name: data.name,
           emailVerified: data.emailVerified,
-          role: "USER",
+          role: 'USER',
           companyId: null,
         },
       });
@@ -128,16 +128,15 @@ export const authOptions: NextAuthConfig = {
       allowDangerousEmailAccountLinking: true,
     }),
     Credentials({
-      name: "Credentials",
+      name: 'Credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        // Validate credentials with Zod
         const parsedCredentials = credentialsSchema.safeParse(credentials);
         if (!parsedCredentials.success) {
-          throw new Error("Invalid credentials");
+          throw new Error('Invalid credentials');
         }
 
         const { email, password } = parsedCredentials.data;
@@ -156,16 +155,16 @@ export const authOptions: NextAuthConfig = {
         });
 
         if (!user || !user.password) {
-          throw new Error("Invalid credentials");
+          throw new Error('Invalid credentials');
         }
 
         if (!user.emailVerified) {
-          throw new Error("Please verify your email address first. Check your inbox.");
+          throw new Error('Please verify your email address first. Check your inbox.');
         }
 
         const isCorrectPassword = await bcrypt.compare(password, user.password);
         if (!isCorrectPassword) {
-          throw new Error("Invalid credentials");
+          throw new Error('Invalid credentials');
         }
 
         return {
@@ -179,14 +178,15 @@ export const authOptions: NextAuthConfig = {
     }),
   ],
   pages: {
-    signIn: "/auth/login",
-    error: "/auth/login",
+    signIn: '/auth/login',
+    error: '/auth/login',
   },
-  debug: process.env.NODE_ENV === "development",
+  debug: process.env.NODE_ENV === 'development',
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
   },
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true, // Explicitly trust the host
   callbacks: {
     async session({ session, token }) {
       if (token && session.user) {
