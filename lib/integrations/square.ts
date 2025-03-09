@@ -61,10 +61,43 @@ export class SquareWebhookHandler implements WebhookHandler {
 
   async processWebhook(payload: any): Promise<void> {
     try {
-      if (payload.type !== 'appointment.created') {
+      // Only process completed appointment events
+      if (payload.type !== 'appointment.completed') {
         return;
       }
 
+      // Get company details first to ensure it exists
+      const company = await prisma.company.findUnique({
+        where: { id: this.companyId },
+        select: { 
+          name: true,
+          emailTemplate: true,
+          emailSubject: true,
+        },
+      });
+
+      if (!company) {
+        throw new Error('Company not found');
+      }
+
+      // Create or update customer record
+      const customer = await prisma.customer.upsert({
+        where: {
+          email_companyId: {
+            email: payload.data.customer.email_address,
+            companyId: this.companyId,
+          },
+        },
+        create: {
+          companyId: this.companyId,
+          name: `${payload.data.customer.given_name} ${payload.data.customer.family_name}`,
+          email: payload.data.customer.email_address,
+          phone: payload.data.customer.phone_number || null,
+        },
+        update: {},
+      });
+
+      // Create appointment record
       const appointment = await prisma.appointment.create({
         data: {
           companyId: this.companyId,
@@ -74,33 +107,27 @@ export class SquareWebhookHandler implements WebhookHandler {
         },
       });
 
-      // Schedule feedback email for 2 hours after appointment
-      const feedbackDate = new Date(payload.data.appointment.start_at);
-      feedbackDate.setHours(feedbackDate.getHours() + 2);
-
-      // Get company details
-      const company = await prisma.company.findUnique({
-        where: { id: this.companyId },
-        select: { name: true },
-      });
-
-      if (!company) {
-        throw new Error('Company not found');
-      }
-
-      // Send feedback request
+      // Send feedback request email
       await sendFeedbackEmail({
         to: payload.data.customer.email_address,
         customerName: `${payload.data.customer.given_name} ${payload.data.customer.family_name}`,
         companyName: company.name,
         appointmentId: appointment.id,
+        template: company.emailTemplate || '',
+        subject: company.emailSubject || '',
+      });
+
+      // Update appointment to mark feedback email as sent
+      await prisma.appointment.update({
+        where: { id: appointment.id },
+        data: { feedbackSent: true },
       });
 
       // Log successful webhook processing
       await prisma.webhookEvent.create({
         data: {
           webhookUrlId: payload.webhookUrlId,
-          eventType: 'appointment.created',
+          eventType: 'appointment.completed',
           payload,
           processed: true,
           processedAt: new Date(),
@@ -111,7 +138,7 @@ export class SquareWebhookHandler implements WebhookHandler {
       await prisma.webhookEvent.create({
         data: {
           webhookUrlId: payload.webhookUrlId,
-          eventType: 'appointment.created',
+          eventType: 'appointment.completed',
           payload,
           processed: false,
           errorMessage: error instanceof Error ? error.message : 'Unknown error',

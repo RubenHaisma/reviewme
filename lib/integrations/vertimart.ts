@@ -44,7 +44,6 @@ export class VertiMartWebhookHandler implements WebhookHandler {
       const hmac = crypto.createHmac('sha256', apiKey);
       const calculatedSignature = hmac.update(payload).digest('hex');
 
-      // Convert Buffer to Uint8Array for timingSafeEqual
       return crypto.timingSafeEqual(
         Uint8Array.from(Buffer.from(signature, 'hex')),
         Uint8Array.from(Buffer.from(calculatedSignature, 'hex'))
@@ -60,6 +59,37 @@ export class VertiMartWebhookHandler implements WebhookHandler {
 
   async processWebhook(payload: any): Promise<void> {
     try {
+      // Get company details first to ensure it exists
+      const company = await prisma.company.findUnique({
+        where: { id: this.companyId },
+        select: { 
+          name: true,
+          emailTemplate: true,
+          emailSubject: true,
+        },
+      });
+
+      if (!company) {
+        throw new Error('Company not found');
+      }
+
+      // Create or update customer record
+      const customer = await prisma.customer.upsert({
+        where: {
+          email_companyId: {
+            email: payload.customerEmail,
+            companyId: this.companyId,
+          },
+        },
+        create: {
+          companyId: this.companyId,
+          name: payload.customerName,
+          email: payload.customerEmail,
+        },
+        update: {},
+      });
+
+      // Create appointment record
       const appointment = await prisma.appointment.create({
         data: {
           companyId: this.companyId,
@@ -73,22 +103,20 @@ export class VertiMartWebhookHandler implements WebhookHandler {
       const feedbackDate = new Date(payload.appointmentDate);
       feedbackDate.setHours(feedbackDate.getHours() + 2);
 
-      // Get company details
-      const company = await prisma.company.findUnique({
-        where: { id: this.companyId },
-        select: { name: true },
-      });
-
-      if (!company) {
-        throw new Error('Company not found');
-      }
-
-      // Send feedback request
+      // Send feedback request email
       await sendFeedbackEmail({
         to: payload.customerEmail,
         customerName: payload.customerName,
         companyName: company.name,
         appointmentId: appointment.id,
+        template: company.emailTemplate || '',
+        subject: company.emailSubject || '',
+      });
+
+      // Update appointment to mark feedback email as sent
+      await prisma.appointment.update({
+        where: { id: appointment.id },
+        data: { feedbackSent: true },
       });
 
       // Log successful webhook processing

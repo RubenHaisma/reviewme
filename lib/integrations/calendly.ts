@@ -45,11 +45,42 @@ export class CalendlyWebhookHandler implements WebhookHandler {
 
   async processWebhook(payload: any): Promise<void> {
     try {
-      // Only process completed appointment events
-      if (payload.event !== 'invitee.created') {
+      // Only process completed meeting events
+      if (payload.event !== 'invitee.created' || payload.payload.status !== 'completed') {
         return;
       }
 
+      // Get company details first to ensure it exists
+      const company = await prisma.company.findUnique({
+        where: { id: this.companyId },
+        select: { 
+          name: true,
+          emailTemplate: true,
+          emailSubject: true,
+        },
+      });
+
+      if (!company) {
+        throw new Error('Company not found');
+      }
+
+      // Create or update customer record
+      const customer = await prisma.customer.upsert({
+        where: {
+          email_companyId: {
+            email: payload.payload.invitee.email,
+            companyId: this.companyId,
+          },
+        },
+        create: {
+          companyId: this.companyId,
+          name: payload.payload.invitee.name,
+          email: payload.payload.invitee.email,
+        },
+        update: {},
+      });
+
+      // Create appointment record
       const appointment = await prisma.appointment.create({
         data: {
           companyId: this.companyId,
@@ -59,26 +90,20 @@ export class CalendlyWebhookHandler implements WebhookHandler {
         },
       });
 
-      // Schedule feedback email for 2 hours after appointment
-      const feedbackDate = new Date(payload.payload.event.start_time);
-      feedbackDate.setHours(feedbackDate.getHours() + 2);
-
-      // Get company details
-      const company = await prisma.company.findUnique({
-        where: { id: this.companyId },
-        select: { name: true },
-      });
-
-      if (!company) {
-        throw new Error('Company not found');
-      }
-
-      // Send feedback request
+      // Send feedback request email
       await sendFeedbackEmail({
         to: payload.payload.invitee.email,
         customerName: payload.payload.invitee.name,
         companyName: company.name,
         appointmentId: appointment.id,
+        template: company.emailTemplate || '',
+        subject: company.emailSubject || '',
+      });
+
+      // Update appointment to mark feedback email as sent
+      await prisma.appointment.update({
+        where: { id: appointment.id },
+        data: { feedbackSent: true },
       });
 
       // Log successful webhook processing

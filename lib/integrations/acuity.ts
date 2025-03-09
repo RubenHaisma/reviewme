@@ -55,42 +55,73 @@ export class AcuityWebhookHandler implements WebhookHandler {
 
   async processWebhook(payload: any): Promise<void> {
     try {
-      const appointment = await prisma.appointment.create({
-        data: {
-          companyId: this.companyId,
-          customerName: `${payload.client.firstName} ${payload.client.lastName}`,
-          customerEmail: payload.client.email,
-          date: new Date(payload.datetime),
-        },
-      });
+      // Only process completed appointment events
+      if (payload.action !== 'appointment.completed') {
+        return;
+      }
 
-      // Schedule feedback email for 2 hours after appointment
-      const feedbackDate = new Date(payload.datetime);
-      feedbackDate.setHours(feedbackDate.getHours() + 2);
-
-      // Get company details
+      // Get company details first to ensure it exists
       const company = await prisma.company.findUnique({
         where: { id: this.companyId },
-        select: { name: true },
+        select: { 
+          name: true,
+          emailTemplate: true,
+          emailSubject: true,
+        },
       });
 
       if (!company) {
         throw new Error('Company not found');
       }
 
-      // Send feedback request
+      // Create or update customer record
+      const customer = await prisma.customer.upsert({
+        where: {
+          email_companyId: {
+            email: payload.appointment.email,
+            companyId: this.companyId,
+          },
+        },
+        create: {
+          companyId: this.companyId,
+          name: `${payload.appointment.firstName} ${payload.appointment.lastName}`,
+          email: payload.appointment.email,
+          phone: payload.appointment.phone || null,
+        },
+        update: {},
+      });
+
+      // Create appointment record
+      const appointment = await prisma.appointment.create({
+        data: {
+          companyId: this.companyId,
+          customerName: `${payload.appointment.firstName} ${payload.appointment.lastName}`,
+          customerEmail: payload.appointment.email,
+          date: new Date(payload.appointment.datetime),
+        },
+      });
+
+      // Send feedback request email
       await sendFeedbackEmail({
-        to: payload.client.email,
-        customerName: `${payload.client.firstName} ${payload.client.lastName}`,
+        to: payload.appointment.email,
+        customerName: `${payload.appointment.firstName} ${payload.appointment.lastName}`,
         companyName: company.name,
         appointmentId: appointment.id,
+        template: company.emailTemplate || '',
+        subject: company.emailSubject   || '',
+      });
+
+      // Update appointment to mark feedback email as sent
+      await prisma.appointment.update({
+        where: { id: appointment.id },
+        data: { feedbackSent: true },
       });
 
       // Log successful webhook processing
       await prisma.webhookEvent.create({
         data: {
           webhookUrlId: payload.webhookUrlId,
-          eventType: 'appointment.created',
+          eventType: 'appointment.completed',
           payload,
           processed: true,
           processedAt: new Date(),
@@ -101,7 +132,7 @@ export class AcuityWebhookHandler implements WebhookHandler {
       await prisma.webhookEvent.create({
         data: {
           webhookUrlId: payload.webhookUrlId,
-          eventType: 'appointment.created',
+          eventType: 'appointment.completed',
           payload,
           processed: false,
           errorMessage: error instanceof Error ? error.message : 'Unknown error',

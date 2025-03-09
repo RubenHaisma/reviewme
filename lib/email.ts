@@ -14,6 +14,8 @@ const transporter = nodemailer.createTransport({
 
 interface SendFeedbackEmailParams {
   to: string;
+  template: string;
+  subject: string;
   customerName: string;
   companyName: string;
   appointmentId: string;

@@ -55,6 +55,8 @@ export async function POST(req: Request) {
       customerName,
       companyName: company.name,
       appointmentId: appointment.id,
+      template: company.emailTemplate || "",
+      subject: company.emailSubject || "",
     });
 
     return NextResponse.json(appointment);
