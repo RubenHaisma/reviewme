@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,7 +39,7 @@ export default function ContactPage() {
       }
 
       toast.success('Message sent successfully! We\'ll get back to you soon.');
-      e.currentTarget.reset();
+      formRef.current?.reset();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to send message');
     } finally {
@@ -78,7 +79,7 @@ export default function ContactPage() {
             </div>
 
             <div>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium mb-2">
                     Name

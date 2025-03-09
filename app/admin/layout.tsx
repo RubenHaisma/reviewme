@@ -73,6 +73,7 @@ export default function AdminLayout({
             <Button variant="ghost" onClick={() => router.push('/admin/users')}>Users</Button>
             <Button variant="ghost" onClick={() => router.push('/admin/companies')}>Companies</Button>
             <Button variant="ghost" onClick={() => router.push('/admin/feedback')}>Feedback</Button>
+            <Button variant="ghost" onClick={() => router.push('/admin/webhooks')}>Webhooks</Button>
             <Button
               variant="destructive"
               onClick={() => {

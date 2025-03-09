@@ -58,6 +58,11 @@ export default async function AdminDashboard() {
           <h3 className="text-sm font-medium text-muted-foreground">Average Rating</h3>
           <p className="text-2xl font-bold">{feedbackStats._avg.score?.toFixed(1) || 0}</p>
         </Card>
+        <Card className="p-6">
+          <h3 className="text-sm font-medium text-muted-foreground">Total Appointments</h3>
+          <p className="text-2xl font-bold">{totalAppointments}</p>
+        </Card>
+
       </div>
 
       <Card className="p-6">
