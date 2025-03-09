@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { sendFeedbackEmail } from '@/lib/email';
 import crypto from 'crypto';
 
-export class VertiMartWebhookHandler implements WebhookHandler {
+export class CalendlyWebhookHandler implements WebhookHandler {
   constructor(private readonly companyId: string) {}
 
   async verifySignature(signature: string, payload: string): Promise<boolean> {
@@ -12,7 +12,7 @@ export class VertiMartWebhookHandler implements WebhookHandler {
         where: {
           companyId_providerId: {
             companyId: this.companyId,
-            providerId: 'vertimart',
+            providerId: 'calendly',
           },
         },
         select: {
@@ -20,39 +20,24 @@ export class VertiMartWebhookHandler implements WebhookHandler {
         },
       });
 
-      if (!connection) {
+      if (!connection || !connection.credentials) {
         throw new IntegrationError(
           'Integration not found',
-          'vertimart',
+          'calendly',
           'INTEGRATION_NOT_FOUND'
         );
       }
 
-      if (
-        !connection.credentials ||
-        typeof connection.credentials !== 'object' ||
-        !('api_key' in connection.credentials)
-      ) {
-        throw new IntegrationError(
-          'Invalid credentials',
-          'vertimart',
-          'INVALID_CREDENTIALS'
-        );
-      }
+      const credentials = connection.credentials as { webhook_signing_key: string };
+      const signingKey = credentials.webhook_signing_key;
+      const hmac = crypto.createHmac('sha256', signingKey);
+      const calculatedSignature = hmac.update(payload).digest('base64');
 
-      const apiKey = connection.credentials.api_key as string;
-      const hmac = crypto.createHmac('sha256', apiKey);
-      const calculatedSignature = hmac.update(payload).digest('hex');
-
-      // Convert Buffer to Uint8Array for timingSafeEqual
-      return crypto.timingSafeEqual(
-        Uint8Array.from(Buffer.from(signature, 'hex')),
-        Uint8Array.from(Buffer.from(calculatedSignature, 'hex'))
-      );
+      return signature === `v1=${calculatedSignature}`;
     } catch (error) {
       throw new WebhookError(
         'Failed to verify signature',
-        'vertimart',
+        'calendly',
         'SIGNATURE_VERIFICATION_FAILED'
       );
     }
@@ -60,17 +45,22 @@ export class VertiMartWebhookHandler implements WebhookHandler {
 
   async processWebhook(payload: any): Promise<void> {
     try {
+      // Only process completed appointment events
+      if (payload.event !== 'invitee.created') {
+        return;
+      }
+
       const appointment = await prisma.appointment.create({
         data: {
           companyId: this.companyId,
-          customerName: payload.customerName,
-          customerEmail: payload.customerEmail,
-          date: new Date(payload.appointmentDate),
+          customerName: payload.payload.invitee.name,
+          customerEmail: payload.payload.invitee.email,
+          date: new Date(payload.payload.event.start_time),
         },
       });
 
       // Schedule feedback email for 2 hours after appointment
-      const feedbackDate = new Date(payload.appointmentDate);
+      const feedbackDate = new Date(payload.payload.event.start_time);
       feedbackDate.setHours(feedbackDate.getHours() + 2);
 
       // Get company details
@@ -85,8 +75,8 @@ export class VertiMartWebhookHandler implements WebhookHandler {
 
       // Send feedback request
       await sendFeedbackEmail({
-        to: payload.customerEmail,
-        customerName: payload.customerName,
+        to: payload.payload.invitee.email,
+        customerName: payload.payload.invitee.name,
         companyName: company.name,
         appointmentId: appointment.id,
       });
@@ -95,7 +85,7 @@ export class VertiMartWebhookHandler implements WebhookHandler {
       await prisma.webhookEvent.create({
         data: {
           webhookUrlId: payload.webhookUrlId,
-          eventType: 'appointment.created',
+          eventType: 'invitee.created',
           payload,
           processed: true,
           processedAt: new Date(),
@@ -106,7 +96,7 @@ export class VertiMartWebhookHandler implements WebhookHandler {
       await prisma.webhookEvent.create({
         data: {
           webhookUrlId: payload.webhookUrlId,
-          eventType: 'appointment.created',
+          eventType: 'invitee.created',
           payload,
           processed: false,
           errorMessage: error instanceof Error ? error.message : 'Unknown error',
@@ -115,7 +105,7 @@ export class VertiMartWebhookHandler implements WebhookHandler {
 
       throw new WebhookError(
         'Failed to process webhook',
-        'vertimart',
+        'calendly',
         'WEBHOOK_PROCESSING_FAILED'
       );
     }

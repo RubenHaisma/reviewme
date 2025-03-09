@@ -42,21 +42,21 @@ model VerificationToken {
 }
 
 model Company {
-  id                     String         @id @default(cuid())
+  id                     String            @id @default(cuid())
   name                   String
   website                String?
   googleReviewLink       String?
   notifyEmail            String?
-  notifyOnNegative       Boolean        @default(false)
-  stripeCustomerId       String?        @unique
+  notifyOnNegative       Boolean           @default(false)
+  stripeCustomerId       String?           @unique
   subscriptionId         String?
   subscriptionStatus     String?
-  remainingFreeCustomers Int            @default(20)
-  emailTemplate          String?        @db.Text
+  remainingFreeCustomers Int               @default(20)
+  emailTemplate          String?           @db.Text
   emailSubject           String?
-  dataRetentionPeriod    Int            @default(730) // Added from second schema
-  createdAt              DateTime       @default(now())
-  updatedAt              DateTime       @updatedAt
+  dataRetentionPeriod    Int               @default(730)
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
   users                  User[]
   appointments           Appointment[]
   feedback               Feedback[]
@@ -64,6 +64,7 @@ model Company {
   clients                Client[]
   feedbackTheme          FeedbackTheme?
   customers              Customer[]
+  integrationConnections IntegrationConnection[]
 }
 
 model User {
@@ -92,15 +93,15 @@ model User {
 }
 
 model Appointment {
-  id            String    @id @default(cuid())
+  id            String     @id @default(cuid())
   companyId     String
   customerName  String
   customerEmail String
   date          DateTime
-  feedbackSent  Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  company       Company   @relation(fields: [companyId], references: [id])
+  feedbackSent  Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  company       Company    @relation(fields: [companyId], references: [id])
   feedback      Feedback?
 }
 
@@ -119,30 +120,34 @@ model Customer {
 }
 
 model Feedback {
-  id                 String     @id @default(cuid())
-  appointmentId      String     @unique
+  id                 String      @id @default(cuid())
+  appointmentId      String      @unique
   companyId          String
   customerId         String
   score              Int
-  comment            String?    @db.Text
-  response           String?    @db.Text
-  redirectedToGoogle Boolean    @default(false)
-  read               Boolean    @default(false) // Added from second schema
-  createdAt          DateTime   @default(now())
-  updatedAt          DateTime   @updatedAt
+  comment            String?     @db.Text
+  response           String?     @db.Text
+  redirectedToGoogle Boolean     @default(false)
+  read               Boolean     @default(false)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
   appointment        Appointment @relation(fields: [appointmentId], references: [id])
   company            Company     @relation(fields: [companyId], references: [id])
   customer           Customer    @relation(fields: [customerId], references: [id])
 }
 
 model WebhookUrl {
-  id        String    @id @default(cuid())
-  companyId String
-  url       String
-  provider  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  company   Company   @relation(fields: [companyId], references: [id])
+  id            String               @id @default(cuid())
+  companyId     String
+  url           String
+  provider      String
+  status        WebhookStatus        @default(ACTIVE) // Added status field
+  lastEventAt   DateTime?            // Added lastEventAt field
+  errorCount    Int                  @default(0) // Added errorCount field
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  company       Company              @relation(fields: [companyId], references: [id])
+  webhookEvents WebhookEvent[]
 
   @@unique([provider, companyId])
 }
@@ -170,7 +175,40 @@ model FeedbackTheme {
   updatedAt    DateTime  @updatedAt
 }
 
+model IntegrationConnection {
+  id           String         @id @default(cuid())
+  companyId    String
+  providerId   String
+  credentials  Json           // Stores API keys, signing keys, etc.
+  settings     Json?          // Optional settings for the integration
+  status       String         @default("active") // active, inactive, error
+  lastSyncAt   DateTime?
+  errorMessage String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  company      Company        @relation(fields: [companyId], references: [id])
+
+  @@unique([companyId, providerId])
+}
+
+model WebhookEvent {
+  id            String     @id @default(cuid())
+  webhookUrlId  String
+  eventType     String
+  payload       Json
+  processed     Boolean    @default(false)
+  errorMessage  String?
+  createdAt     DateTime   @default(now())
+  processedAt   DateTime?
+  webhookUrl    WebhookUrl @relation(fields: [webhookUrlId], references: [id])
+}
+
 enum UserRole {
   ADMIN
   USER
+}
+
+enum WebhookStatus {
+  ACTIVE
+  ERROR
 }

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { sendFeedbackEmail } from '@/lib/email';
 import crypto from 'crypto';
 
-export class VertiMartWebhookHandler implements WebhookHandler {
+export class SquareWebhookHandler implements WebhookHandler {
   constructor(private readonly companyId: string) {}
 
   async verifySignature(signature: string, payload: string): Promise<boolean> {
@@ -12,7 +12,7 @@ export class VertiMartWebhookHandler implements WebhookHandler {
         where: {
           companyId_providerId: {
             companyId: this.companyId,
-            providerId: 'vertimart',
+            providerId: 'square',
           },
         },
         select: {
@@ -23,36 +23,37 @@ export class VertiMartWebhookHandler implements WebhookHandler {
       if (!connection) {
         throw new IntegrationError(
           'Integration not found',
-          'vertimart',
+          'square',
           'INTEGRATION_NOT_FOUND'
         );
       }
-
-      if (
-        !connection.credentials ||
-        typeof connection.credentials !== 'object' ||
-        !('api_key' in connection.credentials)
-      ) {
+      
+      if (!connection.credentials || typeof connection.credentials !== 'object') {
         throw new IntegrationError(
           'Invalid credentials',
-          'vertimart',
+          'square',
           'INVALID_CREDENTIALS'
         );
       }
 
-      const apiKey = connection.credentials.api_key as string;
-      const hmac = crypto.createHmac('sha256', apiKey);
-      const calculatedSignature = hmac.update(payload).digest('hex');
+      const credentials = connection.credentials as Record<string, string>;
+      const signingKey = credentials.webhook_signing_key;
+      
+      if (!signingKey) {
+        throw new IntegrationError(
+          'Missing webhook signing key',
+          'square',
+          'MISSING_SIGNING_KEY'
+        );
+      }
+      const hmac = crypto.createHmac('sha256', signingKey);
+      const calculatedSignature = hmac.update(payload).digest('base64');
 
-      // Convert Buffer to Uint8Array for timingSafeEqual
-      return crypto.timingSafeEqual(
-        Uint8Array.from(Buffer.from(signature, 'hex')),
-        Uint8Array.from(Buffer.from(calculatedSignature, 'hex'))
-      );
+      return signature === calculatedSignature;
     } catch (error) {
       throw new WebhookError(
         'Failed to verify signature',
-        'vertimart',
+        'square',
         'SIGNATURE_VERIFICATION_FAILED'
       );
     }
@@ -60,17 +61,21 @@ export class VertiMartWebhookHandler implements WebhookHandler {
 
   async processWebhook(payload: any): Promise<void> {
     try {
+      if (payload.type !== 'appointment.created') {
+        return;
+      }
+
       const appointment = await prisma.appointment.create({
         data: {
           companyId: this.companyId,
-          customerName: payload.customerName,
-          customerEmail: payload.customerEmail,
-          date: new Date(payload.appointmentDate),
+          customerName: `${payload.data.customer.given_name} ${payload.data.customer.family_name}`,
+          customerEmail: payload.data.customer.email_address,
+          date: new Date(payload.data.appointment.start_at),
         },
       });
 
       // Schedule feedback email for 2 hours after appointment
-      const feedbackDate = new Date(payload.appointmentDate);
+      const feedbackDate = new Date(payload.data.appointment.start_at);
       feedbackDate.setHours(feedbackDate.getHours() + 2);
 
       // Get company details
@@ -85,8 +90,8 @@ export class VertiMartWebhookHandler implements WebhookHandler {
 
       // Send feedback request
       await sendFeedbackEmail({
-        to: payload.customerEmail,
-        customerName: payload.customerName,
+        to: payload.data.customer.email_address,
+        customerName: `${payload.data.customer.given_name} ${payload.data.customer.family_name}`,
         companyName: company.name,
         appointmentId: appointment.id,
       });
@@ -115,7 +120,7 @@ export class VertiMartWebhookHandler implements WebhookHandler {
 
       throw new WebhookError(
         'Failed to process webhook',
-        'vertimart',
+        'square',
         'WEBHOOK_PROCESSING_FAILED'
       );
     }
