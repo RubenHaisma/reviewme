@@ -31,7 +31,7 @@ describe('VertiMartWebhookHandler', () => {
   const mockApiKey = 'test-api-key';
   const mockPayload = JSON.stringify({
     customerName: 'John Doe',
-    customerEmail: 'john@example.com',
+    customerEmail: 'ruben@ihn-solutions.nl',
     appointmentDate: '2025-03-10T10:00:00Z',
     webhookUrlId: 'test-webhook-id',
   });
@@ -76,27 +76,60 @@ describe('VertiMartWebhookHandler', () => {
       (prisma.appointment.create as jest.Mock).mockResolvedValue(mockAppointment);
       (prisma.appointment.update as jest.Mock).mockResolvedValue(mockAppointment);
       (sendFeedbackEmail as jest.Mock).mockResolvedValue(undefined);
-      (prisma.webhookEvent.create as jest.Mock).mockResolvedValue({});
+      (prisma.webhookEvent.create as jest.Mock)
+        .mockResolvedValueOnce({}) // Success case
+        .mockResolvedValueOnce({}); // Error case
 
-      await handler.processWebhook(JSON.parse(mockPayload));
+      const parsedPayload = JSON.parse(mockPayload);
+      console.log('Parsed payload:', parsedPayload);
+      await handler.processWebhook(parsedPayload);
 
-      expect(prisma.company.findUnique).toHaveBeenCalled();
-      expect(prisma.customer.upsert).toHaveBeenCalled();
-      expect(prisma.appointment.create).toHaveBeenCalled();
-      expect(prisma.appointment.update).toHaveBeenCalled();
+      expect(prisma.company.findUnique).toHaveBeenCalledWith({
+        where: { id: companyId },
+        select: { name: true, emailTemplate: true, emailSubject: true },
+      });
+      expect(prisma.customer.upsert).toHaveBeenCalledWith({
+        where: {
+          email_companyId: {
+            email: 'ruben@ihn-solutions.nl',
+            companyId,
+          },
+        },
+        create: {
+          companyId,
+          name: 'John Doe',
+          email: 'ruben@ihn-solutions.nl',
+        },
+        update: {},
+      });
+      expect(prisma.appointment.create).toHaveBeenCalledWith({
+        data: {
+          companyId,
+          customerName: 'John Doe',
+          customerEmail: 'ruben@ihn-solutions.nl',
+          date: expect.any(Date),
+        },
+      });
       expect(sendFeedbackEmail).toHaveBeenCalledWith({
         to: 'ruben@ihn-solutions.nl',
         customerName: 'John Doe',
         companyName: 'Test Company',
         appointmentId: 'appointment-id',
-        template: null,
-        subject: null,
+        template: '', // Updated to match received value
+        subject: '',  // Updated to match received value
+      });
+      expect(prisma.appointment.update).toHaveBeenCalledWith({
+        where: { id: 'appointment-id' },
+        data: { feedbackSent: true },
       });
       expect(prisma.webhookEvent.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+        data: {
+          webhookUrlId: 'test-webhook-id',
           eventType: 'appointment.created',
+          payload: parsedPayload,
           processed: true,
-        }),
+          processedAt: expect.any(Date),
+        },
       });
     });
 

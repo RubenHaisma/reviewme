@@ -1,14 +1,13 @@
-// app/page.tsx
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Star, ChartBar, MessageCircle, CheckCircle, ArrowRight, Award, TrendingUp, Shield } from 'lucide-react';
+import { Star, ChartBar, MessageCircle, CheckCircle, ArrowRight, Award, TrendingUp, Shield, Mail, Users } from 'lucide-react';
 import { Footer } from '@/components/layout/footer';
 import { Navigation } from '@/components/layout/navigation';
-import Image from 'next/image';
-import { CountUp } from '@/components/ui/count-up'; // Import the new component
+import { CountUp } from '@/components/ui/count-up';
+import { WorkflowAnimation } from '@/components/workflow-animation';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -25,6 +24,11 @@ const staggerContainer = {
 };
 
 export default function Home() {
+  const { scrollYProgress } = useScroll();
+  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const y = useTransform(scrollYProgress, [0, 0.2], [0, -50]);
+  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
+
   const isAuthenticated = false;
 
   const testimonials = [
@@ -49,7 +53,7 @@ export default function Home() {
       role: 'Customer Success Manager',
       company: 'ServicePro Solutions',
       image: '/testimonials/emma.jpg',
-      quote: 'The insights we get from Raatum have helped us improve our service quality significantly. It’s a game-changer!',
+      quote: "The insights we get from Raatum have helped us improve our service quality significantly. It's a game-changer!",
       rating: 5,
     },
   ];
@@ -59,6 +63,34 @@ export default function Home() {
     { label: 'Reviews Collected', value: '5,000+' },
     { label: 'Average Rating Increase', value: '69%' },
     { label: 'Time Saved Weekly', value: '12 hrs' },
+  ];
+
+  const workflowSteps = [
+    {
+      icon: Users,
+      title: 'Customer Visit',
+      description: 'Customer completes their appointment or service',
+    },
+    {
+      icon: Mail,
+      title: 'Automated Request',
+      description: 'System sends personalized review request',
+    },
+    {
+      icon: Star,
+      title: 'Easy Feedback',
+      description: 'Customer provides rating and feedback',
+    },
+    {
+      icon: TrendingUp,
+      title: 'Smart Routing',
+      description: 'Positive reviews go to Google, negative ones stay private',
+    },
+    {
+      icon: ChartBar,
+      title: 'Insights & Analytics',
+      description: 'Track performance and identify trends',
+    },
   ];
 
   return (
@@ -71,6 +103,7 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
+        style={{ opacity, y, scale }}
       >
         <div className="container mx-auto px-4">
           <motion.div className="text-center max-w-4xl mx-auto" variants={fadeInUp}>
@@ -113,6 +146,31 @@ export default function Home() {
         </div>
       </motion.header>
 
+      {/* Workflow Animation Section */}
+      <motion.section
+        className="py-24 bg-muted/30"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+      >
+        <div className="container mx-auto px-4">
+          <motion.div
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl font-bold mb-4">How Raatum Works</h2>
+            <p className="text-xl text-muted-foreground">
+              A seamless workflow that transforms customer experiences into growth
+            </p>
+          </motion.div>
+          
+          <WorkflowAnimation steps={workflowSteps} />
+        </div>
+      </motion.section>
+
       {/* Social Proof Section */}
       <motion.section
         className="py-12 bg-muted/30"
@@ -127,103 +185,103 @@ export default function Home() {
       </motion.section>
 
       {/* Features Section */}
-          <motion.section
-            className="py-24 bg-background"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
+      <motion.section
+        className="py-24 bg-background"
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+      >
+        <div className="container mx-auto px-4">
+          <motion.div className="text-center mb-16" variants={fadeInUp}>
+            <h2 className="text-3xl font-bold mb-4">Everything You Need to Excel at Review Management</h2>
+            <p className="text-xl text-muted-foreground">
+              Powerful features designed to help you collect, manage, and leverage customer feedback
+              effectively.
+            </p>
+          </motion.div>
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
             viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
           >
-            <div className="container mx-auto px-4">
-              <motion.div className="text-center mb-16" variants={fadeInUp}>
-                <h2 className="text-3xl font-bold mb-4">Everything You Need to Excel at Review Management</h2>
-                <p className="text-xl text-muted-foreground">
-                  Powerful features designed to help you collect, manage, and leverage customer feedback
-                  effectively.
-                </p>
-              </motion.div>
+            {[
+              {
+                icon: Star,
+                title: 'Smart Review Routing',
+                description:
+                  'Automatically direct happy customers to Google while managing negative feedback privately.',
+              },
+              {
+                icon: ChartBar,
+                title: 'Advanced Analytics',
+                description:
+                  'Get actionable insights from your feedback with detailed analytics and trend reports.',
+              },
+              {
+                icon: MessageCircle,
+                title: 'Automated Collection',
+                description:
+                  'Collect reviews automatically after customer interactions with smart timing.',
+              },
+              {
+                icon: Shield,
+                title: 'Review Monitoring',
+                description: 'Monitor and respond to reviews across all platforms from one dashboard.',
+              },
+              {
+                icon: TrendingUp,
+                title: 'Reputation Growth',
+                description:
+                  'Build and maintain a stellar online reputation with strategic review management.',
+              },
+              {
+                icon: CheckCircle,
+                title: 'Easy Integration',
+                description: 'Connect with your existing tools and automate your workflow seamlessly.',
+              },
+            ].map((feature, index) => (
               <motion.div
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                variants={staggerContainer}
-                initial="initial"
-                whileInView="animate"
-                viewport={{ once: true }}
+                key={index}
+                className="flex flex-col items-center text-center p-6 bg-white rounded-xl shadow-lg"
+                variants={{
+                  initial: { opacity: 0, y: 30, scale: 0.95 },
+                  animate: { opacity: 1, y: 0, scale: 1 }
+                }}
+                transition={{ type: 'spring', stiffness: 100, damping: 15, delay: index * 0.1 }}
+                whileHover={{ y: -5, rotate: 1, boxShadow: '0 15px 30px rgba(0, 0, 0, 0.15)' }}
               >
-                {[
-                  {
-                    icon: Star,
-                    title: 'Smart Review Routing',
-                    description:
-                      'Automatically direct happy customers to Google while managing negative feedback privately.',
-                  },
-                  {
-                    icon: ChartBar,
-                    title: 'Advanced Analytics',
-                    description:
-                      'Get actionable insights from your feedback with detailed analytics and trend reports.',
-                  },
-                  {
-                    icon: MessageCircle,
-                    title: 'Automated Collection',
-                    description:
-                      'Collect reviews automatically after customer interactions with smart timing.',
-                  },
-                  {
-                    icon: Shield,
-                    title: 'Review Monitoring',
-                    description: 'Monitor and respond to reviews across all platforms from one dashboard.',
-                  },
-                  {
-                    icon: TrendingUp,
-                    title: 'Reputation Growth',
-                    description:
-                      'Build and maintain a stellar online reputation with strategic review management.',
-                  },
-                  {
-                    icon: CheckCircle,
-                    title: 'Easy Integration',
-                    description: 'Connect with your existing tools and automate your workflow seamlessly.',
-                  },
-                ].map((feature, index) => (
-                  <motion.div
-                    key={index}
-                    className="flex flex-col items-center text-center p-6 bg-white rounded-xl shadow-lg"
-                    variants={{
-                      initial: { opacity: 0, y: 30, scale: 0.95 },
-                      animate: { opacity: 1, y: 0, scale: 1 }
-                    }}
-                    transition={{ type: 'spring', stiffness: 100, damping: 15, delay: index * 0.1 }}
-                    whileHover={{ y: -5, rotate: 1, boxShadow: '0 15px 30px rgba(0, 0, 0, 0.15)' }}
-                  >
-                    <motion.div
-                      className="rounded-full bg-primary/10 p-3 mb-4"
-                      initial={{ scale: 0, rotate: -45 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{ type: 'spring', stiffness: 200, damping: 10, delay: index * 0.1 + 0.2 }}
-                    >
-                      <feature.icon className="h-6 w-6 text-primary" />
-                    </motion.div>
-                    <motion.h3
-                      className="text-xl font-semibold mb-2"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
-                    >
-                      {feature.title}
-                    </motion.h3>
-                    <motion.p
-                      className="text-muted-foreground"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 + 0.4 }}
-                    >
-                      {feature.description}
-                    </motion.p>
-                  </motion.div>
-                ))}
+                <motion.div
+                  className="rounded-full bg-primary/10 p-3 mb-4"
+                  initial={{ scale: 0, rotate: -45 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 10, delay: index * 0.1 + 0.2 }}
+                >
+                  <feature.icon className="h-6 w-6 text-primary" />
+                </motion.div>
+                <motion.h3
+                  className="text-xl font-semibold mb-2"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
+                >
+                  {feature.title}
+                </motion.h3>
+                <motion.p
+                  className="text-muted-foreground"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 + 0.4 }}
+                >
+                  {feature.description}
+                </motion.p>
               </motion.div>
-            </div>
-          </motion.section>
+            ))}
+          </motion.div>
+        </div>
+      </motion.section>
 
       {/* Stats Section */}
       <motion.section

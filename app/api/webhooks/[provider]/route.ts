@@ -4,13 +4,12 @@ import { AcuityWebhookHandler } from '@/lib/integrations/acuity';
 import { CalendlyWebhookHandler } from '@/lib/integrations/calendly';
 import { SimplyBookWebhookHandler } from '@/lib/integrations/simplybook';
 import { SquareWebhookHandler } from '@/lib/integrations/square';
+import { VertiMartWebhookHandler } from '@/lib/integrations/vertimart';
 
-// Define the params interface
 interface Params {
   provider: string;
 }
 
-// Define the context type with params as a Promise
 interface Context {
   params: Promise<Params>;
 }
@@ -20,23 +19,18 @@ const HANDLERS = {
   calendly: CalendlyWebhookHandler,
   simplybook: SimplyBookWebhookHandler,
   square: SquareWebhookHandler,
+  vertimart: VertiMartWebhookHandler,
 };
 
 export async function POST(req: NextRequest, context: Context) {
   try {
-    // Resolve the params Promise
     const params = await context.params;
     const provider = params.provider;
 
-    // Validate provider
     if (!Object.keys(HANDLERS).includes(provider)) {
-      return NextResponse.json(
-        { error: 'Invalid provider' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid provider' }, { status: 400 });
     }
 
-    // Get webhook URL and company from the request URL
     const url = new URL(req.url);
     const webhookUrl = await prisma.webhookUrl.findFirst({
       where: {
@@ -51,54 +45,43 @@ export async function POST(req: NextRequest, context: Context) {
     });
 
     if (!webhookUrl) {
-      return NextResponse.json(
-        { error: 'Webhook URL not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Webhook URL not found' }, { status: 404 });
     }
 
     const body = await req.text();
     const Handler = HANDLERS[provider as keyof typeof HANDLERS];
     const handler = new Handler(webhookUrl.companyId);
 
-    // Get signature from headers using req.headers
     const signature = req.headers.get(
       provider === 'calendly'
         ? 'calendly-webhook-signature'
         : provider === 'square'
         ? 'x-square-signature'
+        : provider === 'vertimart'
+        ? 'x-vertimart-signature'
         : 'x-webhook-signature'
     );
 
     if (!signature) {
-      return NextResponse.json(
-        { error: 'Missing signature' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Missing signature' }, { status: 401 });
     }
 
-    // Verify webhook signature
     const isValid = await handler.verifySignature(signature, body);
     if (!isValid) {
-      return NextResponse.json(
-        { error: 'Invalid signature' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
-    // Process webhook
     const payload = JSON.parse(body);
     await handler.processWebhook({
       ...payload,
       webhookUrlId: webhookUrl.id,
     });
 
-    // Update webhook URL status
     await prisma.webhookUrl.update({
       where: { id: webhookUrl.id },
       data: {
         lastEventAt: new Date(),
-        status: 'ACTIVE', // Changed to uppercase to match enum
+        status: 'ACTIVE',
         errorCount: 0,
       },
     });
@@ -107,7 +90,6 @@ export async function POST(req: NextRequest, context: Context) {
   } catch (error) {
     console.error('Webhook processing error:', error);
 
-    // Update webhook URL error status
     if (error instanceof Error) {
       const url = new URL(req.url);
       await prisma.webhookUrl.updateMany({
@@ -120,16 +102,13 @@ export async function POST(req: NextRequest, context: Context) {
           errorCount: {
             increment: 1,
           },
-          status: 'ERROR', // Changed to uppercase to match enum
+          status: 'ERROR',
         },
       });
     }
 
-    return NextResponse.json(
-      { error: 'Webhook processing failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
   }
 }
 
-export const runtime = 'nodejs'; // Ensure Node.js runtime for crypto, etc.
+export const runtime = 'nodejs';

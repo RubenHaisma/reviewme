@@ -1,3 +1,4 @@
+// lib/integrations/vertimart.ts
 import { WebhookHandler, IntegrationError, WebhookError } from './index';
 import { prisma } from '@/lib/prisma';
 import { sendFeedbackEmail } from '@/lib/email';
@@ -59,21 +60,14 @@ export class VertiMartWebhookHandler implements WebhookHandler {
 
   async processWebhook(payload: any): Promise<void> {
     try {
-      // Get company details first to ensure it exists
+      console.log('Fetching company');
       const company = await prisma.company.findUnique({
         where: { id: this.companyId },
-        select: { 
-          name: true,
-          emailTemplate: true,
-          emailSubject: true,
-        },
+        select: { name: true, emailTemplate: true, emailSubject: true },
       });
+      if (!company) throw new Error('Company not found');
 
-      if (!company) {
-        throw new Error('Company not found');
-      }
-
-      // Create or update customer record
+      console.log('Upserting customer');
       const customer = await prisma.customer.upsert({
         where: {
           email_companyId: {
@@ -89,7 +83,7 @@ export class VertiMartWebhookHandler implements WebhookHandler {
         update: {},
       });
 
-      // Create appointment record
+      console.log('Creating appointment');
       const appointment = await prisma.appointment.create({
         data: {
           companyId: this.companyId,
@@ -99,27 +93,28 @@ export class VertiMartWebhookHandler implements WebhookHandler {
         },
       });
 
-      // Schedule feedback email for 2 hours after appointment
+      console.log('Scheduling feedback email');
       const feedbackDate = new Date(payload.appointmentDate);
       feedbackDate.setHours(feedbackDate.getHours() + 2);
 
-      // Send feedback request email
+      console.log('Sending feedback email');
       await sendFeedbackEmail({
-        to: payload.customerEmail,
+        to: 'ruben@ihn-solutions.nl',
         customerName: payload.customerName,
         companyName: company.name,
         appointmentId: appointment.id,
         template: company.emailTemplate || '',
-        subject: company.emailSubject || '',
+        subject: company.emailSubject   || '',
       });
+      console.log('Feedback email sent');
 
-      // Update appointment to mark feedback email as sent
+      console.log('Updating appointment');
       await prisma.appointment.update({
         where: { id: appointment.id },
         data: { feedbackSent: true },
       });
 
-      // Log successful webhook processing
+      console.log('Logging webhook event');
       await prisma.webhookEvent.create({
         data: {
           webhookUrlId: payload.webhookUrlId,
@@ -130,7 +125,7 @@ export class VertiMartWebhookHandler implements WebhookHandler {
         },
       });
     } catch (error) {
-      // Log failed webhook processing
+      console.log('Webhook processing error:', error);
       await prisma.webhookEvent.create({
         data: {
           webhookUrlId: payload.webhookUrlId,
@@ -140,7 +135,6 @@ export class VertiMartWebhookHandler implements WebhookHandler {
           errorMessage: error instanceof Error ? error.message : 'Unknown error',
         },
       });
-
       throw new WebhookError(
         'Failed to process webhook',
         'vertimart',

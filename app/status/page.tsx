@@ -7,6 +7,7 @@ import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { UptimeGraph } from '@/components/uptime-graph';
 
 // Animation variants
 const fadeInUp = {
@@ -37,6 +38,13 @@ interface StatusResponse {
   status: string;
   updated_at: string;
   services: ServiceStatus;
+  uptime: {
+    percentage: number;
+    history: Array<{
+      timestamp: string;
+      status: 'up' | 'down' | 'degraded';
+    }>;
+  };
 }
 
 export default function StatusPage() {
@@ -54,7 +62,7 @@ export default function StatusPage() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log('API Response:', data); // Debug: Log the response
+        console.log('API Response:', data);
         setStatus(data);
       } catch (error) {
         console.error('Error fetching status:', error);
@@ -117,7 +125,12 @@ export default function StatusPage() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
               >
-                Checking system status...
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+                </div>
+                <p className="mt-4">Checking system status...</p>
               </motion.div>
             ) : error ? (
               <motion.div
@@ -134,13 +147,13 @@ export default function StatusPage() {
                 variants={staggerContainer}
                 initial="initial"
                 animate="animate"
-                key={status.updated_at} // Force re-render on data change
+                key={status.updated_at}
               >
                 {/* Overall Status */}
                 <motion.div variants={fadeInUp}>
                   <Card className="bg-background border rounded-lg shadow-lg hover:shadow-xl transition-shadow">
                     <CardHeader>
-                      <CardTitle className="text-xl font-semibold text-primary">Overall System Status</CardTitle>
+                      <CardTitle className="text-xl font-semibold text-primary">System Uptime</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="flex items-center justify-between mb-4">
@@ -152,12 +165,17 @@ export default function StatusPage() {
                         </Badge>
                         <div className="flex items-center gap-2">
                           {getStatusIcon(status.status)}
-                          <span className="text-sm font-medium capitalize">{status.status}</span>
+                          <span className="text-2xl font-bold">{status.uptime.percentage.toFixed(2)}%</span>
                         </div>
                       </div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground mb-4">
                         Last updated: {new Date(status.updated_at).toLocaleString()}
                       </p>
+                      
+                      {/* Uptime Graph */}
+                      <div className="h-48">
+                        <UptimeGraph history={status.uptime.history} />
+                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
