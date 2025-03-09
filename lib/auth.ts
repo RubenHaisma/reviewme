@@ -1,20 +1,13 @@
-import { NextAuthConfig } from 'next-auth';
-import { PrismaAdapter } from '@auth/prisma-adapter';
+import { NextAuthOptions } from 'next-auth';
+import { PrismaAdapter } from '@next-auth/prisma-adapter'; // Correct v4 import
 import { PrismaClient, UserRole } from '@prisma/client';
-import Credentials from 'next-auth/providers/credentials';
-import Google from 'next-auth/providers/google';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import { DefaultSession } from 'next-auth';
 import bcrypt from 'bcryptjs';
 import NextAuth from 'next-auth';
-import type { Adapter } from 'next-auth/adapters';
-import type { DefaultSession } from 'next-auth';
-import { z } from 'zod';
 
+// Extend the Session and User types
 declare module 'next-auth' {
-  interface User {
-    role: UserRole;
-    companyId?: string | null;
-  }
-
   interface Session {
     user: {
       id: string;
@@ -22,8 +15,14 @@ declare module 'next-auth' {
       companyId?: string | null;
     } & DefaultSession['user'];
   }
+
+  interface User {
+    role: UserRole;
+    companyId?: string | null;
+  }
 }
 
+// Extend the JWT type
 declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
@@ -34,71 +33,58 @@ declare module 'next-auth/jwt' {
 
 const prisma = new PrismaClient();
 
-// Define a schema for credentials
-const credentialsSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
-});
-
-export const authOptions: NextAuthConfig = {
-  adapter: PrismaAdapter(prisma) as Adapter,
+export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
   providers: [
-    Credentials({
+    CredentialsProvider({
       name: 'Credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        try {
-          const parsedCredentials = credentialsSchema.safeParse(credentials);
-          if (!parsedCredentials.success) {
-            console.error('Invalid credentials format:', parsedCredentials.error);
-            return null;
-          }
-
-          const { email, password } = parsedCredentials.data;
-
-          const user = await prisma.user.findUnique({
-            where: { email },
-            select: {
-              id: true,
-              email: true,
-              name: true,
-              password: true,
-              role: true,
-              companyId: true,
-              emailVerified: true,
-            },
-          });
-
-          if (!user || !user.password) {
-            console.error('User not found or no password set');
-            return null;
-          }
-
-          if (!user.emailVerified) {
-            console.error('Email not verified');
-            return null;
-          }
-
-          const isCorrectPassword = await bcrypt.compare(password, user.password);
-          if (!isCorrectPassword) {
-            console.error('Invalid password');
-            return null;
-          }
-
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            companyId: user.companyId,
-          };
-        } catch (error) {
-          console.error('Authorization error:', error);
-          return null;
+        if (!credentials?.email || !credentials?.password) {
+          console.error('Missing email or password');
+          throw new Error('Please provide both email and password');
         }
+
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            password: true,
+            role: true,
+            companyId: true,
+            emailVerified: true,
+          },
+        });
+
+        if (!user || !user.password) {
+          console.error('User not found or no password set:', credentials.email);
+          throw new Error('Invalid credentials');
+        }
+
+        if (!user.emailVerified) {
+          console.error('Email not verified:', credentials.email);
+          throw new Error('Please verify your email address first. Check your inbox.');
+        }
+
+        const isCorrectPassword = await bcrypt.compare(credentials.password, user.password);
+        if (!isCorrectPassword) {
+          console.error('Incorrect password for:', credentials.email);
+          throw new Error('Invalid credentials');
+        }
+
+        console.log('Authorize success:', { id: user.id, email: user.email });
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          companyId: user.companyId,
+        };
       },
     }),
   ],
@@ -107,22 +93,19 @@ export const authOptions: NextAuthConfig = {
     error: '/auth/login/error',
   },
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development', // Debug only in dev
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
-      if (user && user.id) {
+    async jwt({ token, user }) {
+      if (user) {
         token.id = user.id;
         token.role = user.role;
         token.companyId = user.companyId;
       }
-
-      // Handle updates to the session
-      if (trigger === "update" && session) {
-        return { ...token, ...session };
-      }
-
+      console.log('JWT Callback:', token);
       return token;
     },
     async session({ session, token }) {
@@ -131,11 +114,26 @@ export const authOptions: NextAuthConfig = {
         session.user.role = token.role;
         session.user.companyId = token.companyId;
       }
+      console.log('Session Callback:', session);
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      console.log('Redirect Callback:', { url, baseUrl });
+      return url.startsWith('/') ? `${baseUrl}${url}` : url;
+    },
   },
-  secret: process.env.NEXTAUTH_SECRET,
-  trustHost: true,
+  cookies: {
+    sessionToken: {
+      name: `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // True in production (HTTPS)
+        sameSite: 'lax',
+        path: '/',
+        domain: process.env.NODE_ENV === 'production' ? '.raatum.com' : undefined,
+      },
+    },
+  },
 };
 
-export const { auth, handlers, signIn, signOut } = NextAuth(authOptions);
+export default NextAuth(authOptions);
