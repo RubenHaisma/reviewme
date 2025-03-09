@@ -18,11 +18,20 @@ export const metadata = {
     type: 'website',
     url: 'https://raatum.com',
     siteName: 'Raatum',
+    images: [
+      {
+        url: '/logo.png', // Use /logo.png for Open Graph
+        width: 1200,
+        height: 630,
+        alt: 'Raatum Logo',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Raatum - Maximize Your Reviews',
     description: "Automate review management to boost your business's reputation.",
+    images: '/logo.png', // Use /logo.png for Twitter
   },
   robots: 'index, follow',
 };
@@ -50,6 +59,7 @@ const structuredData = {
     ratingValue: '4.8',
     reviewCount: '150',
   },
+  image: '/logo.png', // Use /logo.png for structured data
 };
 
 export default function RootLayout({
@@ -60,9 +70,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href="/favicon.ico" /> {/* Keep favicon as /favicon.ico */}
+        <link rel="apple-touch-icon" href="/logo.png" /> {/* Use /logo.png */}
+        <link rel="manifest" href="/manifest.json" /> {/* Assuming manifest uses /logo.png internally */}
 
         <link
           rel="preload"
@@ -72,19 +82,22 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
 
-        {/* Google Tag Manager Script */}
+        {/* Google Analytics Script */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-M2Q8L0LVQ6"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-              })(window,document,'script','dataLayer','G-M2Q8L0LVQ6');
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-M2Q8L0LVQ6');
             `,
           }}
         />
-        {/* End Google Tag Manager Script */}
+        {/* End Google Analytics Script */}
 
         <script
           type="application/ld+json"
@@ -108,17 +121,6 @@ export default function RootLayout({
           <Toaster />
           <CookieConsent />
         </ThemeProvider>
-
-        {/* Google Tag Manager NoScript Fallback */}
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=G-M2Q8L0LVQ6"
-            height="0"
-            width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
-          ></iframe>
-        </noscript>
-        {/* End Google Tag Manager NoScript Fallback */}
       </body>
     </html>
   );
