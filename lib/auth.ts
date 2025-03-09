@@ -1,161 +1,162 @@
 // lib/auth.ts
 import { NextAuthOptions, getServerSession } from 'next-auth';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { PrismaClient, UserRole } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { DefaultSession } from 'next-auth';
-import bcrypt from 'bcryptjs';
+import { compare } from 'bcrypt';
 import NextAuth from 'next-auth';
 
-// Extend the Session and User types
+// Extend NextAuth types to match your project
 declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
-      role: UserRole;
+      email?: string | null;
+      name?: string | null;
+      role: string;
       companyId?: string | null;
-    } & DefaultSession['user'];
+    };
   }
 
   interface User {
-    role: UserRole;
+    id: string;
+    email?: string | null;
+    name?: string | null;
+    role: string;
     companyId?: string | null;
   }
 }
 
-// Extend the JWT type
 declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
-    role: UserRole;
+    role: string;
     companyId?: string | null;
+    email?: string | null;
+    name?: string | null;
   }
 }
 
-const prisma = new PrismaClient();
-
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
+  secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  pages: {
+    signIn: '/auth/login',
+    signOut: '/',
+    error: '/auth/login/error',
+    newUser: '/auth/register',
+    verifyRequest: '/auth/verify-request',
+  },
   providers: [
     CredentialsProvider({
-      name: 'Credentials',
+      name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          console.error('Missing email or password');
-          throw new Error('Please provide both email and password');
+          throw new Error('Please enter your email and password');
         }
 
-        try {
-          const user = await prisma.user.findUnique({
-            where: { email: credentials.email },
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            password: true,
+            role: true,
+            companyId: true,
+            emailVerified: true,
+          },
+        });
+
+        if (!user) {
+          throw new Error('No user found with this email');
+        }
+
+        if (!user.password) {
+          throw new Error('Please use the login link sent to your email');
+        }
+
+        if (!user.emailVerified) {
+          throw new Error('Please verify your email first');
+        }
+
+        const isPasswordValid = await compare(credentials.password, user.password);
+
+        if (!isPasswordValid) {
+          throw new Error('Invalid password');
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          companyId: user.companyId,
+        };
+      },
+    }),
+  ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        return {
+          ...token,
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          companyId: user.companyId,
+        };
+      }
+      const dbUser = token.email
+        ? await prisma.user.findFirst({
+            where: { email: token.email },
             select: {
               id: true,
               email: true,
               name: true,
-              password: true,
               role: true,
               companyId: true,
-              emailVerified: true,
             },
-          });
+          })
+        : null;
 
-          if (!user || !user.password) {
-            console.error('User not found or no password set:', credentials.email);
-            throw new Error('Invalid credentials');
-          }
-
-          if (!user.emailVerified) {
-            console.error('Email not verified:', credentials.email);
-            throw new Error('Please verify your email address first');
-          }
-
-          const isValidPassword = await bcrypt.compare(credentials.password, user.password);
-          if (!isValidPassword) {
-            console.error('Incorrect password for:', credentials.email);
-            throw new Error('Invalid credentials');
-          }
-
-          console.log('Authorize success:', { id: user.id, email: user.email });
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            companyId: user.companyId,
-          };
-        } catch (error) {
-          console.error('Authorization error:', error);
-          throw error;
-        }
-      },
-    }),
-  ],
-  pages: {
-    signIn: '/auth/login',
-    error: '/auth/login/error',
-    verifyRequest: '/auth/verify-request',
-  },
-  session: {
-    strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  callbacks: {
-    async jwt({ token, user, trigger, session }) {
-      if (user) {
-        token.id = user.id;
-        token.role = user.role;
-        token.companyId = user.companyId;
+      if (!dbUser) {
+        return token;
       }
-      if (trigger === 'update' && session) {
-        return { ...token, ...session.user };
-      }
-      console.log('JWT Callback:', token);
-      return token;
+
+      return {
+        ...token,
+        id: dbUser.id,
+        email: dbUser.email,
+        name: dbUser.name,
+        role: dbUser.role,
+        companyId: dbUser.companyId,
+      };
     },
     async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-        session.user.companyId = token.companyId;
+      if (token) {
+        session.user = {
+          ...session.user,
+          id: token.id,
+          email: token.email,
+          name: token.name,
+          role: token.role,
+          companyId: token.companyId,
+        };
       }
-      console.log('Session Callback:', session);
       return session;
-    },
-    async redirect({ url, baseUrl }) {
-      const productionBaseUrl = process.env.NEXTAUTH_URL || 'https://raatum.com';
-      console.log('Redirect Callback:', { url, baseUrl, resolvedBaseUrl: productionBaseUrl });
-      return url.startsWith('/') ? `${productionBaseUrl}${url}` : url;
-    },
-  },
-  events: {
-    async signIn({ user }) {
-      if (user.id) {
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { lastLogin: new Date() },
-        });
-      }
-    },
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-  debug: true, // Enable in production temporarily
-  cookies: {
-    sessionToken: {
-      name: `__Secure-next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        domain: process.env.NODE_ENV === 'production' ? '.raatum.com' : undefined,
-      },
     },
   },
 };
 
-// Export NextAuth handlers and utilities
+// Export NextAuth handlers and auth utilities
 export const { handlers, signIn, signOut, auth } = NextAuth(authOptions);

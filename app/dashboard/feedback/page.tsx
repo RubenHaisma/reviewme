@@ -1,21 +1,23 @@
-import { auth, authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { formatDistanceToNow } from "date-fns";
-import { Star } from "lucide-react";
+// app/dashboard/feedback/page.tsx
+import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { formatDistanceToNow } from 'date-fns';
+import { Star } from 'lucide-react';
 
+// Define session types to match authOptions
 interface CustomUser {
   id: string;
   name?: string | null;
   email?: string | null;
   role: string;
-  companyId: number | null;
+  companyId?: string | null; // Updated to string to match authOptions
 }
 
-interface CustomSession extends Record<string, unknown> {
+interface CustomSession {
   user?: CustomUser;
 }
 
@@ -23,13 +25,13 @@ export default async function FeedbackPage() {
   const session = (await auth()) as CustomSession | null;
 
   if (!session?.user?.companyId) {
-    redirect("/auth/register");
+    redirect('/auth/register');
   }
 
   const feedback = await prisma.feedback.findMany({
-    where: { companyId: String(session.user.companyId) },
+    where: { companyId: session.user.companyId }, // No String() needed
     include: { appointment: true },
-    orderBy: { createdAt: "desc" },
+    orderBy: { createdAt: 'desc' },
   });
 
   return (
@@ -72,8 +74,8 @@ export default async function FeedbackPage() {
                         key={i}
                         className={`h-5 w-5 ${
                           i < item.score
-                            ? "fill-primary stroke-primary"
-                            : "stroke-muted-foreground"
+                            ? 'fill-primary stroke-primary'
+                            : 'stroke-muted-foreground'
                         }`}
                       />
                     ))}
