@@ -97,8 +97,8 @@ export class SimplyBookWebhookHandler implements WebhookHandler {
         customerName: payload.booking.client_name,
         companyName: company.name,
         appointmentId: appointment.id,
-        template: company.emailTemplate || 'default',
-        subject: company.emailSubject || 'Feedback Request',
+        template: company.emailTemplate || '',
+        subject: company.emailSubject || '',
       });
 
       // Update appointment to mark feedback email as sent

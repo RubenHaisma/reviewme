@@ -108,7 +108,7 @@ export class AcuityWebhookHandler implements WebhookHandler {
         companyName: company.name,
         appointmentId: appointment.id,
         template: company.emailTemplate || '',
-        subject: company.emailSubject   || '',
+        subject: company.emailSubject || '',
       });
 
       // Update appointment to mark feedback email as sent

@@ -25,6 +25,7 @@ const SAMPLE_PAYLOADS = {
       event: {
         start_time: new Date().toISOString(),
       },
+      status: "completed"
     },
   },
   acuity: {
@@ -34,6 +35,7 @@ const SAMPLE_PAYLOADS = {
       lastName: "Doe",
       email: "john@example.com",
       datetime: new Date().toISOString(),
+      phone: "+1234567890"
     },
   },
   simplybook: {
@@ -41,6 +43,7 @@ const SAMPLE_PAYLOADS = {
     booking: {
       client_name: "John Doe",
       client_email: "john@example.com",
+      client_phone: "+1234567890",
       start_datetime: new Date().toISOString(),
     },
   },
@@ -51,6 +54,7 @@ const SAMPLE_PAYLOADS = {
         given_name: "John",
         family_name: "Doe",
         email_address: "john@example.com",
+        phone_number: "+1234567890"
       },
       appointment: {
         start_at: new Date().toISOString(),
@@ -70,7 +74,8 @@ const isValid = await handler.verifySignature(signature, payload);
 await handler.processWebhook({
   customerName: "John Doe",
   customerEmail: "john@example.com",
-  appointmentDate: "2025-03-10T10:00:00Z"
+  appointmentDate: "2025-03-10T10:00:00Z",
+  webhookUrlId: "webhook-123"
 });`,
   calendly: `// Example Calendly webhook handler
 const handler = new CalendlyWebhookHandler(companyId);
@@ -85,8 +90,10 @@ await handler.processWebhook({
     },
     event: {
       start_time: "2025-03-10T10:00:00Z"
-    }
-  }
+    },
+    status: "completed"
+  },
+  webhookUrlId: "webhook-123"
 });`,
   acuity: `// Example Acuity webhook handler
 const handler = new AcuityWebhookHandler(companyId);
@@ -98,8 +105,10 @@ await handler.processWebhook({
     firstName: "John",
     lastName: "Doe",
     email: "john@example.com",
-    datetime: "2025-03-10T10:00:00Z"
-  }
+    datetime: "2025-03-10T10:00:00Z",
+    phone: "+1234567890"
+  },
+  webhookUrlId: "webhook-123"
 });`,
   simplybook: `// Example SimplyBook webhook handler
 const handler = new SimplyBookWebhookHandler(companyId);
@@ -110,8 +119,10 @@ await handler.processWebhook({
   booking: {
     client_name: "John Doe",
     client_email: "john@example.com",
+    client_phone: "+1234567890",
     start_datetime: "2025-03-10T10:00:00Z"
-  }
+  },
+  webhookUrlId: "webhook-123"
 });`,
   square: `// Example Square webhook handler
 const handler = new SquareWebhookHandler(companyId);
@@ -123,12 +134,14 @@ await handler.processWebhook({
     customer: {
       given_name: "John",
       family_name: "Doe",
-      email_address: "john@example.com"
+      email_address: "john@example.com",
+      phone_number: "+1234567890"
     },
     appointment: {
       start_at: "2025-03-10T10:00:00Z"
     }
-  }
+  },
+  webhookUrlId: "webhook-123"
 });`,
 };
 
