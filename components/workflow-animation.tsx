@@ -11,205 +11,254 @@ interface WorkflowStep {
 
 interface WorkflowAnimationProps {
   steps: WorkflowStep[];
+  theme?: 'blue' | 'gray' | 'minimal';
 }
 
-export function WorkflowAnimation({ steps }: WorkflowAnimationProps) {
-  // Animation variants for the step items
+export function WorkflowAnimation({ steps, theme = 'blue' }: WorkflowAnimationProps) {
+  // Theme configuration - more professional and subdued
+  const themeColors = {
+    blue: {
+      primary: "#3b82f6",
+      secondary: "#93c5fd",
+      line: "#bfdbfe",
+      progressLine: "from-blue-500 to-blue-600",
+      iconBg: "#f0f9ff",
+      cardBg: "bg-white",
+      border: "border-blue-100"
+    },
+    gray: {
+      primary: "#4b5563",
+      secondary: "#9ca3af",
+      line: "#e5e7eb",
+      progressLine: "from-gray-500 to-gray-600",
+      iconBg: "#f9fafb",
+      cardBg: "bg-white",
+      border: "border-gray-100"
+    },
+    minimal: {
+      primary: "#1e293b",
+      secondary: "#64748b",
+      line: "#cbd5e1",
+      progressLine: "from-slate-700 to-slate-800",
+      iconBg: "#f8fafc",
+      cardBg: "bg-transparent",
+      border: "border-transparent"
+    }
+  };
+  
+  const colors = themeColors[theme];
+
+  // Simplified animation variants
   const stepVariants = {
-    hidden: { opacity: 0, y: 70, scale: 0.8 },
+    hidden: { opacity: 0, y: 20 },
     visible: (i: number) => ({
       opacity: 1,
       y: 0,
-      scale: 1,
       transition: {
-        delay: i * 0.2,
-        duration: 0.8,
-        type: "spring",
-        stiffness: 100,
-        damping: 12,
+        delay: i * 0.1,
+        duration: 0.5,
+        ease: "easeOut"
       },
     }),
   };
 
+  // Simplified icon animation - subtle and professional
   const iconVariants = {
-    initial: { rotate: 0, scale: 1 },
+    initial: { scale: 1 },
     hover: { 
-      rotate: [0, 10, -10, 0], 
-      scale: [1, 1.15, 1.1, 1.15], 
+      scale: 1.05,
       transition: {
-        duration: 1.2,
-        repeat: Infinity,
-        repeatType: "reverse"
+        duration: 0.3,
+        ease: "easeInOut"
       }
-    },
-    pulse: { 
-      scale: [1, 1.1, 1], 
-      filter: ["brightness(1)", "brightness(1.2)", "brightness(1)"],
-      transition: { 
-        duration: 2, 
-        repeat: Infinity,
-        ease: "easeInOut" 
-      } 
-    },
+    }
   };
 
-  // Blue theme colors
-  const primaryBlue = "#3b82f6"; // Primary blue
-  const lightBlue = "#93c5fd";   // Light blue
-  const darkBlue = "#1e40af";    // Dark blue
-
   return (
-    <div className="relative py-16 px-4 overflow-hidden rounded-xl bg-white shadow-xl">
-      {/* Subtle Blue Background Patterns */}
-      <motion.div
-        className="absolute top-0 right-0 w-64 h-64 rounded-full bg-blue-100 blur-3xl opacity-30"
-        initial={{ scale: 0.8 }}
-        animate={{ scale: [0.8, 1, 0.8], opacity: [0.3, 0.5, 0.3] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-      />
-      
-      <motion.div
-        className="absolute bottom-0 left-20 w-72 h-72 rounded-full bg-blue-50 blur-3xl opacity-40"
-        initial={{ scale: 0.8 }}
-        animate={{ scale: [0.8, 1.1, 0.8], opacity: [0.4, 0.6, 0.4] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-      />
-
-      {/* Floating Blue Particles */}
-      {Array.from({ length: 15 }).map((_, i) => (
+    <div className="relative py-12 px-6 overflow-hidden rounded-xl bg-white shadow-md border border-gray-100">
+      {/* Horizontal workflow representation */}
+      <div className="relative">
+        
+        {/* Progress line - simpler animation */}
         <motion.div
-          key={`particle-${i}`}
-          className="absolute w-1 h-1 rounded-full bg-blue-400/30"
-          initial={{ 
-            x: Math.random() * 100 + "%", 
-            y: Math.random() * 100 + "%",
-            scale: Math.random() * 0.5 + 0.5,
-            opacity: Math.random() * 0.5 + 0.1
-          }}
-          animate={{ 
-            y: ["-10%", "110%"],
-            opacity: [0, 0.6, 0],
-          }}
-          transition={{ 
-            repeat: Infinity, 
-            duration: Math.random() * 10 + 10,
-            delay: Math.random() * 5,
-            ease: "linear"
-          }}
+          className={`absolute top-24 left-0 h-1 bg-gradient-to-r ${colors.progressLine} -translate-y-1/4 origin-left rounded-sm`}
+          initial={{ scaleX: 0 }}
+          whileInView={{ scaleX: 0.98 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
         />
-      ))}
 
-      {/* Connecting Line with Blue Glow */}
-      <div className="absolute top-1/2 left-0 w-full h-0.5 bg-blue-100 -translate-y-1/2" />
-      
-      {/* Animated Progress Line with Blue Gradient */}
-      <motion.div
-        className="absolute top-1/2 left-0 h-1 bg-gradient-to-r from-blue-500 via-blue-400 to-transparent -translate-y-1/2 origin-left shadow-[0_0_15px_rgba(59,130,246,0.6)]"
-        initial={{ scaleX: 0 }}
-        whileInView={{ scaleX: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1.5, ease: "anticipate" }}
-      />
-
-      {/* Steps */}
-      <div className="relative grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-6">
-        {steps.map((step, index) => {
-          const Icon = step.icon;
-          return (
-            <motion.div
-              key={step.title}
-              custom={index}
-              variants={stepVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-50px" }}
-              className="relative flex flex-col items-center text-center group z-10"
-            >
-              {/* Step Number */}
+        {/* Steps with more professional layout */}
+        <div className="relative grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            return (
               <motion.div
-                className="absolute -top-3 -right-3 w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold text-white shadow-lg"
-                initial={{ scale: 0, opacity: 0 }}
-                whileInView={{ scale: 1, opacity: 1 }}
+                key={step.title}
+                custom={index}
+                variants={stepVariants}
+                initial="hidden"
+                whileInView="visible"
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.2 + 0.3, duration: 0.4, type: "spring" }}
+                className="relative flex flex-col items-center text-center z-10"
               >
-                {index + 1}
-              </motion.div>
-
-              {/* Icon Container with Enhanced Effects */}
-              <motion.div
-                className="relative w-24 h-24 rounded-full bg-white border border-blue-200 flex items-center justify-center mb-6 shadow-lg z-10"
-                whileHover="hover"
-                initial="initial"
-                animate="pulse"
-              >
-                {/* Pulse Effect */}
-                <motion.div
-                  className="absolute inset-0 rounded-full border-2 border-blue-300/30"
-                  initial={{ scale: 1, opacity: 0 }}
-                  animate={{ 
-                    scale: [1, 1.2, 1], 
-                    opacity: [0, 0.5, 0],
-                  }}
-                  transition={{ 
-                    duration: 2,
-                    repeat: Infinity,
-                    delay: index * 0.2
-                  }}
-                />
-                
-                <motion.div
-                  className="absolute inset-0 rounded-full border border-blue-200/50"
-                  initial={{ scale: 1, opacity: 0 }}
-                  animate={{ 
-                    scale: [1, 1.4, 1], 
-                    opacity: [0, 0.3, 0],
-                  }}
-                  transition={{ 
-                    duration: 2.5,
-                    repeat: Infinity,
-                    delay: index * 0.2 + 0.5
-                  }}
-                />
-                
-                <motion.div
-                  variants={iconVariants}
-                  transition={{ duration: 0.8 }}
-                  className="relative z-10"
+                {/* Step Number - simplified */}
+                <div
+                  className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white"
+                  style={{ backgroundColor: colors.primary }}
                 >
-                  <Icon className="w-12 h-12 text-blue-500 drop-shadow-[0_0_3px_rgba(59,130,246,0.3)]" />
+                  {index + 1}
+                </div>
+
+                {/* Icon Container - subdued */}
+                <motion.div
+                  className={`relative w-16 h-16 rounded-full ${colors.border} flex items-center justify-center mb-4 z-20`}
+                  style={{ 
+                    backgroundColor: colors.iconBg,
+                    border: `1px solid ${colors.line}`
+                  }}
+                  whileHover="hover"
+                  initial="initial"
+                  variants={iconVariants}
+                >
+                  <Icon 
+                    className="w-8 h-8" 
+                    style={{ color: colors.primary }} 
+                  />
                 </motion.div>
+
+                {/* Connection indicator for workflow */}
+                {index < steps.length - 1 && (
+                  <motion.div 
+                    className="absolute top-8 left-1/2 h-0.5 hidden lg:block"
+                    style={{ 
+                      backgroundColor: colors.line,
+                      width: 'calc(100% - 2rem)',
+                      transform: 'translateX(calc(50% + 1rem))'
+                    }}
+                    initial={{ scaleX: 0, originX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 + 0.5, duration: 0.5, ease: "easeOut" }}
+                  />
+                )}
+
+                {/* Arrow between steps - mobile friendly*/}
+                {index < steps.length - 1 && (
+                  <div className="absolute top-8 left-full w-4 h-4 transform translate-x-1 -translate-y-1/2 lg:hidden">
+                    <svg 
+                      width="16" 
+                      height="16" 
+                      viewBox="0 0 16 16" 
+                      fill="none" 
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path 
+                        d="M8 1L15 8L8 15" 
+                        stroke={colors.secondary} 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                )}
+
+                {/* Title - simple and clear */}
+                <h3
+                  className="text-lg font-semibold mb-2"
+                  style={{ color: colors.primary }}
+                >
+                  {step.title}
+                </h3>
+
+                {/* Description - professional styling */}
+                <p
+                  className="text-sm max-w-xs leading-relaxed"
+                  style={{ color: colors.secondary }}
+                >
+                  {step.description}
+                </p>
               </motion.div>
-
-              {/* Title with Slide-in Effect */}
-              <motion.h3
-                className="text-xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent"
-                initial={{ y: -10, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.2 + 0.2, duration: 0.5 }}
-              >
-                {step.title}
-              </motion.h3>
-
-              {/* Description with Fade-in */}
-              <motion.p
-                className="text-sm text-gray-600 max-w-xs"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.2 + 0.3, duration: 0.7 }}
-              >
-                {step.description}
-              </motion.p>
-            </motion.div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
-      {/* Responsive breakpoint indicator - helps during development */}
+      {/* Vertical workflow representation for mobile */}
+      <div className="lg:hidden mt-8 relative">
+        <div 
+          className="absolute top-0 left-8 h-full w-0.5"
+          style={{ backgroundColor: colors.line }}
+        />
+        
+        <motion.div
+          className={`absolute top-0 left-8 w-1 bg-gradient-to-b ${colors.progressLine} -translate-x-1/4 origin-top rounded-sm`}
+          style={{ height: `calc(100% - 16px)` }}
+          initial={{ scaleY: 0 }}
+          whileInView={{ scaleY: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+        />
+
+        <div className="space-y-8">
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            return (
+              <motion.div
+                key={`mobile-${step.title}`}
+                custom={index}
+                variants={stepVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="relative flex items-start pl-16"
+              >
+                <motion.div
+                  className={`absolute left-0 top-0 w-16 h-16 rounded-full ${colors.border} flex items-center justify-center z-20`}
+                  style={{ 
+                    backgroundColor: colors.iconBg,
+                    border: `1px solid ${colors.line}`
+                  }}
+                  whileHover="hover"
+                  initial="initial"
+                  variants={iconVariants}
+                >
+                  <div
+                    className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    {index + 1}
+                  </div>
+                  <Icon 
+                    className="w-8 h-8" 
+                    style={{ color: colors.primary }} 
+                  />
+                </motion.div>
+
+                <div className="pt-2">
+                  <h3
+                    className="text-lg font-semibold mb-2"
+                    style={{ color: colors.primary }}
+                  >
+                    {step.title}
+                  </h3>
+                  <p
+                    className="text-sm leading-relaxed"
+                    style={{ color: colors.secondary }}
+                  >
+                    {step.description}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Responsive breakpoint indicator */}
       {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-1 right-1 px-1.5 py-0.5 bg-blue-800 text-white text-xs rounded-md opacity-50 z-50">
+        <div className="fixed bottom-1 right-1 px-1.5 py-0.5 bg-gray-800 text-white text-xs rounded-md opacity-50 z-50">
           <span className="sm:hidden">xs</span>
           <span className="hidden sm:inline md:hidden">sm</span>
           <span className="hidden md:inline lg:hidden">md</span>
