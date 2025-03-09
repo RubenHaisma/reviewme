@@ -5,7 +5,6 @@ import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FeedbackLinkGenerator } from '@/components/dashboard/feedback-link-generator';
 import { DashboardOverview } from '@/components/dashboard/overview';
 import { FeedbackItem, StatItem, CompanyData } from '@/lib/types';
 
@@ -95,13 +94,6 @@ export default function DashboardClient({
             </Card>
           </motion.div>
         )}
-
-        {/* Feedback Link Generator */}
-        <motion.div variants={fadeInUp}>
-          <FeedbackLinkGenerator
-            disabled={company?.remainingFreeCustomers === 0 && !company?.subscriptionStatus}
-          />
-        </motion.div>
       </motion.div>
 
       {/* Overview Section */}
