@@ -1,10 +1,9 @@
-// lib/auth.ts
 import { NextAuthOptions, getServerSession } from 'next-auth';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '@/lib/prisma';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcrypt';
-import NextAuth from 'next-auth';
+import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
 
 // Extend NextAuth types to match your project
 declare module 'next-auth' {
@@ -158,5 +157,13 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-// Export NextAuth handlers and auth utilities
-export const { handlers, signIn, signOut, auth } = NextAuth(authOptions);
+// Helper function to get session on server side
+export async function auth(
+  ...args:
+    | [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
+    | [NextApiRequest, NextApiResponse]
+    | []
+) {
+  const session = await getServerSession(...args, authOptions);
+  return session;
+}

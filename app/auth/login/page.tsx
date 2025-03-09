@@ -47,14 +47,15 @@ export default function LoginPage() {
       }
 
       toast.success('Check your email for the login link!');
-      // Delay redirect to show toast, then return to login page
       setTimeout(() => {
         console.log('Redirecting to /auth/login after email sign-in');
         router.push('/auth/login');
       }, 2000);
-    } catch (error) {
+    } catch (error: unknown) { // Type error as unknown
+      // Safely handle error as an Error object
+      const errorMessage = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
       console.error('Email Login Error:', error);
-      toast.error(error.message || 'Something went wrong. Please try again.');
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -89,14 +90,15 @@ export default function LoginPage() {
       toast.success('Signed in successfully!');
       router.push(callbackUrl);
       router.refresh(); // Sync client-side session state
-      // Fallback hard redirect to ensure navigation
       setTimeout(() => {
         console.log('Forcing hard redirect to:', callbackUrl);
         window.location.href = callbackUrl;
       }, 500);
-    } catch (error) {
+    } catch (error: unknown) { // Type error as unknown
+      // Safely handle error as an Error object
+      const errorMessage = error instanceof Error ? error.message : 'Invalid email or password';
       console.error('Credentials Login Error:', error);
-      toast.error(error.message || 'Invalid email or password');
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

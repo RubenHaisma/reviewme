@@ -40,7 +40,6 @@ interface SendSupportRequestEmailParams {
 
 // Internal helper function (not exported)
 // Suppress unused warning
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function generateSupportConfirmationEmail(name: string, ticketId: string, subject: string, message: string) {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -65,7 +64,6 @@ function generateSupportConfirmationEmail(name: string, ticketId: string, subjec
 
 // Internal helper function (not exported)
 // Suppress unused warning
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function generateSupportNotificationEmail(
   name: string,
   email: string,
