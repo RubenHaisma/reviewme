@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -19,7 +19,9 @@ const staggerContainer = { initial: { opacity: 0 }, animate: { opacity: 1, trans
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
   async function onEmailSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -32,9 +34,8 @@ export default function LoginPage() {
       const result = await signIn('email', {
         email,
         redirect: false,
-        callbackUrl: '/dashboard',
+        callbackUrl,
       });
-      console.log('Email SignIn Result:', result);
 
       if (result?.error) {
         throw new Error(result.error);
@@ -42,7 +43,7 @@ export default function LoginPage() {
 
       toast.success('Check your email for the login link!');
       // Optionally redirect after a delay to allow user to see the toast
-      setTimeout(() => router.push('/auth/login'), 2000); // Redirect to login or dashboard?
+      setTimeout(() => router.push('/auth/login'), 2000);
     } catch (error) {
       console.error('Email Login Error:', error);
       toast.error('Something went wrong. Please try again.');
@@ -64,20 +65,16 @@ export default function LoginPage() {
         email,
         password,
         redirect: false,
-        callbackUrl: '/dashboard', // Use relative path here
+        callbackUrl,
       });
-      console.log('Credentials SignIn Result:', result);
   
       if (result?.error) {
         throw new Error('Invalid credentials');
       }
   
-      toast.success('Signed in successfully!');
-      // Use relative path and ensure navigation
-      router.push('/dashboard');
-      // Fallback: Force a hard redirect if client-side fails
-      if (typeof window !== 'undefined') {
-        setTimeout(() => window.location.href = '/dashboard', 500);
+      if (result?.url) {
+        toast.success('Signed in successfully!');
+        router.push(result.url);
       }
     } catch (error) {
       console.error('Credentials Login Error:', error);
@@ -141,7 +138,7 @@ export default function LoginPage() {
         </Tabs>
 
         <motion.p className="text-center text-sm text-muted-foreground" variants={fadeInUp}>
-          Don’t have an account?{' '}
+          Don't have an account?{' '}
           <Link href="/auth/register" className="font-medium text-primary hover:underline">Sign up</Link>
         </motion.p>
       </motion.div>
