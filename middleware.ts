@@ -8,8 +8,6 @@ export async function middleware(req: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET,
   });
 
-  console.log('Middleware Token:', token); // Debug token presence
-
   const isAuth = !!token;
   const isAuthPage =
     req.nextUrl.pathname.startsWith("/auth/login") ||
@@ -17,13 +15,15 @@ export async function middleware(req: NextRequest) {
 
   // Redirect authenticated users away from auth pages
   if (isAuthPage && isAuth) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    return NextResponse.redirect(new URL("/dashboard", process.env.NEXTAUTH_URL || req.url));
   }
 
   // Protect dashboard routes
   if (!isAuth && req.nextUrl.pathname.startsWith("/dashboard")) {
-    const loginUrl = new URL("/auth/login", req.url);
-    loginUrl.searchParams.set("callbackUrl", req.url);
+    const loginUrl = new URL("/auth/login", process.env.NEXTAUTH_URL || req.url);
+    // Use the NEXTAUTH_URL for the callback
+    const callbackUrl = new URL("/dashboard", process.env.NEXTAUTH_URL || req.url).toString();
+    loginUrl.searchParams.set("callbackUrl", callbackUrl);
     return NextResponse.redirect(loginUrl);
   }
 
