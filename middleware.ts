@@ -7,22 +7,21 @@ export async function middleware(req: NextRequest) {
     req,
     secret: process.env.NEXTAUTH_SECRET,
   });
-  console.log('Middleware Token:', token);
 
   const isAuth = !!token;
   const isAuthPage =
     req.nextUrl.pathname.startsWith('/auth/login') ||
     req.nextUrl.pathname.startsWith('/auth/register');
 
+  // Redirect authenticated users away from auth pages
   if (isAuthPage && isAuth) {
-    console.log('Authenticated user on auth page, redirecting to /dashboard');
     return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 
+  // Protect dashboard routes
   if (!isAuth && req.nextUrl.pathname.startsWith('/dashboard')) {
-    console.log('Unauthenticated user on dashboard, redirecting to /auth/login');
     const loginUrl = new URL('/auth/login', req.url);
-    loginUrl.searchParams.set('callbackUrl', new URL('/dashboard', req.url).toString());
+    loginUrl.searchParams.set('callbackUrl', req.url);
     return NextResponse.redirect(loginUrl);
   }
 
@@ -30,5 +29,10 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/auth/login', '/auth/register'],
+  matcher: [
+    '/dashboard/:path*',
+    '/auth/login',
+    '/auth/register',
+    '/api/auth/:path*'
+  ],
 };

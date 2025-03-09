@@ -1,5 +1,6 @@
-import { NextAuthOptions } from 'next-auth';
-import { PrismaAdapter } from '@next-auth/prisma-adapter'; // Correct v4 import
+// lib/auth.ts
+import { NextAuthOptions, getServerSession } from 'next-auth';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { PrismaClient, UserRole } from '@prisma/client';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { DefaultSession } from 'next-auth';
@@ -48,62 +49,69 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Please provide both email and password');
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            password: true,
-            role: true,
-            companyId: true,
-            emailVerified: true,
-          },
-        });
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email },
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              password: true,
+              role: true,
+              companyId: true,
+              emailVerified: true,
+            },
+          });
 
-        if (!user || !user.password) {
-          console.error('User not found or no password set:', credentials.email);
-          throw new Error('Invalid credentials');
+          if (!user || !user.password) {
+            console.error('User not found or no password set:', credentials.email);
+            throw new Error('Invalid credentials');
+          }
+
+          if (!user.emailVerified) {
+            console.error('Email not verified:', credentials.email);
+            throw new Error('Please verify your email address first');
+          }
+
+          const isValidPassword = await bcrypt.compare(credentials.password, user.password);
+          if (!isValidPassword) {
+            console.error('Incorrect password for:', credentials.email);
+            throw new Error('Invalid credentials');
+          }
+
+          console.log('Authorize success:', { id: user.id, email: user.email });
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            companyId: user.companyId,
+          };
+        } catch (error) {
+          console.error('Authorization error:', error);
+          throw error;
         }
-
-        if (!user.emailVerified) {
-          console.error('Email not verified:', credentials.email);
-          throw new Error('Please verify your email address first. Check your inbox.');
-        }
-
-        const isCorrectPassword = await bcrypt.compare(credentials.password, user.password);
-        if (!isCorrectPassword) {
-          console.error('Incorrect password for:', credentials.email);
-          throw new Error('Invalid credentials');
-        }
-
-        console.log('Authorize success:', { id: user.id, email: user.email });
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          companyId: user.companyId,
-        };
       },
     }),
   ],
   pages: {
     signIn: '/auth/login',
     error: '/auth/login/error',
+    verifyRequest: '/auth/verify-request',
   },
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development', // Debug only in dev
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
         token.companyId = user.companyId;
+      }
+      if (trigger === 'update' && session) {
+        return { ...token, ...session.user };
       }
       console.log('JWT Callback:', token);
       return token;
@@ -118,16 +126,29 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      console.log('Redirect Callback:', { url, baseUrl });
-      return url.startsWith('/') ? `${baseUrl}${url}` : url;
+      const productionBaseUrl = process.env.NEXTAUTH_URL || 'https://raatum.com';
+      console.log('Redirect Callback:', { url, baseUrl, resolvedBaseUrl: productionBaseUrl });
+      return url.startsWith('/') ? `${productionBaseUrl}${url}` : url;
     },
   },
+  events: {
+    async signIn({ user }) {
+      if (user.id) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastLogin: new Date() },
+        });
+      }
+    },
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: true, // Enable in production temporarily
   cookies: {
     sessionToken: {
       name: `__Secure-next-auth.session-token`,
       options: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // True in production (HTTPS)
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
         domain: process.env.NODE_ENV === 'production' ? '.raatum.com' : undefined,
@@ -136,4 +157,5 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-export default NextAuth(authOptions);
+// Export NextAuth handlers and utilities
+export const { handlers, signIn, signOut, auth } = NextAuth(authOptions);
