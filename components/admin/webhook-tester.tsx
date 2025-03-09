@@ -150,12 +150,12 @@ interface WebhookTesterProps {
   provider: string;
 }
 
-export function WebhookTester({ webhookId, provider }: WebhookTesterProps) {
+export function WebhookTester({ webhookId, provider: initialProvider }: WebhookTesterProps) {
   const [payload, setPayload] = useState(
-    JSON.stringify(SAMPLE_PAYLOADS[provider as keyof typeof SAMPLE_PAYLOADS] || {}, null, 2)
+    JSON.stringify(SAMPLE_PAYLOADS[initialProvider as keyof typeof SAMPLE_PAYLOADS] || {}, null, 2)
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState(provider);
+  const [selectedProvider, setSelectedProvider] = useState(initialProvider);
 
   const handleTest = async () => {
     setIsLoading(true);
@@ -166,6 +166,7 @@ export function WebhookTester({ webhookId, provider }: WebhookTesterProps) {
         body: JSON.stringify({
           webhookId,
           payload: JSON.parse(payload),
+          provider: selectedProvider,
         }),
       });
 

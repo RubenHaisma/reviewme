@@ -17,7 +17,7 @@ const HANDLERS = {
 
 export async function POST(req: Request) {
   try {
-    const { webhookId, payload } = await req.json();
+    const { webhookId, payload, provider } = await req.json();
 
     const webhook = await prisma.webhookUrl.findUnique({
       where: { id: webhookId },
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Webhook not found' }, { status: 404 });
     }
 
-    const Handler = HANDLERS[webhook.provider as keyof typeof HANDLERS];
+    const Handler = HANDLERS[provider as keyof typeof HANDLERS];
     if (!Handler) {
       return NextResponse.json({ error: 'Invalid provider' }, { status: 400 });
     }
