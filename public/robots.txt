@@ -1,0 +1,25 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://raatum.com/sitemap.xml
+Sitemap: https://raatum.com/sitemap-blog.xml
+
+# Disallow admin and private routes
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /private/
+
+# Allow important marketing pages
+Allow: /features
+Allow: /pricing
+Allow: /about
+Allow: /contact
+Allow: /blog
+Allow: /case-studies
+Allow: /testimonials
+
+# Crawl-delay for better server performance
+Crawl-delay: 10

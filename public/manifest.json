@@ -1,0 +1,64 @@
+{
+    "name": "Raatum - Smart Review Management Platform",
+    "short_name": "Raatum",
+    "description": "Transform your customer feedback into business growth with Raatum's AI-powered review management platform.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#2563eb",
+    "icons": [
+      {
+        "src": "/icon-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "/icon-384x384.png",
+        "sizes": "384x384",
+        "type": "image/png"
+      },
+      {
+        "src": "/icon-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ],
+    "orientation": "portrait",
+    "categories": ["business", "productivity", "utilities"],
+    "screenshots": [
+      {
+        "src": "/screenshots/dashboard.png",
+        "sizes": "1280x720",
+        "type": "image/png",
+        "label": "Dashboard Overview"
+      },
+      {
+        "src": "/screenshots/analytics.png",
+        "sizes": "1280x720",
+        "type": "image/png",
+        "label": "Analytics Dashboard"
+      }
+    ],
+    "shortcuts": [
+      {
+        "name": "Generate Review Link",
+        "url": "/dashboard/generate",
+        "description": "Quickly generate a new review link"
+      },
+      {
+        "name": "View Analytics",
+        "url": "/dashboard/analytics",
+        "description": "Check your review analytics"
+      }
+    ],
+    "related_applications": [
+      {
+        "platform": "web",
+        "url": "https://raatum.com"
+      }
+    ],
+    "prefer_related_applications": false,
+    "lang": "en-US",
+    "dir": "ltr"
+  }
