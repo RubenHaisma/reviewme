@@ -27,9 +27,9 @@ import { WorkflowAnimation } from '@/components/workflow-animation';
 
 export default function Home() {
   const { scrollYProgress } = useScroll();
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.2], [0, -50]);
-  const scaleEffect = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
+  // const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
+  // const heroY = useTransform(scrollYProgress, [0, 0.2], [0, -50]);
+  // const scaleEffect = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
 
   const isAuthenticated = false;
 
@@ -75,7 +75,7 @@ export default function Home() {
       {/* Hero Section */}
       <motion.header
         className="relative pt-24 pb-20 md:pt-36 md:pb-32"
-        style={{ opacity: heroOpacity, y: heroY, scale: scaleEffect }}
+        // style={{ opacity: heroOpacity, y: heroY, scale: scaleEffect }}
       >
         <div className="absolute inset-0">
           <motion.div 
