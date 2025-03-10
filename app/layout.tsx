@@ -160,6 +160,13 @@ const organizationSchema = {
     contactType: 'customer service',
     availableLanguage: ['English', 'Spanish', 'German'],
   },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    themeColor: '#2563eb',
+  },
 };
 
 export default function RootLayout({

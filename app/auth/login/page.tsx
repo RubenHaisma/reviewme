@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import LoginError from '@/app/auth/login/error/page';
 import { Lock, Mail } from 'lucide-react';
+import { Navigation } from '@/components/layout/navigation';
 
 // Animation variants
 const fadeInUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
@@ -51,8 +52,7 @@ export default function LoginPage() {
         console.log('Redirecting to /auth/login after email sign-in');
         router.push('/auth/login');
       }, 2000);
-    } catch (error: unknown) { // Type error as unknown
-      // Safely handle error as an Error object
+    } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
       console.error('Email Login Error:', error);
       toast.error(errorMessage);
@@ -94,8 +94,7 @@ export default function LoginPage() {
         console.log('Forcing hard redirect to:', callbackUrl);
         window.location.href = callbackUrl;
       }, 500);
-    } catch (error: unknown) { // Type error as unknown
-      // Safely handle error as an Error object
+    } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Invalid email or password';
       console.error('Credentials Login Error:', error);
       toast.error(errorMessage);
@@ -105,118 +104,124 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary/5 via-primary/[0.02] to-background flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <motion.div
-        className="w-full max-w-md space-y-8 p-8 bg-background rounded-lg shadow-lg border"
-        variants={staggerContainer}
-        initial="initial"
-        animate="animate"
-      >
-        <motion.div className="text-center" variants={fadeInUp}>
-          <h2 className="text-3xl font-bold tracking-tight text-foreground">Welcome Back</h2>
-          <p className="mt-2 text-sm text-muted-foreground">Sign in to your Raatum account</p>
-        </motion.div>
+    <div className="min-h-screen bg-gradient-to-b from-primary/5 via-primary/[0.02] to-background flex flex-col">
+      {/* Navigation Component */}
+      <Navigation isAuthenticated={false} />
 
-        <motion.div variants={fadeInUp}>
-          <LoginError />
-        </motion.div>
-
-        <Tabs defaultValue="password" className="w-full">
-          <motion.div variants={fadeInUp}>
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="email" className="flex items-center gap-2">
-                <Mail className="h-4 w-4" /> Magic Link
-              </TabsTrigger>
-              <TabsTrigger value="password" className="flex items-center gap-2">
-                <Lock className="h-4 w-4" /> Password
-              </TabsTrigger>
-            </TabsList>
+      {/* Main Content */}
+      <div className="flex flex-1 items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <motion.div
+          className="w-full max-w-md space-y-8 p-8 bg-background rounded-lg shadow-lg border"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <motion.div className="text-center" variants={fadeInUp}>
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">Welcome Back</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Sign in to your Raatum account</p>
           </motion.div>
 
-          <TabsContent value="email">
-            <motion.form
-              onSubmit={onEmailSubmit}
-              className="space-y-6"
-              variants={staggerContainer}
-              initial="initial"
-              animate="animate"
-            >
-              <motion.div variants={fadeInUp}>
-                <Label htmlFor="email-magic" className="text-foreground">Email</Label>
-                <Input
-                  id="email-magic"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  placeholder="you@example.com"
-                  className="mt-1 border-muted focus:ring-primary focus:border-primary"
-                />
-              </motion.div>
-              <motion.div variants={fadeInUp} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  type="submit"
-                  className="w-full bg-primary hover:bg-primary/90 font-semibold py-3 shadow-md"
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Sending Link...' : 'Send Magic Link'}
-                </Button>
-              </motion.div>
-            </motion.form>
-          </TabsContent>
+          <motion.div variants={fadeInUp}>
+            <LoginError />
+          </motion.div>
 
-          <TabsContent value="password">
-            <motion.form
-              onSubmit={onCredentialsSubmit}
-              className="space-y-6"
-              variants={staggerContainer}
-              initial="initial"
-              animate="animate"
-            >
-              <motion.div variants={fadeInUp}>
-                <Label htmlFor="email" className="text-foreground">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  placeholder="you@example.com"
-                  className="mt-1 border-muted focus:ring-primary focus:border-primary"
-                />
-              </motion.div>
-              <motion.div variants={fadeInUp}>
-                <Label htmlFor="password" className="text-foreground">Password</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  placeholder="••••••••"
-                  className="mt-1 border-muted focus:ring-primary focus:border-primary"
-                />
-              </motion.div>
-              <motion.div variants={fadeInUp} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  type="submit"
-                  className="w-full bg-primary hover:bg-primary/90 font-semibold py-3 shadow-md"
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Signing In...' : 'Sign In'}
-                </Button>
-              </motion.div>
-            </motion.form>
-          </TabsContent>
-        </Tabs>
+          <Tabs defaultValue="password" className="w-full">
+            <motion.div variants={fadeInUp}>
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="email" className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" /> Magic Link
+                </TabsTrigger>
+                <TabsTrigger value="password" className="flex items-center gap-2">
+                  <Lock className="h-4 w-4" /> Password
+                </TabsTrigger>
+              </TabsList>
+            </motion.div>
 
-        <motion.p className="text-center text-sm text-muted-foreground" variants={fadeInUp}>
-          Don’t have an account?{' '}
-          <Link href="/auth/register" className="font-medium text-primary hover:underline">
-            Sign up
-          </Link>
-        </motion.p>
-      </motion.div>
+            <TabsContent value="email">
+              <motion.form
+                onSubmit={onEmailSubmit}
+                className="space-y-6"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
+                <motion.div variants={fadeInUp}>
+                  <Label htmlFor="email-magic" className="text-foreground">Email</Label>
+                  <Input
+                    id="email-magic"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    placeholder="you@example.com"
+                    className="mt-1 border-muted focus:ring-primary focus:border-primary"
+                  />
+                </motion.div>
+                <motion.div variants={fadeInUp} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    type="submit"
+                    className="w-full bg-primary hover:bg-primary/90 font-semibold py-3 shadow-md"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Sending Link...' : 'Send Magic Link'}
+                  </Button>
+                </motion.div>
+              </motion.form>
+            </TabsContent>
+
+            <TabsContent value="password">
+              <motion.form
+                onSubmit={onCredentialsSubmit}
+                className="space-y-6"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
+                <motion.div variants={fadeInUp}>
+                  <Label htmlFor="email" className="text-foreground">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    placeholder="you@example.com"
+                    className="mt-1 border-muted focus:ring-primary focus:border-primary"
+                  />
+                </motion.div>
+                <motion.div variants={fadeInUp}>
+                  <Label htmlFor="password" className="text-foreground">Password</Label>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    placeholder="••••••••"
+                    className="mt-1 border-muted focus:ring-primary focus:border-primary"
+                  />
+                </motion.div>
+                <motion.div variants={fadeInUp} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    type="submit"
+                    className="w-full bg-primary hover:bg-primary/90 font-semibold py-3 shadow-md"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Signing In...' : 'Sign In'}
+                  </Button>
+                </motion.div>
+              </motion.form>
+            </TabsContent>
+          </Tabs>
+
+          <motion.p className="text-center text-sm text-muted-foreground" variants={fadeInUp}>
+            Don’t have an account?{' '}
+            <Link href="/auth/register" className="font-medium text-primary hover:underline">
+              Sign up
+            </Link>
+          </motion.p>
+        </motion.div>
+      </div>
     </div>
   );
 }

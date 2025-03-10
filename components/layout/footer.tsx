@@ -5,7 +5,7 @@ export function Footer() {
   return (
     <footer className="border-t bg-background text-foreground">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           {/* Raatum Branding */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Raatum</h3>
@@ -17,24 +17,24 @@ export function Footer() {
           {/* Product */}
           <div>
             <h4 className="font-medium mb-4">Product</h4>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/features" className="text-muted-foreground hover:text-foreground">
+                <Link href="/features" className="text-muted-foreground hover:text-foreground transition-colors">
                   Features
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="text-muted-foreground hover:text-foreground">
+                <Link href="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">
                   Pricing
                 </Link>
               </li>
               <li>
-                <Link href="/integrations" className="text-muted-foreground hover:text-foreground">
+                <Link href="/integrations" className="text-muted-foreground hover:text-foreground transition-colors">
                   Integrations
                 </Link>
               </li>
               <li>
-                <Link href="/how-it-works" className="text-muted-foreground hover:text-foreground">
+                <Link href="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
                   How It Works
                 </Link>
               </li>
@@ -44,19 +44,19 @@ export function Footer() {
           {/* Company */}
           <div>
             <h4 className="font-medium mb-4">Company</h4>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/about" className="text-muted-foreground hover:text-foreground">
+                <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">
                   About
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-muted-foreground hover:text-foreground">
+                <Link href="/blog" className="text-muted-foreground hover:text-foreground transition-colors">
                   Blog
                 </Link>
               </li>
               <li>
-                <Link href="/careers" className="text-muted-foreground hover:text-foreground">
+                <Link href="/careers" className="text-muted-foreground hover:text-foreground transition-colors">
                   Careers
                 </Link>
               </li>
@@ -66,19 +66,19 @@ export function Footer() {
           {/* Resources */}
           <div>
             <h4 className="font-medium mb-4">Resources</h4>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/docs" className="text-muted-foreground hover:text-foreground">
+                <Link href="/docs" className="text-muted-foreground hover:text-foreground transition-colors">
                   Documentation
                 </Link>
               </li>
               <li>
-                <Link href="/support" className="text-muted-foreground hover:text-foreground">
+                <Link href="/support" className="text-muted-foreground hover:text-foreground transition-colors">
                   Support
                 </Link>
               </li>
               <li>
-                <Link href="/status" className="text-muted-foreground hover:text-foreground">
+                <Link href="/status" className="text-muted-foreground hover:text-foreground transition-colors">
                   Status Page
                 </Link>
               </li>
@@ -88,19 +88,19 @@ export function Footer() {
           {/* Legal */}
           <div>
             <h4 className="font-medium mb-4">Legal</h4>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/privacy" className="text-muted-foreground hover:text-foreground">
+                <Link href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-muted-foreground hover:text-foreground">
+                <Link href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link href="/cookies" className="text-muted-foreground hover:text-foreground">
+                <Link href="/cookies" className="text-muted-foreground hover:text-foreground transition-colors">
                   Cookies
                 </Link>
               </li>
@@ -108,8 +108,15 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Raatum. All rights reserved.
+        <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>© {new Date().getFullYear()} Raatum. All rights reserved.</p>
+            <div className="flex items-center gap-4">
+              <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+              <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+              <Link href="/cookies" className="hover:text-foreground transition-colors">Cookies</Link>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

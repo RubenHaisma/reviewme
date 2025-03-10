@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { Navigation } from '@/components/layout/navigation';
 
 // Animation variants
 const fadeInUp = {
@@ -38,18 +39,26 @@ export default function LoginError() {
   if (!errorMessage) return null;
 
   return (
-    <motion.div
-      variants={fadeInUp}
-      initial="initial"
-      animate="animate"
-      className="mb-4 max-w-md mx-auto"
-    >
-      <Alert variant="destructive" className="shadow-md">
-        <ExclamationTriangleIcon className="h-5 w-5 text-destructive" />
-        <AlertDescription className="text-destructive-foreground">
-          {errorMessage}
-        </AlertDescription>
-      </Alert>
-    </motion.div>
+    <div className="min-h-screen bg-gradient-to-b from-primary/5 via-primary/[0.02] to-background flex flex-col">
+      {/* Navigation Component */}
+      <Navigation isAuthenticated={false} />
+
+      {/* Main Content */}
+      <div className="flex flex-1 items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <motion.div
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          className="mb-4 max-w-md w-full mx-auto"
+        >
+          <Alert variant="destructive" className="shadow-md">
+            <ExclamationTriangleIcon className="h-5 w-5 text-destructive" />
+            <AlertDescription className="text-destructive-foreground">
+              {errorMessage}
+            </AlertDescription>
+          </Alert>
+        </motion.div>
+      </div>
+    </div>
   );
 }
