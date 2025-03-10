@@ -527,7 +527,7 @@ export default function Home() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="text-white border-white px-6 py-6 border-2 hover:bg-blue-600/10 transition-all"
+                  className="text-black/80 border-white px-6 py-6 border-2 hover:bg-blue-600/10 transition-all"
                 >
                   Book a Demo
                 </Button>
