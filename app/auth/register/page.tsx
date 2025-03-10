@@ -133,7 +133,7 @@ export default function RegisterPage() {
           {/* Header */}
           <motion.div className="text-center space-y-2" variants={fadeInUp}>
             <CardTitle className="text-3xl font-bold tracking-tight text-foreground">
-              Join Raatum
+              Join OpiniFlow
             </CardTitle>
             <CardDescription className="text-muted-foreground">
               Create your account and start with your first 20 customers free!

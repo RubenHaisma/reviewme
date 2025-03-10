@@ -1,12 +1,12 @@
 # Calendly Integration Guide
 
 ## Overview
-Learn how to integrate Calendly with Raatum to automatically collect feedback after scheduled meetings.
+Learn how to integrate Calendly with OpiniFlow to automatically collect feedback after scheduled meetings.
 
 ## Prerequisites
 - A Calendly Professional or higher account
 - Admin access to your Calendly account
-- A Raatum account
+- A OpiniFlow account
 
 ## Setup Steps
 
@@ -18,8 +18,8 @@ Learn how to integrate Calendly with Raatum to automatically collect feedback af
    - API Token
    - Webhook Signing Key
 
-### 2. Configure Raatum Integration
-1. Log in to your Raatum dashboard
+### 2. Configure OpiniFlow Integration
+1. Log in to your OpiniFlow dashboard
 2. Go to "Settings" → "Integrations"
 3. Click "Connect" next to Calendly
 4. Enter your Calendly API token
@@ -28,9 +28,9 @@ Learn how to integrate Calendly with Raatum to automatically collect feedback af
 ### 3. Set Up Calendly Webhook
 1. In Calendly, go to "Integrations" → "Webhooks"
 2. Click "Create New Webhook"
-3. Enter your Raatum webhook URL:
+3. Enter your OpiniFlow webhook URL:
    ```
-   https://app.raatum.com/api/webhooks/calendly/[your-webhook-id]
+   https://app.OpiniFlow.com/api/webhooks/calendly/[your-webhook-id]
    ```
 4. Select these subscription events:
    - invitee.created
@@ -40,7 +40,7 @@ Learn how to integrate Calendly with Raatum to automatically collect feedback af
 ## Testing the Integration
 1. Create a test meeting in Calendly
 2. Schedule it with a test email
-3. Verify the appointment appears in Raatum
+3. Verify the appointment appears in OpiniFlow
 4. Check for the feedback request email
 
 ## Webhook Payload Example
@@ -84,6 +84,6 @@ Learn how to integrate Calendly with Raatum to automatically collect feedback af
 
 ## Support
 Need help?
-- Email: support@raatum.com
+- Email: support@OpiniFlow.com
 - Documentation: [/docs](/docs)
-- Help Center: https://help.raatum.com
+- Help Center: https://help.OpiniFlow.com

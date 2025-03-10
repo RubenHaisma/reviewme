@@ -53,7 +53,7 @@ export default function CareersPage() {
               className="text-4xl md:text-6xl font-bold text-foreground mb-6"
               variants={fadeInUp}
             >
-              Careers at Raatum
+              Careers at OpiniFlow
             </motion.h1>
             <motion.p
               className="text-xl text-muted-foreground max-w-2xl mx-auto"
@@ -90,7 +90,7 @@ export default function CareersPage() {
                 className="text-lg text-muted-foreground mb-6"
                 variants={fadeInUp}
               >
-                There are currently no open vacancies at Raatum. We’re always on the lookout for talented individuals, so feel free to check back later or reach out to us directly.
+                There are currently no open vacancies at OpiniFlow. We’re always on the lookout for talented individuals, so feel free to check back later or reach out to us directly.
               </motion.p>
               <motion.div
                 variants={fadeInUp}
@@ -125,7 +125,7 @@ export default function CareersPage() {
                 className="text-3xl font-bold text-foreground mb-12"
                 variants={fadeInUp}
               >
-                Why Work at Raatum?
+                Why Work at OpiniFlow?
               </motion.h2>
               <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {benefits.map((benefit, index) => (

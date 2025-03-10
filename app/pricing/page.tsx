@@ -181,7 +181,7 @@ export default function PricingPage() {
             <motion.div variants={fadeInUp}>
               <h3 className="text-lg font-semibold text-foreground mb-2">What happens after the free trial?</h3>
               <p className="text-muted-foreground">
-                After your 20 free customers, upgrade to Basic or Pro to keep using Raatum.
+                After your 20 free customers, upgrade to Basic or Pro to keep using OpiniFlow.
               </p>
             </motion.div>
             <motion.div variants={fadeInUp}>

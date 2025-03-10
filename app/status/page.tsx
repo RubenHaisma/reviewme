@@ -108,7 +108,7 @@ export default function StatusPage() {
               System Status
             </motion.h1>
             <motion.p className="text-lg text-muted-foreground" variants={fadeInUp}>
-              Real-time updates on Raatum.com service performance.
+              Real-time updates on OpiniFlow.com service performance.
             </motion.p>
           </motion.div>
         </div>

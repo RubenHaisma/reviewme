@@ -51,7 +51,7 @@ export default function TermsAndConditionsPage() {
               Last Updated: <Badge variant="secondary">March 08, 2025</Badge>
             </motion.p>
             <motion.p className="mt-4 text-muted-foreground" variants={fadeInUp}>
-              Please read these terms carefully before using Raatum.com. Your use of our service is governed by the
+              Please read these terms carefully before using OpiniFlow.com. Your use of our service is governed by the
               following conditions.
             </motion.p>
           </motion.div>
@@ -82,7 +82,7 @@ export default function TermsAndConditionsPage() {
                 </CardHeader>
                 <CardContent className="text-muted-foreground">
                   <p>
-                    By accessing or using Raatum.com (the &quot;Service&quot;), you agree to be bound by these Terms and Conditions
+                    By accessing or using OpiniFlow.com (the &quot;Service&quot;), you agree to be bound by these Terms and Conditions
                     (&quot;Terms&quot;) and our{' '}
                     <Link href="/privacy" className="text-primary hover:underline">
                       Privacy Policy
@@ -150,7 +150,7 @@ export default function TermsAndConditionsPage() {
                 </CardHeader>
                 <CardContent className="text-muted-foreground">
                   <p>
-                    All content, trademarks, and technology on the Service are owned by Raatum.com or its licensors. You are
+                    All content, trademarks, and technology on the Service are owned by OpiniFlow.com or its licensors. You are
                     granted a non-exclusive, non-transferable license to use the Service for personal or business purposes as
                     intended. You may not reproduce, distribute, or create derivative works without our permission.
                   </p>
@@ -267,7 +267,7 @@ export default function TermsAndConditionsPage() {
                   <p>For questions or concerns about these Terms, reach out to us at:</p>
                   <ul className="mt-2 space-y-2">
                     <li className="flex items-center">
-                      <Mail className="w-5 h-5 mr-2 text-primary" /> info@raatum.com
+                      <Mail className="w-5 h-5 mr-2 text-primary" /> info@OpiniFlow.com
                     </li>
                   </ul>
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="mt-4">

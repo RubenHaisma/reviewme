@@ -3,8 +3,8 @@ User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://raatum.com/sitemap.xml
-Sitemap: https://raatum.com/sitemap-blog.xml
+Sitemap: https://OpiniFlow.com/sitemap.xml
+Sitemap: https://OpiniFlow.com/sitemap-blog.xml
 
 # Disallow admin and private routes
 Disallow: /admin/

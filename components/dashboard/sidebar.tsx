@@ -50,7 +50,7 @@ export function Sidebar() {
     <div className="flex flex-col h-full">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
         <Link href="/dashboard" className="text-xl font-bold">
-          Raatum
+          OpiniFlow
         </Link>
         <div className="flex items-center gap-2">
           <Notifications />

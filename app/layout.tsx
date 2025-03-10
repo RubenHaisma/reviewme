@@ -9,12 +9,12 @@ const inter = Inter({ subsets: ['latin'] });
 
 // Enhanced metadata for better SEO
 export const metadata = {
-  metadataBase: new URL('https://raatum.com'),
+  metadataBase: new URL('https://OpiniFlow.com'),
   title: {
-    default: 'Raatum - Smart Review Management Platform | Boost Your Online Reputation',
-    template: '%s | Raatum'
+    default: 'OpiniFlow - Smart Review Management Platform | Boost Your Online Reputation',
+    template: '%s | OpiniFlow'
   },
-  description: 'Transform your customer feedback into growth with Raatum. Our AI-powered review management platform helps businesses collect, analyze, and leverage customer feedback to build trust and drive revenue. Start free with 20 customers.',
+  description: 'Transform your customer feedback into growth with OpiniFlow. Our AI-powered review management platform helps businesses collect, analyze, and leverage customer feedback to build trust and drive revenue. Start free with 20 customers.',
   keywords: [
     'review management',
     'customer feedback',
@@ -32,9 +32,9 @@ export const metadata = {
     'feedback analysis',
     'review automation'
   ],
-  authors: [{ name: 'Raatum Team' }],
-  creator: 'Raatum',
-  publisher: 'Raatum',
+  authors: [{ name: 'OpiniFlow Team' }],
+  creator: 'OpiniFlow',
+  publisher: 'OpiniFlow',
   formatDetection: {
     email: false,
     address: false,
@@ -43,24 +43,24 @@ export const metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://raatum.com',
-    siteName: 'Raatum',
-    title: 'Raatum - Transform Your Customer Reviews into Business Growth',
+    url: 'https://OpiniFlow.com',
+    siteName: 'OpiniFlow',
+    title: 'OpiniFlow - Transform Your Customer Reviews into Business Growth',
     description: 'Automate your review collection, turn feedback into insights, and boost your online reputation. Start free with 20 customers.',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Raatum - Smart Review Management Platform',
+        alt: 'OpiniFlow - Smart Review Management Platform',
       }
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Raatum - Smart Review Management Platform',
+    title: 'OpiniFlow - Smart Review Management Platform',
     description: 'Transform customer feedback into business growth. Start free with 20 customers.',
-    creator: '@RaatumHQ',
+    creator: '@OpiniFlowHQ',
     images: ['/twitter-image.jpg'],
   },
   robots: {
@@ -80,11 +80,11 @@ export const metadata = {
     yahoo: 'your-yahoo-verification-code',
   },
   alternates: {
-    canonical: 'https://raatum.com',
+    canonical: 'https://OpiniFlow.com',
     languages: {
-      'en-US': 'https://raatum.com',
-      'de-DE': 'https://raatum.com/de',
-      'es-ES': 'https://raatum.com/es',
+      'en-US': 'https://OpiniFlow.com',
+      'de-DE': 'https://OpiniFlow.com/de',
+      'es-ES': 'https://OpiniFlow.com/es',
     },
   },
 };
@@ -100,9 +100,9 @@ export const viewport = {
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'Raatum',
+  name: 'OpiniFlow',
   applicationCategory: 'BusinessApplication',
-  description: 'Raatum is an AI-powered review management platform that helps businesses collect, analyze, and leverage customer feedback to build trust and drive growth.',
+  description: 'OpiniFlow is an AI-powered review management platform that helps businesses collect, analyze, and leverage customer feedback to build trust and drive growth.',
   operatingSystem: 'Web',
   offers: {
     '@type': 'Offer',
@@ -128,7 +128,7 @@ const structuredData = {
       '@type': 'Person',
       name: 'Sarah Johnson',
     },
-    reviewBody: 'Raatum has transformed how we handle customer feedback. The automation and insights are incredible!',
+    reviewBody: 'OpiniFlow has transformed how we handle customer feedback. The automation and insights are incredible!',
   },
   image: '/logo.png',
   screenshot: '/dashboard-preview.png',
@@ -146,13 +146,13 @@ const structuredData = {
 const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'Raatum',
-  url: 'https://raatum.com',
-  logo: 'https://raatum.com/logo.png',
+  name: 'OpiniFlow',
+  url: 'https://OpiniFlow.com',
+  logo: 'https://OpiniFlow.com/logo.png',
   sameAs: [
-    'https://twitter.com/RaatumHQ',
-    'https://www.linkedin.com/company/raatum',
-    'https://www.facebook.com/RaatumHQ',
+    'https://twitter.com/OpiniFlowHQ',
+    'https://www.linkedin.com/company/OpiniFlow',
+    'https://www.facebook.com/OpiniFlowHQ',
   ],
   contactPoint: {
     '@type': 'ContactPoint',
@@ -239,7 +239,7 @@ export default function RootLayout({
         >
           <noscript>
             <div className="bg-yellow-100 p-4 text-center">
-              Please enable JavaScript to use all features of Raatum - The Smart Review Management Platform
+              Please enable JavaScript to use all features of OpiniFlow - The Smart Review Management Platform
             </div>
           </noscript>
 

@@ -1,7 +1,7 @@
 {
-    "name": "Raatum - Smart Review Management Platform",
-    "short_name": "Raatum",
-    "description": "Transform your customer feedback into business growth with Raatum's AI-powered review management platform.",
+    "name": "OpiniFlow - Smart Review Management Platform",
+    "short_name": "OpiniFlow",
+    "description": "Transform your customer feedback into business growth with OpiniFlow's AI-powered review management platform.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
@@ -55,7 +55,7 @@
     "related_applications": [
       {
         "platform": "web",
-        "url": "https://raatum.com"
+        "url": "https://OpiniFlow.com"
       }
     ],
     "prefer_related_applications": false,

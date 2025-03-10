@@ -48,7 +48,7 @@ export default function CookiesPage() {
                 className="text-lg text-muted-foreground"
                 variants={fadeInUp}
               >
-                Learn how we use cookies to enhance your experience on Raatum.com.
+                Learn how we use cookies to enhance your experience on OpiniFlow.com.
               </motion.p>
             </motion.div>
 
@@ -65,7 +65,7 @@ export default function CookiesPage() {
                   What Are Cookies?
                 </h2>
                 <p className="text-muted-foreground">
-                  Cookies are small text files stored on your device when you visit a website. They help us remember your preferences, improve site functionality, and analyze how you use our service. At Raatum.com, we use cookies to ensure a seamless and personalized experience.
+                  Cookies are small text files stored on your device when you visit a website. They help us remember your preferences, improve site functionality, and analyze how you use our service. At OpiniFlow.com, we use cookies to ensure a seamless and personalized experience.
                 </p>
               </motion.section>
 
@@ -102,7 +102,7 @@ export default function CookiesPage() {
                   Managing Cookies
                 </h2>
                 <p className="text-muted-foreground">
-                  You can control cookies through our consent tool, which appears when you first visit Raatum.com. Additionally, you can manage or delete cookies via your browser settings. Note that disabling essential cookies may affect site functionality.
+                  You can control cookies through our consent tool, which appears when you first visit OpiniFlow.com. Additionally, you can manage or delete cookies via your browser settings. Note that disabling essential cookies may affect site functionality.
                 </p>
               </motion.section>
 

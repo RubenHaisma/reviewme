@@ -118,7 +118,7 @@ export default function LoginPage() {
         >
           <motion.div className="text-center" variants={fadeInUp}>
             <h2 className="text-3xl font-bold tracking-tight text-foreground">Welcome Back</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Sign in to your Raatum account</p>
+            <p className="mt-2 text-sm text-muted-foreground">Sign in to your OpiniFlow account</p>
           </motion.div>
 
           <motion.div variants={fadeInUp}>

@@ -72,7 +72,7 @@ export default function ContactPage() {
                   <Mail className="w-6 h-6 text-primary mr-4 mt-1" />
                   <div>
                     <h3 className="font-semibold">Email</h3>
-                    <p className="text-muted-foreground">info@raatum.com</p>
+                    <p className="text-muted-foreground">info@OpiniFlow.com</p>
                   </div>
                 </div>
               </div>

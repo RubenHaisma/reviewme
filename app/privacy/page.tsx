@@ -51,7 +51,7 @@ export default function PrivacyPolicyPage() {
               Last Updated: <Badge variant="secondary">March 08, 2025</Badge>
             </motion.p>
             <motion.p className="mt-4 text-muted-foreground" variants={fadeInUp}>
-              At Raatum.com, we prioritize your privacy. Learn how we collect, use, and protect your data with transparency and care.
+              At OpiniFlow.com, we prioritize your privacy. Learn how we collect, use, and protect your data with transparency and care.
             </motion.p>
           </motion.div>
         </div>
@@ -81,7 +81,7 @@ export default function PrivacyPolicyPage() {
                 </CardHeader>
                 <CardContent className="text-muted-foreground">
                   <p>
-                    Welcome to Raatum.com (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). We’re a Netherlands-based company committed to protecting your privacy under the General Data Protection Regulation (GDPR) and Dutch law. This Privacy Policy outlines how we collect, process, and safeguard your personal data when you use our platform (the &quot;Service&quot;). By using the Service, you agree to this policy. If you don’t agree, please refrain from using it.
+                    Welcome to OpiniFlow.com (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). We’re a Netherlands-based company committed to protecting your privacy under the General Data Protection Regulation (GDPR) and Dutch law. This Privacy Policy outlines how we collect, process, and safeguard your personal data when you use our platform (the &quot;Service&quot;). By using the Service, you agree to this policy. If you don’t agree, please refrain from using it.
                   </p>
                 </CardContent>
               </Card>
@@ -95,11 +95,11 @@ export default function PrivacyPolicyPage() {
                 </CardHeader>
                 <CardContent className="text-muted-foreground">
                   <p>
-                    Raatum.com, located at Utrecht, Netherlands, is the data controller responsible for your personal data. Contact us at:
+                    OpiniFlow.com, located at Utrecht, Netherlands, is the data controller responsible for your personal data. Contact us at:
                   </p>
                   <ul className="mt-2 space-y-2">
                     <li className="flex items-center">
-                      <Mail className="w-5 h-5 mr-2 text-primary" /> info@raatum.com
+                      <Mail className="w-5 h-5 mr-2 text-primary" /> info@OpiniFlow.com
                     </li>
                   </ul>
                 </CardContent>
@@ -205,7 +205,7 @@ export default function PrivacyPolicyPage() {
                     <li>Object: Opt out of marketing or certain processing</li>
                   </ul>
                   <p className="mt-2">
-                    Exercise your rights by emailing <span className="text-primary">info@raatum.com</span>. You may also contact the Dutch Data Protection Authority (Autoriteit Persoonsgegevens) with complaints.
+                    Exercise your rights by emailing <span className="text-primary">info@OpiniFlow.com</span>. You may also contact the Dutch Data Protection Authority (Autoriteit Persoonsgegevens) with complaints.
                   </p>
                 </CardContent>
               </Card>
@@ -263,7 +263,7 @@ export default function PrivacyPolicyPage() {
                   <p>Have questions? Reach out to us:</p>
                   <ul className="mt-2 space-y-2">
                     <li className="flex items-center">
-                      <Mail className="w-5 h-5 mr-2 text-primary" /> info@raatum.com
+                      <Mail className="w-5 h-5 mr-2 text-primary" /> info@OpiniFlow.com
                     </li>
                   </ul>
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="mt-4">

@@ -104,7 +104,7 @@ export default function IntegrationsPage() {
               className="text-xl text-muted-foreground max-w-2xl mx-auto"
               variants={fadeInUp}
             >
-              Connect Raatum with your tools to streamline feedback collection and insights.
+              Connect OpiniFlow with your tools to streamline feedback collection and insights.
             </motion.p>
           </div>
         </motion.section>

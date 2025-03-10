@@ -1,12 +1,12 @@
 # Acuity Scheduling Integration Guide
 
 ## Overview
-This guide explains how to integrate your Acuity Scheduling account with Raatum to automatically collect customer feedback after appointments.
+This guide explains how to integrate your Acuity Scheduling account with OpiniFlow to automatically collect customer feedback after appointments.
 
 ## Prerequisites
 - An active Acuity Scheduling account
 - Admin access to your Acuity account
-- A Raatum account
+- A OpiniFlow account
 
 ## Setup Steps
 
@@ -18,8 +18,8 @@ This guide explains how to integrate your Acuity Scheduling account with Raatum 
    - User ID
    - API Key
 
-### 2. Configure Raatum Integration
-1. Log in to your Raatum dashboard
+### 2. Configure OpiniFlow Integration
+1. Log in to your OpiniFlow dashboard
 2. Navigate to "Settings" → "Integrations"
 3. Click "Connect" next to Acuity Scheduling
 4. Enter your Acuity API credentials
@@ -28,9 +28,9 @@ This guide explains how to integrate your Acuity Scheduling account with Raatum 
 ### 3. Configure Webhook in Acuity
 1. In Acuity, go to "Settings" → "Integrations" → "Webhooks"
 2. Click "Add New Webhook"
-3. Enter your Raatum webhook URL:
+3. Enter your OpiniFlow webhook URL:
    ```
-   https://app.raatum.com/api/webhooks/acuity/[your-webhook-id]
+   https://app.OpiniFlow.com/api/webhooks/acuity/[your-webhook-id]
    ```
 4. Select the following events:
    - Appointment Scheduled
@@ -40,7 +40,7 @@ This guide explains how to integrate your Acuity Scheduling account with Raatum 
 
 ## Testing the Integration
 1. Create a test appointment in Acuity
-2. Check your Raatum dashboard's "Recent Activity" section
+2. Check your OpiniFlow dashboard's "Recent Activity" section
 3. Verify that the appointment was received
 4. Check that the feedback request email was sent
 
@@ -82,5 +82,5 @@ This guide explains how to integrate your Acuity Scheduling account with Raatum 
 ## Support
 If you need assistance:
 1. Check our [documentation](/docs)
-2. Contact support at support@raatum.com
-3. Visit our [help center](https://help.raatum.com)
+2. Contact support at support@OpiniFlow.com
+3. Visit our [help center](https://help.OpiniFlow.com)

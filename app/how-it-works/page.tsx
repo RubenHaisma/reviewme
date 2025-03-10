@@ -48,7 +48,7 @@ export default function HowItWorksPage() {
               className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl mb-6"
               variants={fadeInUp}
             >
-              How Raatum Works
+              How OpiniFlow Works
             </motion.h1>
             <motion.p className="text-lg text-muted-foreground mb-12" variants={fadeInUp}>
               A simple, automated way to collect and manage customer reviews.
@@ -203,7 +203,7 @@ export default function HowItWorksPage() {
             className="text-lg text-muted-foreground mb-8"
             variants={fadeInUp}
           >
-            Join thousands of businesses using Raatum to boost their online reputation.
+            Join thousands of businesses using OpiniFlow to boost their online reputation.
           </motion.p>
           <motion.div
             className="flex flex-wrap justify-center gap-4"

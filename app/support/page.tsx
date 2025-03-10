@@ -119,7 +119,7 @@ export default function SupportPage() {
             <motion.div variants={fadeInUp}>
               <Badge className="mb-4 bg-primary/20 text-primary">Support Hub</Badge>
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground">
-                Raatum Support Center
+                OpiniFlow Support Center
               </h1>
               <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
                 We’re here to assist you with any questions or issues. Explore our resources or contact us directly.
@@ -167,7 +167,7 @@ export default function SupportPage() {
               Support Options
             </h2>
             <p className="mt-2 max-w-2xl mx-auto text-muted-foreground">
-              Choose the best way to get help with Raatum.
+              Choose the best way to get help with OpiniFlow.
             </p>
           </motion.div>
 
@@ -183,7 +183,7 @@ export default function SupportPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Reach out to us at <strong>support@raatum.com</strong>. We respond within 24 hours during business days.
+                    Reach out to us at <strong>support@OpiniFlow.com</strong>. We respond within 24 hours during business days.
                   </p>
                 </CardContent>
                 <CardFooter>
@@ -260,7 +260,7 @@ export default function SupportPage() {
               Documentation
             </h2>
             <p className="mt-2 max-w-2xl mx-auto text-muted-foreground">
-              Get started and master Raatum with our detailed guides.
+              Get started and master OpiniFlow with our detailed guides.
             </p>
           </motion.div>
 
@@ -269,7 +269,7 @@ export default function SupportPage() {
               <AccordionTrigger>Getting Started</AccordionTrigger>
               <AccordionContent>
                 <p className="text-muted-foreground">
-                  Follow our step-by-step guide to set up Raatum and start collecting feedback.
+                  Follow our step-by-step guide to set up OpiniFlow and start collecting feedback.
                 </p>
                 <Link href="/docs" className="mt-2 inline-block text-primary hover:underline">
                   Read Full Guide
@@ -280,7 +280,7 @@ export default function SupportPage() {
               <AccordionTrigger>Integrations</AccordionTrigger>
               <AccordionContent>
                 <p className="text-muted-foreground">
-                  Learn how to connect Raatum with tools like VertiMart and Calendly.
+                  Learn how to connect OpiniFlow with tools like VertiMart and Calendly.
                 </p>
                 <Link href="/integrations" className="mt-2 inline-block text-primary hover:underline">
                   Explore Integrations
@@ -321,7 +321,7 @@ export default function SupportPage() {
 
           <Accordion type="single" collapsible className="max-w-3xl mx-auto">
             <AccordionItem value="setup">
-              <AccordionTrigger>How do I set up Raatum?</AccordionTrigger>
+              <AccordionTrigger>How do I set up OpiniFlow?</AccordionTrigger>
               <AccordionContent>
                 <p className="text-muted-foreground">
                   Sign up, configure your company settings, and integrate with your scheduling tool. See our{' '}

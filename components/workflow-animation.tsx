@@ -15,32 +15,32 @@ interface WorkflowAnimationProps {
 }
 
 export function WorkflowAnimation({ steps, theme = 'blue' }: WorkflowAnimationProps) {
-  // Theme configuration - professional and subdued
+  // Theme configuration aligned with Navigation component
   const themeColors = {
     blue: {
-      primary: "#3b82f6",
-      secondary: "#93c5fd",
-      line: "#bfdbfe",
-      progressLine: "from-blue-500 to-blue-600",
-      iconBg: "#f0f9ff",
-      cardBg: "bg-white",
-      border: "border-blue-100",
+      primary: "from-blue-600 to-cyan-500",
+      textPrimary: "text-blue-600",
+      text: "text-gray-600",
+      line: "#e5e7eb",
+      iconBg: "bg-white",
+      cardBg: "bg-white/90",
+      border: "border-gray-100",
     },
     gray: {
-      primary: "#4b5563",
-      secondary: "#9ca3af",
+      primary: "from-gray-600 to-gray-500",
+      textPrimary: "text-gray-600",
+      text: "text-gray-600",
       line: "#e5e7eb",
-      progressLine: "from-gray-500 to-gray-600",
-      iconBg: "#f9fafb",
-      cardBg: "bg-white",
+      iconBg: "bg-white",
+      cardBg: "bg-white/90",
       border: "border-gray-100",
     },
     minimal: {
-      primary: "#1e293b",
-      secondary: "#64748b",
+      primary: "from-slate-700 to-slate-800",
+      textPrimary: "text-slate-700",
+      text: "text-gray-600",
       line: "#cbd5e1",
-      progressLine: "from-slate-700 to-slate-800",
-      iconBg: "#f8fafc",
+      iconBg: "bg-white",
       cardBg: "bg-transparent",
       border: "border-transparent",
     },
@@ -48,7 +48,19 @@ export function WorkflowAnimation({ steps, theme = 'blue' }: WorkflowAnimationPr
 
   const colors = themeColors[theme];
 
-  // Animation variants
+  // Simple animation variants
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      }
+    }
+  };
+
   const stepVariants = {
     hidden: { opacity: 0, y: 10 },
     visible: (i: number) => ({
@@ -62,26 +74,27 @@ export function WorkflowAnimation({ steps, theme = 'blue' }: WorkflowAnimationPr
     }),
   };
 
-  const iconVariants = {
-    initial: { scale: 1 },
-    hover: { scale: 1.05, transition: { duration: 0.2, ease: "easeInOut" } },
-  };
-
   return (
-    <div className="relative py-8 px-4 overflow-hidden rounded-xl bg-white shadow-md border border-gray-100">
-      {/* Mobile Vertical Layout (hidden on lg and above) */}
+    <motion.div 
+      className={`relative py-8 px-4 overflow-hidden rounded-xl ${colors.cardBg} backdrop-blur-xl shadow-md border ${colors.border}`}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={containerVariants}
+    >
+      {/* Mobile Vertical Layout */}
       <div className="block lg:hidden relative">
         <div
           className="absolute top-0 left-6 w-0.5 h-full"
           style={{ backgroundColor: colors.line }}
         />
         <motion.div
-          className={`absolute top-0 left-6 w-1 bg-gradient-to-b ${colors.progressLine} -translate-x-1/2 origin-top rounded-sm`}
+          className={`absolute top-0 left-6 w-1 bg-gradient-to-b ${colors.primary} -translate-x-1/2 origin-top rounded-full`}
           style={{ height: "calc(100% - 8px)" }}
           initial={{ scaleY: 0 }}
           whileInView={{ scaleY: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 1, ease: "easeOut" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         />
         <div className="space-y-6">
           {steps.map((step, index) => {
@@ -91,40 +104,26 @@ export function WorkflowAnimation({ steps, theme = 'blue' }: WorkflowAnimationPr
                 key={`mobile-${step.title}`}
                 custom={index}
                 variants={stepVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
                 className="relative flex items-start pl-12"
               >
-                <motion.div
-                  className={`absolute left-0 top-0 w-12 h-12 rounded-full ${colors.border} flex items-center justify-center`}
-                  style={{
-                    backgroundColor: colors.iconBg,
-                    border: `1px solid ${colors.line}`,
-                  }}
-                  whileHover="hover"
-                  initial="initial"
-                  variants={iconVariants}
+                <div
+                  className={`absolute left-0 top-0 w-12 h-12 rounded-full border ${colors.border} ${colors.iconBg} flex items-center justify-center`}
                 >
                   <div
-                    className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium text-white"
-                    style={{ backgroundColor: colors.primary }}
+                    className={`absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-r ${colors.primary} flex items-center justify-center text-xs font-medium text-white`}
                   >
                     {index + 1}
                   </div>
-                  <Icon className="w-6 h-6" style={{ color: colors.primary }} />
-                </motion.div>
+                  <Icon className={`w-6 h-6 ${colors.textPrimary}`} />
+                </div>
                 <div className="pt-1">
                   <h3
-                    className="text-base font-semibold mb-1"
-                    style={{ color: colors.primary }}
+                    className={`text-base font-semibold mb-1 ${colors.textPrimary} relative group`}
                   >
                     {step.title}
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300 ease-in-out" />
                   </h3>
-                  <p
-                    className="text-xs leading-relaxed"
-                    style={{ color: colors.secondary }}
-                  >
+                  <p className={`text-sm leading-relaxed ${colors.text}`}>
                     {step.description}
                   </p>
                 </div>
@@ -134,15 +133,22 @@ export function WorkflowAnimation({ steps, theme = 'blue' }: WorkflowAnimationPr
         </div>
       </div>
 
-      {/* Desktop Horizontal Layout (hidden below lg) */}
+      {/* Desktop Horizontal Layout */}
       <div className="hidden lg:block relative">
-        <motion.div
-          className={`absolute top-16 left-0 h-1 bg-gradient-to-r ${colors.progressLine} origin-left rounded-sm`}
-          initial={{ scaleX: 0 }}
-          whileInView={{ scaleX: 0.98 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+        <div
+          className="absolute top-16 left-0 w-full h-0.5"
+          style={{ backgroundColor: colors.line }}
         />
+        
+        <motion.div
+          className={`absolute top-16 left-0 h-1 bg-gradient-to-r ${colors.primary} origin-left rounded-full`}
+          style={{ width: "98%" }}
+          initial={{ scaleX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        />
+        
         <div className="grid grid-cols-5 gap-6">
           {steps.map((step, index) => {
             const Icon = step.icon;
@@ -151,53 +157,22 @@ export function WorkflowAnimation({ steps, theme = 'blue' }: WorkflowAnimationPr
                 key={step.title}
                 custom={index}
                 variants={stepVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
                 className="relative flex flex-col items-center text-center"
               >
-                <div
-                  className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white"
-                  style={{ backgroundColor: colors.primary }}
-                >
-                  {index + 1}
+                <div className={`w-14 h-14 rounded-full border ${colors.border} ${colors.iconBg} flex items-center justify-center mb-3`}>
+                  <div
+                    className={`absolute -top-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-r ${colors.primary} flex items-center justify-center text-xs font-medium text-white`}
+                  >
+                    {index + 1}
+                  </div>
+                  <Icon className={`w-7 h-7 ${colors.textPrimary}`} />
                 </div>
-                <motion.div
-                  className={`w-14 h-14 rounded-full ${colors.border} flex items-center justify-center mb-3`}
-                  style={{
-                    backgroundColor: colors.iconBg,
-                    border: `1px solid ${colors.line}`,
-                  }}
-                  whileHover="hover"
-                  initial="initial"
-                  variants={iconVariants}
-                >
-                  <Icon className="w-7 h-7" style={{ color: colors.primary }} />
-                </motion.div>
-                {index < steps.length - 1 && (
-                  <motion.div
-                    className="absolute top-7 left-1/2 h-0.5"
-                    style={{
-                      backgroundColor: colors.line,
-                      width: "calc(100% - 2rem)",
-                      transform: "translateX(calc(50% + 1rem))",
-                    }}
-                    initial={{ scaleX: 0, originX: 0 }}
-                    whileInView={{ scaleX: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 + 0.4, duration: 0.4, ease: "easeOut" }}
-                  />
-                )}
-                <h3
-                  className="text-lg font-semibold mb-2"
-                  style={{ color: colors.primary }}
-                >
+                
+                <h3 className={`text-lg font-semibold mb-2 ${colors.textPrimary} relative group`}>
                   {step.title}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-500 group-hover:w-full transition-all duration-300 ease-in-out" />
                 </h3>
-                <p
-                  className="text-sm max-w-xs leading-relaxed"
-                  style={{ color: colors.secondary }}
-                >
+                <p className={`text-sm max-w-xs leading-relaxed ${colors.text}`}>
                   {step.description}
                 </p>
               </motion.div>
@@ -217,6 +192,6 @@ export function WorkflowAnimation({ steps, theme = 'blue' }: WorkflowAnimationPr
           <span className="hidden 2xl:inline">2xl</span>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

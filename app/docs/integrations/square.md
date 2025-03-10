@@ -1,12 +1,12 @@
 # Square Appointments Integration Guide
 
 ## Overview
-Connect Square Appointments with Raatum to automatically collect customer feedback after appointments.
+Connect Square Appointments with OpiniFlow to automatically collect customer feedback after appointments.
 
 ## Prerequisites
 - Square Appointments subscription
 - Square developer account
-- Raatum account
+- OpiniFlow account
 
 ## Setup Steps
 
@@ -18,8 +18,8 @@ Connect Square Appointments with Raatum to automatically collect customer feedba
    - Location ID
    - Webhook Signing Key
 
-### 2. Raatum Configuration
-1. Open Raatum dashboard
+### 2. OpiniFlow Configuration
+1. Open OpiniFlow dashboard
 2. Go to "Settings" → "Integrations"
 3. Select Square Appointments
 4. Enter credentials
@@ -30,7 +30,7 @@ Connect Square Appointments with Raatum to automatically collect customer feedba
 2. Go to "Webhooks"
 3. Add webhook URL:
    ```
-   https://app.raatum.com/api/webhooks/square/[your-webhook-id]
+   https://app.OpiniFlow.com/api/webhooks/square/[your-webhook-id]
    ```
 4. Subscribe to events:
    - `appointment.created`
@@ -82,6 +82,6 @@ Connect Square Appointments with Raatum to automatically collect customer feedba
 - Regular security audits
 
 ## Support
-- Email: support@raatum.com
+- Email: support@OpiniFlow.com
 - Documentation: [/docs](/docs)
-- Help Center: https://help.raatum.com
+- Help Center: https://help.OpiniFlow.com

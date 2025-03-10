@@ -67,7 +67,7 @@ export function InteractiveDemo() {
               </h2>
               
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                See how Raatum makes collecting and managing reviews effortless
+                See how OpiniFlow makes collecting and managing reviews effortless
               </p>
 
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -184,7 +184,7 @@ export function InteractiveDemo() {
               variants={fadeInUp}
             >
               <p className="text-sm text-muted-foreground mb-4">
-                This is how your customers experience Raatum
+                This is how your customers experience OpiniFlow
               </p>
               <Link href="/auth/register">
                 <Button variant="outline">

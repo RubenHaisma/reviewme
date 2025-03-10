@@ -47,7 +47,7 @@ function generateSupportConfirmationEmail(name: string, ticketId: string, subjec
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h1 style="color: #2563eb;">Support Request Received</h1>
       <p>Hello ${name},</p>
-      <p>Thank you for contacting Raatum Support. We’ve received your request and will respond within 24 hours during business days.</p>
+      <p>Thank you for contacting OpiniFlow Support. We’ve received your request and will respond within 24 hours during business days.</p>
       <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
         <p style="margin: 0;"><strong>Ticket ID:</strong> ${ticketId}</p>
         <p style="margin: 10px 0 0;"><strong>Subject:</strong> ${subject || 'No subject provided'}</p>
@@ -57,7 +57,7 @@ function generateSupportConfirmationEmail(name: string, ticketId: string, subjec
         <p style="margin: 0;">${message.replace(/\n/g, '<br>')}</p>
       </div>
       <p>Reply to this email if you have additional details to add.</p>
-      <p>Best regards,<br>The Raatum Support Team</p>
+      <p>Best regards,<br>The OpiniFlow Support Team</p>
       <hr style="border: 1px solid #eee; margin: 20px 0;" />
       <p style="font-size: 12px; color: #666;">If you didn’t submit this request, please ignore this email.</p>
     </div>
@@ -127,7 +127,7 @@ export async function sendFeedbackEmail({
   `;
 
   const mailOptions = {
-    from: 'info@raatum.com',
+    from: 'info@OpiniFlow.com',
     to,
     subject,
     html: template || defaultTemplate, // Use provided template or default
@@ -175,7 +175,7 @@ export async function sendReviewRequestEmail({
   `;
 
   const mailOptions = {
-    from: 'info@raatum.com',
+    from: 'info@OpiniFlow.com',
     to,
     subject: subject || `How was your experience with ${companyName}?`,
     html: template
@@ -196,12 +196,12 @@ export async function sendVerificationEmail(email: string, token: string) {
   const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify?token=${token}`;
 
   const mailOptions = {
-    from: "info@raatum.com",
+    from: "info@OpiniFlow.com",
     to: email,
     subject: 'Verify your email address',
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Welcome to Raatum!</h2>
+        <h2>Welcome to OpiniFlow!</h2>
         <p>Please verify your email address by clicking the button below:</p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="${verificationUrl}" style="
@@ -216,7 +216,7 @@ export async function sendVerificationEmail(email: string, token: string) {
           </a>
         </div>
         <p>If you didn't create an account, you can safely ignore this email.</p>
-        <p>Best regards,<br>The Raatum Team</p>
+        <p>Best regards,<br>The OpiniFlow Team</p>
       </div>
     `,
   };
@@ -253,7 +253,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
           </a>
         </div>
         <p>If you didn't request a password reset, you can safely ignore this email.</p>
-        <p>Best regards,<br>The Raatum Team</p>
+        <p>Best regards,<br>The OpiniFlow Team</p>
       </div>
     `,
   };
@@ -281,7 +281,7 @@ export async function sendSupportRequestEmail({
       : generateSupportConfirmationEmail(name, ticketId, subject, message);
 
   const mailOptions = {
-    from: 'info@raatum.com',
+    from: 'info@OpiniFlow.com',
     to,
     subject: to === process.env.SUPPORT_EMAIL ? `Support Request: ${subject}` : 'Support Request Received',
     html,

@@ -107,7 +107,7 @@ export default function DashboardClient({
         <motion.div variants={fadeInUp} className="mt-12 text-center">
           <Card className="p-6 bg-muted border">
             <h3 className="text-lg font-semibold mb-2 text-foreground">
-              Unlock More with Raatum Pro
+              Unlock More with OpiniFlow Pro
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
               Upgrade to a paid plan to access advanced analytics, custom feedback forms, and unlimited responses. Start growing your business today!

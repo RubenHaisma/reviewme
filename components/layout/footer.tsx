@@ -6,9 +6,9 @@ export function Footer() {
     <footer className="border-t bg-background text-foreground">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-          {/* Raatum Branding */}
+          {/* OpiniFlow Branding */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Raatum</h3>
+            <h3 className="text-lg font-semibold">OpiniFlow</h3>
             <p className="text-sm text-muted-foreground">
               Professional review management platform for businesses of all sizes.
             </p>
@@ -110,7 +110,7 @@ export function Footer() {
 
         <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p>© {new Date().getFullYear()} Raatum. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} OpiniFlow. All rights reserved.</p>
             <div className="flex items-center gap-4">
               <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
               <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>

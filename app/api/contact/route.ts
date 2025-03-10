@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     // Send email to admin
     console.log("Sending email to admin...");
     const adminMailInfo = await transporter.sendMail({
-      from: "info@raatum.com",
+      from: "info@OpiniFlow.com",
       to: process.env.GMAIL_USER, // Send to admin email
       replyTo: email,
       subject: `Contact Form: ${subject}`,
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     // Send confirmation email to user
     console.log("Sending confirmation email to user...");
     const userMailInfo = await transporter.sendMail({
-      from: "info@raatum.com",
+      from: "info@OpiniFlow.com",
       to: email,
       subject: "We've received your message",
       html: `
@@ -78,7 +78,7 @@ export async function POST(req: Request) {
             <p><strong>Subject:</strong> ${subject}</p>
             <p style="white-space: pre-wrap;">${message}</p>
           </div>
-          <p>Best regards,<br>The Raatum Team</p>
+          <p>Best regards,<br>The OpiniFlow Team</p>
         </div>
       `,
     });

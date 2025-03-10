@@ -8,7 +8,7 @@ async function main() {
   const hashedPasswordAdmin = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'admin123', 10);
   const adminUser = await prisma.user.create({
     data: {
-      email: 'admin@raatum.com',
+      email: 'admin@OpiniFlow.com',
       name: 'Admin',
       password: hashedPasswordAdmin,
       role: 'ADMIN',
