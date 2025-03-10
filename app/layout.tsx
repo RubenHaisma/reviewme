@@ -49,7 +49,7 @@ export const metadata = {
     description: 'Automate your review collection, turn feedback into insights, and boost your online reputation. Start free with 20 customers.',
     images: [
       {
-        url: '/og-image.jpg',
+        url: '/logo.png',
         width: 1200,
         height: 630,
         alt: 'OpiniFlow - Smart Review Management Platform',
@@ -61,7 +61,7 @@ export const metadata = {
     title: 'OpiniFlow - Smart Review Management Platform',
     description: 'Transform customer feedback into business growth. Start free with 20 customers.',
     creator: '@OpiniFlowHQ',
-    images: ['/twitter-image.jpg'],
+    images: ['/logo.png'],
   },
   robots: {
     index: true,
